@@ -2,10 +2,10 @@
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3FF6D930E6F886968BCE',
+    id: '3FE5AC70777D18DD7AC9',
     participant: undefined
   },
-  messageTimestamp: 1728576138,
+  messageTimestamp: 1728610263,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
@@ -19,9 +19,9 @@
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_abebe22f-6532-4039-8b4f-80fda257ed49',
-  keyword: 'key_a0906de0-afc0-4757-bbed-5ea270f0045d',
-  answer: '🙌 Hola bienvenido a este *Chatbot*',
+  ref: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
+  keyword: 'key_222db4fb-fa09-4201-b6b1-31d66acd34e7',
+  answer: 'Hola bienvenido al ChatBot de Eilyn Garcia Fotografía*',
   options: {
     media: null,
     buttons: [],
@@ -34,15 +34,15 @@
     keyword: {},
     callback: false
   },
-  refSerialize: '902a3ee68a4760db0a82dfabbcb5d93c'
+  refSerialize: '9f1b4838fc97da72c7ceec29568a83dc'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_2b73f815-cb8e-4ca8-96c2-78381382c052',
-  keyword: 'ans_abebe22f-6532-4039-8b4f-80fda257ed49',
-  answer: 'te comparto los siguientes links de interes sobre el proyecto\n' +
-    '👉 *doc* para ver la documentación\n' +
-    '👉 *gracias*  para ver la lista de videos\n' +
-    '👉 *discord* unirte al discord',
+  ref: 'ans_8fe36e46-5e9d-4f85-87a9-b615439277a8',
+  keyword: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
+  answer: '¿En qué puedo ayudarle?\n' +
+    '👉 Responda *Contratar servicios* para contratar alguno de nuestros paquetes fotográficos\n' +
+    '👉 Responda *Consultar información*  para consultar información acerca de nuestros servicios\n' +
+    '👉 Responda *Hablar con un empleado* para redirigirlo con un empleado',
   options: {
     media: null,
     buttons: [],
@@ -51,14 +51,262 @@
     delay: 0,
     idle: null,
     ref: null,
-    nested: [
-      [Object], [Object],
-      [Object], [Object],
-      [Object], [Object],
-      [Object], [Object]
-    ],
+    nested: [ [Object], [Object], [Object] ],
     keyword: {},
     callback: false
   },
-  refSerialize: 'ad03dc21f326c28234a713f89c7caf28'
+  refSerialize: '4829322636e93114f0bde9a7e5c72a51'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '5216681163510@s.whatsapp.net',
+    fromMe: false,
+    id: '3FD3584C6513239852E3',
+    participant: undefined
+  },
+  messageTimestamp: 1728610268,
+  pushName: 'Erick',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Contratar servicios',
+      contextInfo: [ContextInfo]
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'Contratar servicios',
+  from: '5216681163510'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
+  keyword: 'key_01d07c45-18c7-463c-8e3e-701a8ff0aa37',
+  answer: 'Gracias por escoger nuestros servicios fotográficos',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: 'a369c5f0b62f5a084a83139e611ec89b'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_11d44bc8-8aaa-4551-b655-853e0e881803',
+  keyword: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
+  answer: 'Para comenenzar, ¿por qué no nos dice el nombre de la persona a quién le estaremos tomando fotos?',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '6da4aee7f4104277954ed9911eb97131'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '5216681163510@s.whatsapp.net',
+    fromMe: false,
+    id: '3FB3CD2D4850FE879F38',
+    participant: undefined
+  },
+  messageTimestamp: 1728610275,
+  pushName: 'Erick',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage { text: 'Roberto', contextInfo: [ContextInfo] },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'Roberto',
+  from: '5216681163510'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_5dcd938f-ed51-4a12-bdce-97216a4530a3',
+  keyword: 'key_3b10f078-4078-457c-89b4-f7d4a4ca16f1',
+  answer: 'EL QUE TE DEJO EL CULO ABIERTO, PENDEJO',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '6179ebd3badbf29f21440342d0efe5a6'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '5216681163510@s.whatsapp.net',
+    fromMe: false,
+    id: '3F9950605C956EA173A7',
+    participant: undefined
+  },
+  messageTimestamp: 1728610293,
+  pushName: 'Erick',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage { text: 'Hola', contextInfo: [ContextInfo] },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'Hola',
+  from: '5216681163510'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
+  keyword: 'key_222db4fb-fa09-4201-b6b1-31d66acd34e7',
+  answer: 'Hola bienvenido al ChatBot de Eilyn Garcia Fotografía*',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '9f1b4838fc97da72c7ceec29568a83dc'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_8fe36e46-5e9d-4f85-87a9-b615439277a8',
+  keyword: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
+  answer: '¿En qué puedo ayudarle?\n' +
+    '👉 Responda *Contratar servicios* para contratar alguno de nuestros paquetes fotográficos\n' +
+    '👉 Responda *Consultar información*  para consultar información acerca de nuestros servicios\n' +
+    '👉 Responda *Hablar con un empleado* para redirigirlo con un empleado',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [ [Object], [Object], [Object] ],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '4829322636e93114f0bde9a7e5c72a51'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '5216681163510@s.whatsapp.net',
+    fromMe: false,
+    id: '3FB3BE63E4299B709BD8',
+    participant: undefined
+  },
+  messageTimestamp: 1728610297,
+  pushName: 'Erick',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Contratar servicios',
+      contextInfo: [ContextInfo]
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'Contratar servicios',
+  from: '5216681163510'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
+  keyword: 'key_01d07c45-18c7-463c-8e3e-701a8ff0aa37',
+  answer: 'Gracias por escoger nuestros servicios fotográficos',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: 'a369c5f0b62f5a084a83139e611ec89b'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_11d44bc8-8aaa-4551-b655-853e0e881803',
+  keyword: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
+  answer: 'Para comenenzar, ¿por qué no nos dice el nombre de la persona a quién le estaremos tomando fotos?',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '6da4aee7f4104277954ed9911eb97131'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '5216681163510@s.whatsapp.net',
+    fromMe: false,
+    id: '3F8EDA610AED19A54DC0',
+    participant: undefined
+  },
+  messageTimestamp: 1728610301,
+  pushName: 'Erick',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage { text: 'Roberto', contextInfo: [ContextInfo] },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'Roberto',
+  from: '5216681163510'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_5dcd938f-ed51-4a12-bdce-97216a4530a3',
+  keyword: 'key_3b10f078-4078-457c-89b4-f7d4a4ca16f1',
+  answer: 'EL QUE TE DEJO EL CULO ABIERTO, PENDEJO',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: false
+  },
+  refSerialize: '6179ebd3badbf29f21440342d0efe5a6'
 }

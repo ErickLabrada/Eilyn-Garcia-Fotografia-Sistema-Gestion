@@ -17,49 +17,82 @@ const flowDocs = addKeyword(['doc', 'documentacion', 'documentación']).addAnswe
     [flowSecundario]
 )
 
-const flowTuto = addKeyword(['tutorial', 'tuto']).addAnswer(
+const ending = addKeyword([]).addAnswer(
+    ["Genial, en breves recibirá un mensaje confirmando la cita :D"],
+    null,
+    null,
+    []
+)
+
+const askDate = addKeyword([]).addAnswer(
     [
-        '🙌 Aquí encontras un ejemplo rapido',
-        'https://bot-whatsapp.netlify.app/docs/example/',
-        '\n*2* Para siguiente paso.',
+        "Perfecto!"
+    ]).addAnswer(["Ahora, en qué día y a qué hora es el evento?"],
+    null,
+    null,
+    [ending]
+)
+
+const askBundle = addKeyword([]).addAnswer(
+    [
+        "Para su tipo de evento ofrecemos los siguientes paquetes"
+    ]).addAnswer(["Lista"]).addAnswer(["¿Cuál desea contratar?"],
+    null,
+    null,
+    [askDate]
+)
+
+
+const askOtros = addKeyword(["Otros", "otro"]).addAnswer(
+    [
+        "Cómo se llama el tipo de evento?"
     ],
     null,
     null,
-    [flowSecundario]
+    [askBundle]
 )
 
-const flowGracias = addKeyword(['gracias', 'grac']).addAnswer(
-    [
-        '🚀 Puedes aportar tu granito de arena a este proyecto',
-        '[*opencollective*] https://opencollective.com/bot-whatsapp',
-        '[*buymeacoffee*] https://www.buymeacoffee.com/leifermendez',
-        '[*patreon*] https://www.patreon.com/leifermendez',
-        '\n*2* Para siguiente paso.',
-    ],
+
+const askEvent = addKeyword([]).addAnswer(
+        "Genial, aquí en Eilyn Garcia Fotografía ofrecemos servicio para los siguientes eventos:")
+        .addAnswer([
+        "Cumpleaños",
+        "Bodas",
+        "Bautizos",
+        "Quinceaños",
+        "Graduaciones",
+        "Aniversarios",
+        "Primera comunión",
+        "Baby showers",
+        "Sesión fotograficas",
+        "Otros"
+    ],).addAnswer(["¿Cuál de ellos es el que desea contratar?"],
     null,
     null,
-    [flowSecundario]
+    [askOtros,askBundle]
 )
 
-const flowDiscord = addKeyword(['discord']).addAnswer(
-    ['🤪 Únete al discord', 'https://link.codigoencasa.com/DISCORD', '\n*2* Para siguiente paso.'],
+const hireServices = addKeyword(['Contratar servicios']).addAnswer(
+    ["Gracias por escoger nuestros servicios fotográficos"]).addAnswer(
+    ["Para comenenzar, ¿por qué no nos dice el nombre de la persona a quién le estaremos tomando fotos?"]
+    ,
     null,
     null,
-    [flowSecundario]
+    [askEvent]
 )
 
 const flowPrincipal = addKeyword(['hola', 'ole', 'alo'])
-    .addAnswer('🙌 Hola bienvenido a este *Chatbot*')
+    .addAnswer('Hola bienvenido al ChatBot de Eilyn Garcia Fotografía*')
     .addAnswer(
         [
-            'te comparto los siguientes links de interes sobre el proyecto',
-            '👉 *doc* para ver la documentación',
-            '👉 *gracias*  para ver la lista de videos',
-            '👉 *discord* unirte al discord',
+            '¿En qué puedo ayudarle?',
+            '👉 Responda *Contratar servicios* para contratar alguno de nuestros paquetes fotográficos',
+            '👉 Responda *Consultar información*  para consultar información acerca de nuestros servicios',
+            '👉 Responda *Hablar con un empleado* para redirigirlo con un empleado',
         ],
         null,
         null,
-        [flowDocs, flowGracias, flowTuto, flowDiscord]
+        [hireServices]
     )
 
 const main = async () => {
