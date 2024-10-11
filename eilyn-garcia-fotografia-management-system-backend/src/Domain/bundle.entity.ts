@@ -1,4 +1,4 @@
-import {Entity, JoinTable, ManyToMany, OneToMany} from "typeorm"
+import {Entity, JoinTable, ManyToMany, OneToMany, TableInheritance} from "typeorm"
 import {Column} from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 import { Contract } from "./contract.entity"
@@ -7,6 +7,7 @@ import { AppointmentTemplate } from "./appointment.template.entity"
 import { Event } from "./event.entity"
 
 @Entity({name: "bundles"})
+@TableInheritance({column:{type:"varchar",name:"type"}})
 export class Bundle{
 
     @PrimaryGeneratedColumn()
