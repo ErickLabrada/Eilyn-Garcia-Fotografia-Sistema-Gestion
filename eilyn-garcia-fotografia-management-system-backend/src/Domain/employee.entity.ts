@@ -23,7 +23,7 @@ export class Employee{
     @OneToMany(()=>Appointment,(appointment)=>appointment.employee)
     appointments: Appointment[]
 
-    @ManyToMany(()=>Rol)
+    @ManyToMany(()=>Rol, rol=>rol.employees)
     @JoinTable()
     roles: Rol[]
 

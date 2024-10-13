@@ -22,11 +22,11 @@ export class Bundle{
     @OneToMany(()=>Contract,(contract)=>contract.bundle)
     contracts: Contract[]
 
-    @ManyToMany(()=>Item)
+    @ManyToMany(() => Item, (item) => item.bundles)  
     @JoinTable()
     items: Item[]
 
-    @ManyToMany(()=>Event)
+    @ManyToMany(()=>Event, (event)=>event.bundle)
     @JoinTable()
     events: Event[]
 
