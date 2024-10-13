@@ -33,7 +33,7 @@ export class Contract{
     appointments: Appointment[]
 
     @OneToMany(()=>Delivery,(delivery)=>delivery.contract)
-    deliverys: Appointment[]
+    deliverys: Delivery[]
 
     @ManyToOne(()=>Bundle, bundle=>bundle.contracts)
     bundle: Bundle

@@ -1,4 +1,4 @@
-export class CreateBundleDTO{
+export class CreateCustomBundleDTO{
     name: string
     price: number
     contractsId: number[]

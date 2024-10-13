@@ -15,6 +15,10 @@ import { ProvidersModule } from './providers/providers.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ItemsModule } from './items/items.module';
 import { EventsModule } from './events/events.module';
+import { ContractsModule } from './contracts/contracts.module';
+import { StatusModule } from './status/status.module';
+import { SaleBundlesModule } from './sale-bundles/sale-bundles.module';
+import { CustomBundlesModule } from './custom-bundles/custom-bundles.module';
 
 @Module({
   imports: [
@@ -42,6 +46,10 @@ import { EventsModule } from './events/events.module';
     AppointmentModule,
     ItemsModule,
     EventsModule,
+    ContractsModule,
+    StatusModule,
+    SaleBundlesModule,
+    CustomBundlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
