@@ -24,66 +24,67 @@ export class ContractsService {
     ){}
 
 
-    async createContract(contractDTO: CreateContractDTO){
+    async createContract(contractDTO: CreateContractDTO) {
         const {
-            appointmentsID,
-            deliverysID,
+            appointmentsID = [],
+            deliverysID = [],
             bundleID,
             clientID,
             eventID,
             statusID,
             ...contractData
-        }= contractDTO
-
-        const appointmentEntities= await this.appointmentRepository.find({
-            where:{
-                id: In(appointmentsID)
+        } = contractDTO;
+    
+        try {
+            // Validate required fields
+            if (!clientID) {
+                throw new Error('Client ID is required.');
             }
-        })
-
-        const deliveryEntities = await this.deliveryRepository.find({
-            where:{
-                id: In(deliverysID)
+    
+            // Fetching related entities
+            const appointmentEntities = await this.appointmentRepository.find({
+                where: {
+                    id: In(appointmentsID), // Ensure this is an array
+                },
+            });
+    
+            const deliveryEntities = await this.deliveryRepository.find({
+                where: {
+                    id: In(deliverysID), // Ensure this is an array
+                },
+            });
+    
+            const [bundleEntity, clientEntity, eventEntity, statusEntity] = await Promise.all([
+                bundleID ? this.bundleRepository.findOne({ where: { id: bundleID } }) : null,
+                this.clientRepository.findOne({ where: { id: clientID } }),
+                eventID ? this.eventRepository.findOne({ where: { id: eventID } }) : null,
+                statusID ? this.statusRepository.findOne({ where: { id: statusID } }) : null,
+            ]);
+    
+            // Check if mandatory entities exist
+            if (!clientEntity) {
+                throw new Error(`Client with ID ${clientID} not found.`);
             }
-        })
-
-        const bundleEntity = await this.bundleRepository.findOne({
-            where:{
-                id: bundleID
-            }
-        })
-
-        const clientEntity = await this.clientRepository.findOne({
-            where: {
-                id: clientID
-            }
-        })
-
-        const eventEntity = await this.eventRepository.findOne({
-            where:{
-                id: eventID
-            }
-        })
-
-        const statusEntity = await this.statusRepository.findOne({
-            where:{
-                id: statusID
-            }
-        })
-
-        const newContract = await this.contractRepository.create({
-            ...contractData,
-            appointments: appointmentEntities,
-            deliverys: deliveryEntities,
-            bundle: bundleEntity,
-            client: clientEntity,
-            event: eventEntity,
-            status: statusEntity
-        })
-
-        return await this.contractRepository.save(newContract)
+    
+            // Creating a new contract entity
+            const newContract = this.contractRepository.create({
+                ...contractData,
+                appointments: appointmentEntities,
+                deliverys: deliveryEntities,
+                bundle: bundleEntity,
+                client: clientEntity,
+                event: eventEntity,
+                status: statusEntity,
+            });
+    
+            // Saving the new contract to the database
+            return await this.contractRepository.save(newContract);
+        } catch (error) {
+            console.error('Error creating contract:', error.message);
+            throw new Error('Failed to create contract. Please try again later.');
+        }
     }
-
+    
     
     async getContracts(){
         return await this.contractRepository.find()

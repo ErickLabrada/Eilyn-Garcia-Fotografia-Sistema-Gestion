@@ -26,7 +26,7 @@ export class Bundle{
     @JoinTable()
     items: Item[]
 
-    @ManyToMany(()=>Event, (event)=>event.bundle)
+    @ManyToMany(()=>Event, (event)=>event.bundles)
     @JoinTable()
     events: Event[]
 

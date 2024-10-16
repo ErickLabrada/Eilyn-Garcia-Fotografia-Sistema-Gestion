@@ -1,0 +1,40 @@
+const { createBot, createProvider, createFlow, addKeyword } = require('@bot-whatsapp/bot');
+const QRPortalWeb = require('@bot-whatsapp/portal');
+const BaileysProvider = require('@bot-whatsapp/provider/baileys');
+const MockAdapter = require('@bot-whatsapp/database/mock');
+const axios = require('axios');
+
+const flowPrincipal = addKeyword(['hola', 'alo'])
+
+  .addAction(async (_, { flowDynamic }) => {
+
+    return await flowDynamic('¡Hola! ¿En qué puedo ayudarte?')
+
+  })
+
+  .addAction({ capture: true }, async (ctx, { flowDynamic }) => {
+
+    const mensaje = ctx.body
+
+    return await flowDynamic(`Has dicho: ${mensaje}`); // Corrected line
+  })
+
+// Main Bot Setup
+const main = async () => {
+    const adapterDB = new MockAdapter(); // Mock database for testing
+    const adapterFlow = createFlow([flowPrincipal]); // Set up the main flow
+    const adapterProvider = createProvider(BaileysProvider); // Create provider for WhatsApp
+
+    // Create the bot instance with flows, provider, and database
+    createBot({
+        flow: adapterFlow,
+        provider: adapterProvider,
+        database: adapterDB,
+    });
+
+    // Launch the QR code portal for connecting to WhatsApp
+    QRPortalWeb();
+}
+
+// Start the bot
+main();

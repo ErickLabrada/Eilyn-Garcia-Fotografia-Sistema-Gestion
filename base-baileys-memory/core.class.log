@@ -2,10 +2,10 @@
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3FE5AC70777D18DD7AC9',
+    id: '3FC482C3396975CED184',
     participant: undefined
   },
-  messageTimestamp: 1728610263,
+  messageTimestamp: 1729099261,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
@@ -19,9 +19,9 @@
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
-  keyword: 'key_222db4fb-fa09-4201-b6b1-31d66acd34e7',
-  answer: 'Hola bienvenido al ChatBot de Eilyn Garcia Fotografía*',
+  ref: 'ans_aea1f697-e067-4ae0-9eac-46aa5966100b',
+  keyword: 'key_4b0518fc-9f15-4dc6-adb5-39df874310ad',
+  answer: 'Hola, bienvenido al ChatBot de Eilyn Garcia Fotografía!',
   options: {
     media: null,
     buttons: [],
@@ -34,14 +34,14 @@
     keyword: {},
     callback: false
   },
-  refSerialize: '9f1b4838fc97da72c7ceec29568a83dc'
+  refSerialize: '5a3904ae97d62d6003420c0643b347d6'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_8fe36e46-5e9d-4f85-87a9-b615439277a8',
-  keyword: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
+  ref: 'ans_daa09af6-e299-4f95-9e34-7563efa91681',
+  keyword: 'ans_aea1f697-e067-4ae0-9eac-46aa5966100b',
   answer: '¿En qué puedo ayudarle?\n' +
     '👉 Responda *Contratar servicios* para contratar alguno de nuestros paquetes fotográficos\n' +
-    '👉 Responda *Consultar información*  para consultar información acerca de nuestros servicios\n' +
+    '👉 Responda *Consultar información* para consultar información acerca de nuestros servicios\n' +
     '👉 Responda *Hablar con un empleado* para redirigirlo con un empleado',
   options: {
     media: null,
@@ -51,20 +51,20 @@
     delay: 0,
     idle: null,
     ref: null,
-    nested: [ [Object], [Object], [Object] ],
+    nested: [ [Object], [Object], [Object], [Object] ],
     keyword: {},
     callback: false
   },
-  refSerialize: '4829322636e93114f0bde9a7e5c72a51'
+  refSerialize: '201700076d49264bd3a9a1b614da790b'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3FD3584C6513239852E3',
+    id: '3FD8D0E466273C77C105',
     participant: undefined
   },
-  messageTimestamp: 1728610268,
+  messageTimestamp: 1729099266,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
@@ -81,9 +81,9 @@
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
-  keyword: 'key_01d07c45-18c7-463c-8e3e-701a8ff0aa37',
-  answer: 'Gracias por escoger nuestros servicios fotográficos',
+  ref: 'ans_92d04160-f35f-471a-8026-5d3c50c03e52',
+  keyword: 'key_d1ac8b7b-5d5b-4383-82bc-3ac4cedb1fe5',
+  answer: '__call_action__',
   options: {
     media: null,
     buttons: [],
@@ -94,14 +94,14 @@
     ref: null,
     nested: [],
     keyword: {},
-    callback: false
+    callback: true
   },
-  refSerialize: 'a369c5f0b62f5a084a83139e611ec89b'
+  refSerialize: '5b8445aa032d75a9862009e4faa8a733'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_11d44bc8-8aaa-4551-b655-853e0e881803',
-  keyword: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
-  answer: 'Para comenenzar, ¿por qué no nos dice el nombre de la persona a quién le estaremos tomando fotos?',
+  ref: 'ans_e05381da-982b-4534-8455-f89468e31919',
+  keyword: 'ans_92d04160-f35f-471a-8026-5d3c50c03e52',
+  answer: '__call_action__',
   options: {
     media: null,
     buttons: [],
@@ -110,36 +110,57 @@
     delay: 0,
     idle: null,
     ref: null,
-    nested: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    nested: [],
     keyword: {},
-    callback: false
+    callback: true
   },
-  refSerialize: '6da4aee7f4104277954ed9911eb97131'
+  refSerialize: '95d547eac4cf1df7164d14da8422df03'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_4f05b1c5-d87e-4caa-b595-de253b84311b',
+  keyword: 'ans_e05381da-982b-4534-8455-f89468e31919',
+  answer: 'Por favor, elija el paquete que desea contratar:',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [ [Object], [Object], [Object], [Object] ],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: '763cb1d5d109a8ee08fa7b09782024ec'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3FB3CD2D4850FE879F38',
+    id: '3F0C87B167F6A4A8632C',
     participant: undefined
   },
-  messageTimestamp: 1728610275,
+  messageTimestamp: 1729099270,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage { text: 'Roberto', contextInfo: [ContextInfo] },
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Cumpleaños',
+      contextInfo: [ContextInfo]
+    },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'Roberto',
+  body: 'Cumpleaños',
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_5dcd938f-ed51-4a12-bdce-97216a4530a3',
-  keyword: 'key_3b10f078-4078-457c-89b4-f7d4a4ca16f1',
-  answer: 'EL QUE TE DEJO EL CULO ABIERTO, PENDEJO',
+  ref: 'ans_d0f927f7-887f-4cb6-ac30-e4f145d71140',
+  keyword: 'key_21df6093-1c66-44b2-a95e-0de0dafbcde3',
+  answer: '__call_action__',
   options: {
     media: null,
     buttons: [],
@@ -150,34 +171,70 @@
     ref: null,
     nested: [],
     keyword: {},
-    callback: false
+    callback: true
   },
-  refSerialize: '6179ebd3badbf29f21440342d0efe5a6'
+  refSerialize: 'f074e6c892e83b6dc20ae88d36d0196a'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_d2be6842-25f4-43cc-ae6d-c1a95e110ee6',
+  keyword: 'ans_d0f927f7-887f-4cb6-ac30-e4f145d71140',
+  answer: '__call_action__',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: 'd7d18e2a89788be00ee04ddae8251388'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_b6e0cb1e-d2a7-422b-8a12-ef2e5eaa8cc8',
+  keyword: 'ans_d2be6842-25f4-43cc-ae6d-c1a95e110ee6',
+  answer: '¿Cuál de ellos es el que desea contratar?',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [ [Object], [Object], [Object] ],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: '0bbe064b3e9e1a0c5b8310162014eceb'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3F9950605C956EA173A7',
+    id: '3FEC2261B51044854EE8',
     participant: undefined
   },
-  messageTimestamp: 1728610293,
+  messageTimestamp: 1729099274,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage { text: 'Hola', contextInfo: [ContextInfo] },
+    extendedTextMessage: ExtendedTextMessage { text: 'Bundle1', contextInfo: [ContextInfo] },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'Hola',
+  body: 'Bundle1',
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
-  keyword: 'key_222db4fb-fa09-4201-b6b1-31d66acd34e7',
-  answer: 'Hola bienvenido al ChatBot de Eilyn Garcia Fotografía*',
+  ref: 'ans_7aba5919-78c6-4014-ba4f-f9b3297e2c31',
+  keyword: 'key_9cd31e06-55c8-4325-9357-5671f1f8f5a8',
+  answer: '__call_action__',
   options: {
     media: null,
     buttons: [],
@@ -188,17 +245,14 @@
     ref: null,
     nested: [],
     keyword: {},
-    callback: false
+    callback: true
   },
-  refSerialize: '9f1b4838fc97da72c7ceec29568a83dc'
+  refSerialize: 'a6ca48b3b299fcc97b527abc2c33982b'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_8fe36e46-5e9d-4f85-87a9-b615439277a8',
-  keyword: 'ans_2ce67fb0-e615-43fa-acb3-6775d75dcf16',
-  answer: '¿En qué puedo ayudarle?\n' +
-    '👉 Responda *Contratar servicios* para contratar alguno de nuestros paquetes fotográficos\n' +
-    '👉 Responda *Consultar información*  para consultar información acerca de nuestros servicios\n' +
-    '👉 Responda *Hablar con un empleado* para redirigirlo con un empleado',
+  ref: 'ans_c571cd03-9131-4500-a533-4ed667a851b7',
+  keyword: 'ans_7aba5919-78c6-4014-ba4f-f9b3297e2c31',
+  answer: 'Excelente!\n¿En qué lugar sería el evento?',
   options: {
     media: null,
     buttons: [],
@@ -211,21 +265,21 @@
     keyword: {},
     callback: false
   },
-  refSerialize: '4829322636e93114f0bde9a7e5c72a51'
+  refSerialize: 'b065e6ec8f00c07480f919bd20152711'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3FB3BE63E4299B709BD8',
+    id: '3F097E2E6A1AA4D6FF89',
     participant: undefined
   },
-  messageTimestamp: 1728610297,
+  messageTimestamp: 1729099277,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
     extendedTextMessage: ExtendedTextMessage {
-      text: 'Contratar servicios',
+      text: 'Mi casita',
       contextInfo: [ContextInfo]
     },
     messageContextInfo: MessageContextInfo {
@@ -233,13 +287,13 @@
       deviceListMetadataVersion: 2
     }
   },
-  body: 'Contratar servicios',
+  body: 'Mi casita',
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
-  keyword: 'key_01d07c45-18c7-463c-8e3e-701a8ff0aa37',
-  answer: 'Gracias por escoger nuestros servicios fotográficos',
+  ref: 'ans_f3361f3c-4c1d-485b-82c2-79b49e0679f0',
+  keyword: 'key_c43e87db-0ea3-4599-a4da-293dea4097d7',
+  answer: '__call_action__',
   options: {
     media: null,
     buttons: [],
@@ -250,14 +304,14 @@
     ref: null,
     nested: [],
     keyword: {},
-    callback: false
+    callback: true
   },
-  refSerialize: 'a369c5f0b62f5a084a83139e611ec89b'
+  refSerialize: '1484fe57aa74d9a841586eeccb556014'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_11d44bc8-8aaa-4551-b655-853e0e881803',
-  keyword: 'ans_c63d7304-8327-4e98-b0d6-4bfcde6136e4',
-  answer: 'Para comenenzar, ¿por qué no nos dice el nombre de la persona a quién le estaremos tomando fotos?',
+  ref: 'ans_035b033d-e41d-4b95-82ad-a75cb0f3b1b8',
+  keyword: 'ans_f3361f3c-4c1d-485b-82c2-79b49e0679f0',
+  answer: 'Perfecto!\nAhora, ¿en qué día y a qué hora es el evento?',
   options: {
     media: null,
     buttons: [],
@@ -266,36 +320,57 @@
     delay: 0,
     idle: null,
     ref: null,
-    nested: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    nested: [ [Object], [Object], [Object] ],
     keyword: {},
     callback: false
   },
-  refSerialize: '6da4aee7f4104277954ed9911eb97131'
+  refSerialize: '91d0735e0ef6995a524cf753e1c3a303'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '5216681163510@s.whatsapp.net',
     fromMe: false,
-    id: '3F8EDA610AED19A54DC0',
+    id: '3F9239777C9EA19EA110',
     participant: undefined
   },
-  messageTimestamp: 1728610301,
+  messageTimestamp: 1729099282,
   pushName: 'Erick',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage { text: 'Roberto', contextInfo: [ContextInfo] },
+    extendedTextMessage: ExtendedTextMessage {
+      text: '2024-12-12',
+      contextInfo: [ContextInfo]
+    },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'Roberto',
+  body: '2024-12-12',
   from: '5216681163510'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_5dcd938f-ed51-4a12-bdce-97216a4530a3',
-  keyword: 'key_3b10f078-4078-457c-89b4-f7d4a4ca16f1',
-  answer: 'EL QUE TE DEJO EL CULO ABIERTO, PENDEJO',
+  ref: 'ans_c390bb5d-50ca-4a33-9866-671baed6194c',
+  keyword: 'key_ddb7f6df-e42e-4bf4-a890-85c20201631e',
+  answer: '__call_action__',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: '06f7a9e962f3496e3223935057aca1be'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_e20f9932-b71d-4e47-8f60-a37985a367ff',
+  keyword: 'ans_c390bb5d-50ca-4a33-9866-671baed6194c',
+  answer: 'Genial, en breves recibirá un mensaje confirmando la cita :D',
   options: {
     media: null,
     buttons: [],
@@ -308,5 +383,5 @@
     keyword: {},
     callback: false
   },
-  refSerialize: '6179ebd3badbf29f21440342d0efe5a6'
+  refSerialize: 'e84e64c7ed0a45c0153dea0136ad3318'
 }

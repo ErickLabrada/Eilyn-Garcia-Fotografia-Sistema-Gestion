@@ -1,7 +1,7 @@
 export class CreateClientDTO{
 
-    name: string
+    name?: string
     phone: string
-    contractsID: number[]
+    contractsID?: number[]
     
 }

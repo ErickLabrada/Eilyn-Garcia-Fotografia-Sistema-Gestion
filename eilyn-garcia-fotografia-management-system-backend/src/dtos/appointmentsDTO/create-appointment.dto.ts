@@ -5,6 +5,6 @@ export class CreateAppointmentDTO{
     place: string
     description: string
     bundleId:number
-    employeeID: number
-    contractID: number
+    employeeID?: number
+    contractID?: number
 }
