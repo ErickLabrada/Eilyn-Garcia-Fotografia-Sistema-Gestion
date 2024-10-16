@@ -1,4 +1,4 @@
-import {Entity, ManyToOne, OneToMany} from "typeorm"
+import {Entity, ManyToMany, ManyToOne, OneToMany} from "typeorm"
 import { Column } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 import { Bundle } from "./bundle.entity"
@@ -21,6 +21,6 @@ export class Event {
     @OneToMany(()=>Contract,(contract)=>contract.event)
     contracts: Contract[]
 
-    @ManyToOne(()=>Bundle, (bundle)=>bundle.events)
-    bundle: Bundle
+    @ManyToMany(()=>Bundle, (bundle)=>bundle.events)
+    bundles: Bundle[]
 }

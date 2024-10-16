@@ -3,6 +3,7 @@ import { EventsService } from './events.service';
 import { CreateEventDTO } from 'src/dtos/eventsdto/create-event.dto';
 import { Event } from 'src/Domain/event.entity';
 import { UpdateEventDTO } from 'src/dtos/eventsdto/update-event.dto';
+import { EventsEnum } from 'src/Domain/enums/events.enum';
 
 @Controller('events')
 export class EventsController {
@@ -35,5 +36,11 @@ export class EventsController {
     deleteEvent(@Param("id", ParseIntPipe)id: number){
         return this.eventsService.deleteEvent(id)
     }
+
+    @Get('by-name/:name')
+async getEventByName(@Param('name') event: EventsEnum) {
+    return await this.eventsService.getEventByName(event);
+}
+
 }
  

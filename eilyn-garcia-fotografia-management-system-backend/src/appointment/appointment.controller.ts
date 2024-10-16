@@ -13,7 +13,7 @@ export class AppointmentController {
 
     @Post()
     createAppointment(@Body() appointmentDTO: CreateAppointmentDTO){
-        this.appointmentService.createAppointment(appointmentDTO);
+        return this.appointmentService.createAppointment(appointmentDTO);
     }
 
     @Get()

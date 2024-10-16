@@ -4,6 +4,7 @@ import { AppointmentTemplate } from 'src/Domain/appointment.template.entity';
 import { Bundle } from 'src/Domain/bundle.entity';
 import { Contract } from 'src/Domain/contract.entity';
 import { Employee } from 'src/Domain/employee.entity';
+import { EventsEnum } from 'src/Domain/enums/events.enum';
 import { Event } from 'src/Domain/event.entity';
 import { Item } from 'src/Domain/item.entity';
 import { CreateBundleDTO } from 'src/dtos/bundleDtos/create-bundle.dto';
@@ -83,6 +84,28 @@ export class BundleService {
         return await this.bundleRepository.delete({id})
     }
 
+    async getBundlesByEventType(eventType: EventsEnum) {
+        return await this.bundleRepository
+            .createQueryBuilder('bundle')
+            .innerJoinAndSelect('bundle.events', 'event')
+            .where('event.event = :eventType', { eventType })
+            .getMany();
+    }
+
+    async getBundleByName(name: string): Promise<Bundle> {
+        try {
+            // Query to find bundles by name
+            const bundle = await this.bundleRepository.findOne({
+                where: { name } // Adjust the field name based on your entity definition
+            });
+
+            return bundle;
+        } catch (error) {
+            // Handle errors (you might want to log the error or throw a custom exception)
+            console.error('Error fetching bundle:', error);
+            throw new Error('Could not fetch bundles. Please try again later.');
+        }
+    }
     
 
 }

@@ -18,30 +18,45 @@ export class AppointmentService {
 
     ){}
 
-    async createAppointment(appointmentDTO: CreateAppointmentDTO){
-
-        const {bundleId,employeeID,contractID,...appointmentData}= appointmentDTO;
-
-        const bundleEntity = await this.bundleRepository.findOneBy({
-            id: (bundleId)
-        })
-
-        const employeeEntity = await this.employeeRepository.findOneBy({
-            id: (employeeID)
-        })
-
-        const contractEntity = await this.contractRepository.findOneBy({
-            id: (contractID)
-        })
-
-        const newAppointment=this.appointmentRepository.create({
+    async createAppointment(appointmentDTO: CreateAppointmentDTO) {
+        const { bundleId, employeeID, contractID, ...appointmentData } = appointmentDTO;
+    
+        // Fetch the related entities and log them
+        const bundleEntity = await this.bundleRepository.findOneBy({ id: bundleId });
+        const employeeEntity = await this.employeeRepository.findOneBy({ id: employeeID });
+        const contractEntity = await this.contractRepository.findOneBy({ id: contractID });
+    
+        // Check if the entities are found
+        if (!bundleEntity) {
+            console.error('Bundle not found with ID:', bundleId);
+            throw new Error('Bundle not found.');
+        }
+        if (employeeID && !employeeEntity) {
+            console.error('Employee not found with ID:', employeeID);
+            throw new Error('Employee not found.');
+        }
+        if (contractID && !contractEntity) {
+            console.error('Contract not found with ID:', contractID);
+            throw new Error('Contract not found.');
+        }
+    
+        const newAppointment = this.appointmentRepository.create({
             ...appointmentData,
             bundle: bundleEntity,
             employee: employeeEntity,
             contract: contractEntity
-        })
-        return await this.appointmentRepository.save(newAppointment)
+        });
+    
+        try {
+            const savedAppointment = await this.appointmentRepository.save(newAppointment);
+            console.log('Appointment saved:', savedAppointment);
+            return savedAppointment;  // Return the saved appointment
+        } catch (error) {
+            console.error('Error saving appointment:', error);
+            throw new Error('Failed to create appointment. Please try again later.');
+        }
     }
+    
 
     async getAppointments(){
         return await this.appointmentRepository.find()
@@ -62,5 +77,7 @@ export class AppointmentService {
     async deleteAppointment(id: number){
         return await this.appointmentRepository.delete({id})
     }
+
+    
 
 }

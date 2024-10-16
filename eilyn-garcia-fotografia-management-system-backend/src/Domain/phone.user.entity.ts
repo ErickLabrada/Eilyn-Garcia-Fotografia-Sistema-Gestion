@@ -6,8 +6,8 @@ export abstract class PhoneUser{
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    name: string
+    @Column({ default: 'Default Name' })
+    name: string;
 
     @Column()
     phone: string

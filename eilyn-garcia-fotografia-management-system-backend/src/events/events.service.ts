@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Bundle } from 'src/Domain/bundle.entity';
 import { Contract } from 'src/Domain/contract.entity';
+import { EventsEnum } from 'src/Domain/enums/events.enum';
 import { Event } from 'src/Domain/event.entity';
 import { CreateEventDTO } from 'src/dtos/eventsdto/create-event.dto';
 import { UpdateEventDTO } from 'src/dtos/eventsdto/update-event.dto';
@@ -17,11 +18,11 @@ export class EventsService {
     ){}
 
     async createEventRepository(eventDTO: CreateEventDTO){
-        const {bundleId, contractsID,...EventData}=eventDTO;
+        const {bundlesId, contractsID,...EventData}=eventDTO;
 
-        const bundleEntity=await this.bundleRepository.findOne({
+        const bundleEntities=await this.bundleRepository.find({
             where:{
-                id: bundleId
+                id:In (bundlesId)
             }
         })
 
@@ -33,7 +34,7 @@ export class EventsService {
 
         const newEvent=await this.eventRepository.create({
             ...EventData,
-            bundle: bundleEntity,
+            bundles: bundleEntities,
             contracts:contractEntities
         })
         return await this.eventRepository.save(newEvent)
@@ -60,5 +61,9 @@ export class EventsService {
         return await this.eventRepository.delete({id})
     }
 
+    async getEventByName(event: EventsEnum) {
+        return await this.eventRepository.findOne({ where: { event: event } });
+    }
+    
 }
  

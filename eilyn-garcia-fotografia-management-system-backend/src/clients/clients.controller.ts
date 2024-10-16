@@ -13,7 +13,7 @@ export class ClientsController {
 
     @Post()
     createClient(@Body() clientDTO: CreateClientDTO){
-        this.clientsService.createClient(clientDTO)
+        return this.clientsService.createClient(clientDTO)
     }
 
     @Get()
@@ -24,6 +24,11 @@ export class ClientsController {
     @Get(":id")
     getClient(@Param("id",ParseIntPipe)id: number):Promise <Client>{
         return this.clientsService.getClient(id)
+    }
+
+    @Get('by-phone/:phone')
+    getClientByPhone(@Param("phone")phone: string):Promise <Client>{
+        return this.clientsService.getClientByPhone(phone)
     }
 
     @Patch(":id")

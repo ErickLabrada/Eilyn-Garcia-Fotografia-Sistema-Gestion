@@ -13,20 +13,31 @@ export class ClientsService {
         @InjectRepository(Contract) private contractRepository: Repository<Contract>
     ){}
 
-    async createClient(clientDTO: CreateClientDTO){
-        const {contractsID,...clientData}=clientDTO
-
-        const contractsEntities= await this.contractRepository.find({
-            where: {
-                id: In(contractsID)  
-            }
-        })
+    async createClient(clientDTO: CreateClientDTO) {
+        const { contractsID, ...clientData } = clientDTO;
+    
+        // Validate the phone property (this is optional but good for clarity)
+        if (!clientData.phone) {
+            throw new Error("Phone number is required");
+        }
+    
+        // Check if contractsID is provided and is an array
+        const contractsEntities = Array.isArray(contractsID) && contractsID.length > 0 
+            ? await this.contractRepository.find({
+                where: {
+                    id: In(contractsID)
+                }
+            }) 
+            : [];
+    
         const newClient = this.clientRepository.create({
             ...clientData,
             contracts: contractsEntities
         });
-        return await this.clientRepository.save(newClient)
+    
+        return await this.clientRepository.save(newClient);
     }
+    
 
     async getClients(){
         return await this.clientRepository.find()
@@ -36,6 +47,14 @@ export class ClientsService {
         return await this.clientRepository.findOne({
             where:{
                 id
+            }
+        })
+    }
+
+    async getClientByPhone(phone: string){
+        return await this.clientRepository.findOne({
+            where:{
+                phone
             }
         })
     }
