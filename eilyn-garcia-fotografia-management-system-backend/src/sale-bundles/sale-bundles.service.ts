@@ -6,6 +6,7 @@ import { Event } from 'src/Domain/event.entity';
 import { Item } from 'src/Domain/item.entity';
 import { SaleBundle } from 'src/Domain/sale.bundle.entity';
 import { CreateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/create-sale-bundle.dto';
+import { UpdateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/update-sale-bundle.dto';
 import {In, Repository} from "typeorm"
 
 @Injectable()
@@ -62,6 +63,26 @@ export class SaleBundlesService {
 
         return await this.saleBundleRepository.save(newSaleBundle);
         
+    }
+
+    async getSaleBundles(){
+        return await this.saleBundleRepository.find()
+    }
+
+    async getSaleBundle(id: number){
+        return await this.saleBundleRepository.findOne({
+            where:{
+                id
+            }
+        })
+    }
+
+    async updateSaleBundle(id: number, saleBundleDTO: UpdateSaleBundleDTO){
+        return await this.saleBundleRepository.update({id}, saleBundleDTO)
+    }
+
+    async deleteSaleBundle(id: number){
+        return await this.saleBundleRepository.delete({id})
     }
 
 }

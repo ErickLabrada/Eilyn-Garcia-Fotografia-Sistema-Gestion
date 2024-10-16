@@ -8,6 +8,7 @@ import { Delivery } from 'src/Domain/delivery.entity';
 import { Event } from 'src/Domain/event.entity';
 import { Status } from 'src/Domain/status.entity';
 import { CreateContractDTO } from 'src/dtos/contractsDtos/create-contract.dto';
+import { UpdateContractDTO } from 'src/dtos/contractsDtos/update-contracts.dto';
 import {In, Repository} from "typeorm"
 @Injectable()
 export class ContractsService {
@@ -82,5 +83,27 @@ export class ContractsService {
 
         return await this.contractRepository.save(newContract)
     }
+
+    
+    async getContracts(){
+        return await this.contractRepository.find()
+    }
+
+    async getContract(id: number){
+        return await this.contractRepository.findOne({
+            where:{
+                id
+            }
+        })
+    }
+
+    async updateContract(id: number, contractDTO: UpdateContractDTO){
+        return await this.contractRepository.update({id}, contractDTO)
+    }
+
+    async deleteContract(id: number){
+        return await this.contractRepository.delete({id})
+    }
+
 
 }

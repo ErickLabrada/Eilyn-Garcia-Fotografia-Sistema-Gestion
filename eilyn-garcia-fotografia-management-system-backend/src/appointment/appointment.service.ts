@@ -5,6 +5,7 @@ import { Bundle } from 'src/Domain/bundle.entity';
 import { Contract } from 'src/Domain/contract.entity';
 import { Employee } from 'src/Domain/employee.entity';
 import { CreateAppointmentDTO } from 'src/dtos/appointmentsDTO/create-appointment.dto';
+import { UpdateAppointmentDTO } from 'src/dtos/appointmentsDTO/update-appointment.dto';
 import { Repository } from "typeorm"
 @Injectable()
 export class AppointmentService {
@@ -40,6 +41,26 @@ export class AppointmentService {
             contract: contractEntity
         })
         return await this.appointmentRepository.save(newAppointment)
+    }
+
+    async getAppointments(){
+        return await this.appointmentRepository.find()
+    }
+
+    async getAppointment(id: number){
+        return await this.appointmentRepository.findOne({
+            where:{
+                id
+            }
+        })
+    }
+
+    async updateAppointment(id: number, appointmentDTO: UpdateAppointmentDTO){
+        return await this.appointmentRepository.update({id}, appointmentDTO)
+    }
+
+    async deleteAppointment(id: number){
+        return await this.appointmentRepository.delete({id})
     }
 
 }

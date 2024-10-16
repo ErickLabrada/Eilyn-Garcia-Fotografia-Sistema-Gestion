@@ -4,6 +4,7 @@ import { Bundle } from 'src/Domain/bundle.entity';
 import { Contract } from 'src/Domain/contract.entity';
 import { Event } from 'src/Domain/event.entity';
 import { CreateEventDTO } from 'src/dtos/eventsdto/create-event.dto';
+import { UpdateEventDTO } from 'src/dtos/eventsdto/update-event.dto';
 import {In, Repository} from "typeorm"
 @Injectable()
 export class EventsService {
@@ -37,6 +38,26 @@ export class EventsService {
         })
         return await this.eventRepository.save(newEvent)
 
+    }
+
+    async getEvents(){
+        return await this.eventRepository.find()
+    }
+
+    async getEvent(id: number){
+        return await this.eventRepository.findOne({
+            where:{
+                id
+            }
+        })
+    }
+
+    async updateEvent(id: number, eventDTO: UpdateEventDTO){
+        return await this.eventRepository.update({id}, eventDTO)
+    }
+
+    async deleteEvent(id: number){
+        return await this.eventRepository.delete({id})
     }
 
 }

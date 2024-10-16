@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Contract } from 'src/Domain/contract.entity';
 import { Status } from 'src/Domain/status.entity';
 import { CreateStatusDTO } from 'src/dtos/statusDtos/create-status.dto';
+import { UpdateStatusDTO } from 'src/dtos/statusDtos/update-status.dto';
 import {In, Repository} from "typeorm"
 
 @Injectable()
@@ -30,5 +31,22 @@ export class StatusService {
         return await this.statusRepository.save(newStatus)
 
     }
+
+    async getStatuses(){
+        return await this.statusRepository.find()
+    }
+
+    async getStatus(id: number){
+        return await this.statusRepository.findOne({
+            where:{
+                id
+            }
+        })
+    }
+
+    async deleteStatus(id: number){
+        return await this.statusRepository.delete({id})
+    }
+
 
 }

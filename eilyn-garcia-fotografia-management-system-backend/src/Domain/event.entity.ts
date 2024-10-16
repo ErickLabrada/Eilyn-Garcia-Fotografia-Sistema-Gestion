@@ -23,5 +23,4 @@ export class Event {
 
     @ManyToOne(()=>Bundle, (bundle)=>bundle.events)
     bundle: Bundle
-
 }

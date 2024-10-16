@@ -7,6 +7,7 @@ import { CustomBundle } from 'src/Domain/custom.bundle.entity';
 import { Event } from 'src/Domain/event.entity';
 import { Item } from 'src/Domain/item.entity';
 import { CreateCustomBundleDTO } from 'src/dtos/custom-bundle-dto/create-custom-bundle.dto';
+import { UpdateCustomBundleDTO } from 'src/dtos/custom-bundle-dto/update-custom-bundle.dto';
 import {In, Repository} from "typeorm"
 
 
@@ -59,5 +60,24 @@ async createCustomBundle(bundleDTO: CreateCustomBundleDTO){
         appointmentTemplates: appointmentTemplateEntity,
     });
     this.customBundleRepository.save(newBundle);
+}
+async getCustomBundles(){
+    return await this.customBundleRepository.find()
+}
+
+async getCustomBundle(id: number){
+    return await this.customBundleRepository.findOne({
+        where:{
+            id
+        }
+    })
+}
+
+async updateCustomBundle(id: number, customBundleDTO: UpdateCustomBundleDTO){
+    return await this.customBundleRepository.update({id}, customBundleDTO)
+}
+
+async deleteCustomBundle(id: number){
+    return await this.customBundleRepository.delete({id})
 }
 }
