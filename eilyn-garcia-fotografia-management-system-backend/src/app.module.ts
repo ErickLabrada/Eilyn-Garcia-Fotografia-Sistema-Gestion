@@ -33,7 +33,7 @@ import { CustomBundlesModule } from './custom-bundles/custom-bundles.module';
       password: process.env.DATABASE_PASSWORD,  // Corrected here
       database: process.env.DATABASE_NAME,
       entities: [__dirname + "/**/*.entity{.ts,.js}"],
-      synchronize: true
+      synchronize: false
     }),
     EmployeesModule,
     RolesModule,
