@@ -19,9 +19,16 @@ import { ContractsModule } from './contracts/contracts.module';
 import { StatusModule } from './status/status.module';
 import { SaleBundlesModule } from './sale-bundles/sale-bundles.module';
 import { CustomBundlesModule } from './custom-bundles/custom-bundles.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+        rootPath: join(__dirname, '../Imgs'),  // Adjust the path as needed
+        serveRoot: '/imgs',       
+      },
+    ),
     ConfigModule.forRoot({
       isGlobal: true,  // Makes env variables available globally
     }),
