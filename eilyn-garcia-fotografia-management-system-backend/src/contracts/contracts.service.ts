@@ -32,6 +32,7 @@ export class ContractsService {
             clientID,
             eventID,
             statusID,
+            postingConsent,
             ...contractData
         } = contractDTO;
     
@@ -75,6 +76,7 @@ export class ContractsService {
                 client: clientEntity,
                 event: eventEntity,
                 status: statusEntity,
+                postingConsent: postingConsent
             });
     
             // Saving the new contract to the database

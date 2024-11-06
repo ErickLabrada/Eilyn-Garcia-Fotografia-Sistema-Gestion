@@ -5,6 +5,7 @@ import { Bundle } from 'src/Domain/bundle.entity';
 import { Contract } from 'src/Domain/contract.entity';
 import { Employee } from 'src/Domain/employee.entity';
 import { CreateAppointmentDTO } from 'src/dtos/appointmentsDTO/create-appointment.dto';
+import { GetUnavailableHoursDTO } from 'src/dtos/appointmentsDTO/get-unavailable-dates.dto';
 import { UpdateAppointmentDTO } from 'src/dtos/appointmentsDTO/update-appointment.dto';
 import { Repository } from "typeorm"
 @Injectable()
@@ -56,11 +57,22 @@ export class AppointmentService {
             throw new Error('Failed to create appointment. Please try again later.');
         }
     }
-    
 
     async getAppointments(){
         return await this.appointmentRepository.find()
     }
+
+    async getAppointmentsByDate(targetDate: Date) {
+        const allAppointments = await this.getAppointments();
+        const targetDay = targetDate.toDateString(); // Convert to a string to ignore time
+    
+        const appointmentsForDay = allAppointments.filter(appointment => {
+            return appointment.date.toDateString() === targetDay;
+        });
+    
+        return appointmentsForDay;
+    }
+    
 
     async getAppointment(id: number){
         return await this.appointmentRepository.findOne({
@@ -78,6 +90,24 @@ export class AppointmentService {
         return await this.appointmentRepository.delete({id})
     }
 
+    async getUnavailableHours(date: Date) {
+        const unavailableDates = await  this.getAppointmentsByDate(date)
+        let unavailableHours: GetUnavailableHoursDTO[] = [];
     
+        for (const appointment of unavailableDates) {
+            const startDate = appointment.date;
+            const endDate = new Date(startDate);
+            endDate.setHours(endDate.getHours() + appointment.hours); 
+    
+            const unavailableDate = new GetUnavailableHoursDTO();
+            unavailableDate.startDate = startDate;
+            unavailableDate.endDate = endDate;
+    
+            unavailableHours.push(unavailableDate);
+        }
+
+        return unavailableHours;
+    }
+      
 
 }
