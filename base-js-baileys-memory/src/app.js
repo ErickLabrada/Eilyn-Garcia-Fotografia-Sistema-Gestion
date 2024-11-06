@@ -6,9 +6,13 @@ import axios from 'axios';
 
 const PORT = process.env.PORT ?? 3008;
 const emojiRegex = /[\p{Emoji}\u200d\u20e3\ufe0f\u00ae\u00a9]+/gu;
+let unavailableHours;
 let eventList;
 let bundleList;
 let bundles;
+let saleBundle;
+let saleBundleList;
+let saleBundleOptions = [];
 let bundleOptions = [];
 let eventOptions = [];
 let events = [];
@@ -21,8 +25,11 @@ let userInputs = {
     eventId: null,
     appointmentID: null,
 };
-
-let date = new Date();
+let busyHours;
+let date=new Date();
+let day;
+let month;
+let year;
 
 
 // Default values
@@ -80,7 +87,6 @@ try {
         celebratedsName: userInputs.name,
         description: DEFAULT_DESCRIPTION,
         postingConsent: DEFAULT_POSTING_CONSENT,
-        guarantee: DEFAULT_GUARANTEE,
         appointmentsID: [userInputs.appointmentID],
         bundleID: userInputs.selectedBundleId,
         clientID: userInputs.clientID,
@@ -104,7 +110,6 @@ try {
     );
 
 
-
     const askHour = addKeyword(EVENTS.ACTION)
     .addAnswer(['Por favor, proporcione la hora en la cual se realizará el evento en formato "HH:MM".'])
     .addAnswer(['Recuerde que el horario permitido es de 9 AM a 11 PM.'])
@@ -115,12 +120,58 @@ try {
             
             // Patrón para validar el formato "HH:MM"
             const timePattern = /^([01]?\d|2[0-3]):([0-5]\d)$/;
-            
+            const stringDate = year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
+            try {
+                // Fetch unavailable hours for the given date (dynamically)
+                const unavailableHours = await axios.get(`http://localhost:3001/appointment/unavailableHours/${stringDate}`);
+                
+                // Convert unavailable hours to start and end times (in hours)
+                busyHours = unavailableHours.data.map(period => {
+                    const start = new Date(period.startDate);
+                    const end = new Date(period.endDate);
+                    return {
+                        startHour: start.getHours(),
+                        startMinute: start.getMinutes(),
+                        endHour: end.getHours(),
+                        endMinute: end.getMinutes(),
+                    };
+                });
+
+                console.log('Busy hours:', busyHours); // Check the unavailable periods
+            } catch (error) {
+                console.log(error);
+                await flowDynamic('Hubo un error al obtener las horas ocupadas. Inténtelo nuevamente.');
+                return fallBack('Inténtelo nuevamente');
+            }
+
+            // Check if the input time is valid
             if (timePattern.test(input)) {
                 const [hours, minutes] = input.split(':').map(Number);
                 
                 // Validación del rango de horas permitidas (9:00 a 23:00)
                 if (hours >= 9 && hours < 23) {
+                    console.log(busyHours)
+                    // Check if there are any busy hours, and if so, check if the selected time conflicts with them
+                    if (busyHours.length > 0) {
+                        const isBusy = busyHours.some(period => {
+                            // Check if the selected time is within any of the busy periods
+                            const startMinutes = period.startHour * 60 + period.startMinute;
+                            const endMinutes = period.endHour * 60 + period.endMinute;
+                            const selectedMinutes = hours * 60 + minutes;
+
+                            return selectedMinutes >= startMinutes && selectedMinutes < endMinutes;
+                        });
+
+                        if (isBusy) {
+                            await flowDynamic('La hora proporcionada está dentro de las horas ocupadas. Por favor, elija otra hora.');
+                            return fallBack('Proporcione una hora válida en formato "HH:MM".');
+                        }
+                    }
+
+                    // If not busy, set the event date and proceed
+                    date.setDate(day);
+                    date.setMonth(month-1);
+                    date.setYear(year);
                     date.setHours(hours, minutes);
                     userInputs.eventDate = date;
     
@@ -137,7 +188,7 @@ try {
             }
         }
     );
-    
+
 
 
 
@@ -150,7 +201,7 @@ try {
     
             // Validación de que el input sea un número y esté entre 1 y 31
             if (!isNaN(input) && parseInt(input) > 0 && parseInt(input) <= 31) {
-                date.setDate(parseInt(input));
+                day=(parseInt(input));
                 return gotoFlow(askMonth);
             }
     
@@ -171,7 +222,7 @@ try {
     
             // Validación de que el input sea un número y esté entre 1 y 12
             if (!isNaN(input) && parseInt(input) > 0 && parseInt(input) <= 12) {
-                date.setMonth(parseInt(input) - 1); // Restar 1 ya que en JS los meses van de 0 a 11
+                month=(parseInt(input)); 
                 return gotoFlow(askYear);
             }
     
@@ -192,7 +243,36 @@ try {
     
             // Validación de que el input sea un número de 4 dígitos
             if (!isNaN(input) && input.length === 4) {
-                date.setFullYear(parseInt(input));
+                year = (parseInt(input));
+
+                const date2 = new Date();
+                date2.setDate(day)
+                date2.setMonth(month-1)
+                date2.setYear(year)
+                console.log(date2)
+                const now = new Date();
+                const minDate=now
+                minDate.setDate(now.getDate() + 5); 
+                if (month==2&&(!((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))&&day==29){
+                    await flowDynamic("El año proporcionado no es bisiesto, por lo que el día no puede ser 29");
+                    return gotoFlow(askDay); 
+                }
+
+                if (([4,6,9,11].includes(month)&&day==31)||(month==2&&day<28)) {
+                    await flowDynamic("La fecha que ha pedido no parece ser real, por favor verifique que sea una fecha existente");
+                    return gotoFlow(askDay); 
+                }
+                console.log(date2)
+                console.log(now)
+                console.log(minDate)
+                console.log(date2 <= now)
+                console.log(date2 <= minDate)
+
+                if (date2 <= now||date2 <= minDate){
+                    await flowDynamic("Disculpe, pero no puede agendar una cita para fechas ya pasadas o con menos de 5 días de anticipación, por favor escoja otra fecha");
+                    return gotoFlow(askDay); 
+                }
+
                 return gotoFlow(askHour); // Cambia "ask" al flujo adecuado que debe continuar después del año
             }
     
@@ -238,11 +318,18 @@ const askBundle = addKeyword(EVENTS.ACTION)
             const selectedEventType = ctx.body;
             userInputs.eventId = (await axios.get(`http://localhost:3001/events/by-name/${selectedEventType}`)).data.id;
 
+
             try {
                 const response = await axios.get(`http://localhost:3001/bundle/by-event-type/${selectedEventType}`);
                 bundles = response.data;
                 bundleOptions = bundles.map(bundle => bundle.name.toLowerCase());
                 bundleList = bundleOptions.join('\n');
+
+                const responseSales = await axios.get(`http://localhost:3001/sale-bundles/by-event-type/${selectedEventType}`);
+                saleBundle = responseSales.data;
+                saleBundleOptions = saleBundle.map(saleBundle => saleBundle.name.toLowerCase());
+                saleBundleList = saleBundleOptions.join('\n');
+
 
                 if (!Array.isArray(bundles) || bundles.length === 0) {
                     return await flowDynamic("Lo siento, no se pudieron cargar los paquetes.");
@@ -255,6 +342,17 @@ const askBundle = addKeyword(EVENTS.ACTION)
                         delay: 100
                     }]);
                 }
+                if (Array.isArray(saleBundle) || saleBundle.length < 0) {
+                    await flowDynamic("También tenemos las siguientes promociones");
+                    for (const sale of saleBundle) {
+                        await flowDynamic([{
+                            body: sale.name, // Send the bundle name
+                            media: join('assets', sale.url),
+                            delay: 100
+                        }]);
+                    }
+                }
+
 
                 await flowDynamic("Escriba el que desee contratar");
 
@@ -270,7 +368,11 @@ const askBundle = addKeyword(EVENTS.ACTION)
                 const selectedBundle = bundles.find(bundle => bundle.name.toLowerCase() === input);
                 userInputs.bundleID = selectedBundle.id;
                 return gotoFlow(askPlace);
-            } else {
+            } else if (saleBundleOptions.includes(input)){
+                const selectedBundle = saleBundle.find(saleBundle => saleBundle.name.toLowerCase() === input);
+                userInputs.bundleID = selectedBundle.id;
+                return gotoFlow(askPlace);
+            }else {
                 await flowDynamic('La opción seleccionada no existe o es errónea, por favor intente nuevamente.');
                 await flowDynamic(`Los paquetes disponibles son:`);
 
@@ -281,6 +383,14 @@ const askBundle = addKeyword(EVENTS.ACTION)
                         delay: 100
                     }]);
                 }
+                await flowDynamic("También tenemos las siguientes promociones");
+                    for (const sale of saleBundle) {
+                        await flowDynamic([{
+                            body: sale.name, // Send the bundle name
+                            media: join('assets', sale.url),
+                            delay: 100
+                        }]);
+                    }
 
                 return fallBack();
             }
