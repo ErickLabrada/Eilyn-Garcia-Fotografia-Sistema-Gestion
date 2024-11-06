@@ -262,6 +262,12 @@ try {
                     await flowDynamic("La fecha que ha pedido no parece ser real, por favor verifique que sea una fecha existente");
                     return gotoFlow(askDay); 
                 }
+
+                if ((month==12&&[24,25,31]||(month==1&&day==1))){
+                    await flowDynamic("Lo lamento, pero ese día no trabajamos");
+                    return gotoFlow(askDay); 
+                }
+
                 console.log(date2)
                 console.log(now)
                 console.log(minDate)
@@ -470,6 +476,21 @@ const hireServices = addKeyword(EVENTS.ACTION)
     );
 
 
+    const mediaFlow = addKeyword(EVENTS.MEDIA)
+  .addAnswer('Disculpa, pero no podemos leer imagenes o video, por favor contesta mediante mensajes de texto')
+
+  const documentFlow = addKeyword(EVENTS.DOCUMENT)
+  .addAnswer('Disculpa, pero no podemos leer documentos, por favor contesta mediante mensajes de texto')
+
+  const audioFlow = addKeyword(EVENTS.VOICE_NOTE)
+  .addAnswer('Disculpa, pero no podemos escuchar audios, por favor contesta mediante mensajes de texto')
+  const locationFLow = addKeyword(EVENTS.LOCATION)
+  .addAnswer('Disculpa, pero no interpretar lugares, por favor contesta mediante mensajes de texto')
+
+  
+
+
+
 const flowPrincipal = addKeyword(EVENTS.WELCOME)
     .addAnswer(["Hola, bienvenido al ChatBot de Eilyn Garcia Fotografía!"])
     .addAnswer([
@@ -502,6 +523,8 @@ const flowPrincipal = addKeyword(EVENTS.WELCOME)
         }
     );
 
+
+    
 const consultInformation = addKeyword(["Consultar informacion"])
     .addAnswer(["Esta es la informacion de nuestro horario y promociones existentes"])
     .addAnswer(["Para comenzar, ¿puede decirme el nombre de la persona a la que tomaremos fotos"]);
@@ -513,7 +536,7 @@ const talkToAnEmployee = addKeyword(["Hablar con un empleado"])
 
 
 const main = async () => {
-    const adapterFlow = createFlow([flowPrincipal, hireServices, askEvent, askBundle, askPlace, askDay,askMonth,askYear,askHour,ending])
+    const adapterFlow = createFlow([flowPrincipal, hireServices, askEvent, askBundle, askPlace, askDay,askMonth,askYear,askHour,ending,documentFlow,locationFLow,mediaFlow,audioFlow])
 
     const adapterProvider = createProvider(Provider)
     const adapterDB = new Database()
