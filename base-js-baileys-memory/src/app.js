@@ -1,14 +1,17 @@
-import { join } from 'path'
-import { createBot, createProvider, createFlow, addKeyword, utils, EVENTS } from '@builderbot/bot'
-import { MemoryDB as Database } from '@builderbot/bot'
-import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
-import axios from 'axios'; // Change this line
+import { join } from 'path';
+import { createBot, createProvider, createFlow, addKeyword, utils, EVENTS } from '@builderbot/bot';
+import { MemoryDB as Database } from '@builderbot/bot';
+import { BaileysProvider as Provider } from '@builderbot/provider-baileys';
+import axios from 'axios';
 
-
-const PORT = process.env.PORT ?? 3008
-
-let eventOptions=[];
-let events=[];
+const PORT = process.env.PORT ?? 3008;
+const emojiRegex = /[\p{Emoji}\u200d\u20e3\ufe0f\u00ae\u00a9]+/gu;
+let eventList;
+let bundleList;
+let bundles;
+let bundleOptions = [];
+let eventOptions = [];
+let events = [];
 let userInputs = {
     place: '',
     name: '',
@@ -18,6 +21,9 @@ let userInputs = {
     eventId: null,
     appointmentID: null,
 };
+
+let date = new Date();
+
 
 // Default values
 const DEFAULT_HOURS = 2;
@@ -29,15 +35,22 @@ const DEFAULT_GUARANTEE = '2024-12-12';
 const DEFAULT_STATUS_ID = 1;
 
 // Flow for ending the conversation
-const ending = addKeyword([]).addAction(async (ctx, { flowDynamic }) => {
-    console.log(ctx.body);
-    userInputs.eventDate = ctx.body;
+const ending = addKeyword(EVENTS.ACTION).addAction(async (ctx, { flowDynamic }) => {
 
     const client = { phone: userInputs.phone };
     try {
-        const clientResponse = await axios.post('http://localhost:3001/clients', client);
-        console.log("Cliente guardado:", clientResponse.data);
-        userInputs.clientID = clientResponse.data.id;
+        const response = await axios.get(`http://localhost:3001/clients/by-phone/${userInputs.phone}`);
+        const clientResponse = response.data;
+
+        if (!clientResponse || clientResponse.length <= 0) {
+            // Cliente no existe, crearlo
+            const newClientResponse = await axios.post('http://localhost:3001/clients/', client);
+            console.log("Cliente guardado:", newClientResponse.data);
+            userInputs.clientID = newClientResponse.data.id;
+        } else {
+            // Cliente ya existe, usar su ID
+            userInputs.clientID = clientResponse.id;
+        }
     } catch (error) {
         console.error('Error guardando el cliente:', error);
     }
@@ -85,138 +98,264 @@ const ending = addKeyword([]).addAction(async (ctx, { flowDynamic }) => {
         []
     );
 
-const askDate = addKeyword([]).addAction(async (ctx, { flowDynamic }) => {
-    console.log(ctx.body);
-    userInputs.place = ctx.body;
-    userInputs.phone = ctx.from;
-})
-    .addAnswer(
-        ["Perfecto!", "Ahora, ¿en qué día y a qué hora es el evento?"],
-        null, null,
-        [ending]
+
+
+    const askHour = addKeyword(EVENTS.ACTION)
+    .addAnswer(['Por favor, proporcione la hora en la cual se realizará el evento en formato "HH:MM".'])
+    .addAnswer(['Recuerde que el horario permitido es de 9 AM a 11 PM.'])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
+            
+            // Patrón para validar el formato "HH:MM"
+            const timePattern = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+            
+            if (timePattern.test(input)) {
+                const [hours, minutes] = input.split(':').map(Number);
+                
+                // Validación del rango de horas permitidas (9:00 a 23:00)
+                if (hours >= 9 && hours < 23) {
+                    date.setHours(hours, minutes);
+                    userInputs.eventDate = date;
+    
+                    return gotoFlow(ending); // Cambia "ending" al flujo adecuado que debe continuar después de la hora
+                } else {
+                    await flowDynamic('La hora proporcionada está fuera del horario permitido. Ingrese una hora entre las 9 AM y las 11 PM.');
+                    return fallBack('Proporcione una hora válida en formato "HH:MM".');
+                }
+            } else {
+                // Mensaje de error para formato incorrecto o caracteres no válidos
+                await flowDynamic('Formato de hora incorrecto o contiene caracteres no válidos. Por favor, ingrese la hora en el formato "HH:MM".');
+                await flowDynamic('Ejemplo: "14:30" para 2:30 PM.');
+                return fallBack('Proporcione una hora válida en formato "HH:MM".');
+            }
+        }
     );
+    
 
-const askPlace = addKeyword([]).addAction(async (ctx, { flowDynamic }) => {
-    console.log(ctx.body);
 
-    try {
-        const response = await axios.get(`http://localhost:3001/bundle/by-name/${ctx.body}`);
-        const bundle = response.data;
-        userInputs.selectedBundleId = bundle.id;
-    } catch (error) {
-        console.error(error);
-        return await flowDynamic('Error al obtener los paquetes.');
-    }
-})
-    .addAnswer(
-        ["Excelente!", "¿En qué lugar sería el evento?"],
-        null, null,
-        [askDate]
+
+    const askDay = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Ahora proporcione el día en el cual quiere que se realice el evento."])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
+    
+            // Validación de que el input sea un número y esté entre 1 y 31
+            if (!isNaN(input) && parseInt(input) > 0 && parseInt(input) <= 31) {
+                date.setDate(parseInt(input));
+                return gotoFlow(askMonth);
+            }
+    
+            // Mensaje de error para entradas inválidas
+            await flowDynamic('Disculpe los inconvenientes, pero el día proporcionado es inválido o contiene caracteres o emojis que no están permitidos.');
+            await flowDynamic("El día debe ser un número entre 1 y 31. Ejemplo: '15'.");
+            ctx.body = "";  // Reiniciar el valor de ctx.body
+            return fallBack('Proporcione el día en el cual quiere que se realice el evento.');
+        }
     );
-    const askBundle = addKeyword(EVENTS.ACTION)
-    .addAnswer("Para su tipo de evento ofrecemos los siguientes paquetes:", { delay: 3000 })
-    .addAction(async (ctx, { flowDynamic }) => {
+    
+    const askMonth = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Ahora proporcione el número del mes en el cual quiere que se realice el evento."])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
+    
+            // Validación de que el input sea un número y esté entre 1 y 12
+            if (!isNaN(input) && parseInt(input) > 0 && parseInt(input) <= 12) {
+                date.setMonth(parseInt(input) - 1); // Restar 1 ya que en JS los meses van de 0 a 11
+                return gotoFlow(askYear);
+            }
+    
+            // Mensaje de error para entradas inválidas
+            await flowDynamic('Disculpe los inconvenientes, pero el mes proporcionado es inválido o contiene caracteres o emojis que no están permitidos.');
+            await flowDynamic("El mes debe ser un número entre 1 y 12. Ejemplo: '12' para diciembre.");
+            ctx.body = "";  // Reiniciar el valor de ctx.body
+            return fallBack('Proporcione el mes en el cual quiere que se realice el evento.');
+        }
+    );
+    
+    const askYear = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Ahora proporcione el año en el cual quiere que se realice el evento."])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
+    
+            // Validación de que el input sea un número de 4 dígitos
+            if (!isNaN(input) && input.length === 4) {
+                date.setFullYear(parseInt(input));
+                return gotoFlow(askHour); // Cambia "ask" al flujo adecuado que debe continuar después del año
+            }
+    
+            // Mensaje de error para entradas inválidas
+            await flowDynamic('Disculpe los inconvenientes, pero el año proporcionado es inválido o contiene caracteres o emojis que no están permitidos.');
+            await flowDynamic("El año debe ser un número de 4 dígitos. Ejemplo: '2024'.");
+            ctx.body = "";  // Reiniciar el valor de ctx.body
+            return fallBack('Proporcione el año en el cual quiere que se realice el evento.');
+        }
+    );
+    
 
-        const selectedEventType = ctx.body;
-        userInputs.eventId = (await axios.get(`http://localhost:3001/events/by-name/${selectedEventType}`)).data.id;
 
-        try {
-            const response = await axios.get(`http://localhost:3001/bundle/by-event-type/${selectedEventType}`);
-            const bundles = response.data;
+const askPlace = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Buena elección!, ahora proporcioname la dirección del lugar donde se realizara el evento porfavor."])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
 
-            if (!Array.isArray(bundles) || bundles.length === 0) {
-                return await flowDynamic("Lo siento, no se pudieron cargar los paquetes.");
+            if (input.length < 125) {
+                    userInputs.place = input;
+
+                    return gotoFlow(askDay);
+         
             }
 
+            console.log(input);
+            await flowDynamic('Disculpe los inconvenientes, pero la dirección proporcionada es inválida o contiene caracteres o emojis que no están permitidos.');
+            
+            ctx.body = "";
+            
+            return fallBack('proporcioname la dirección del lugar donde se realizara el evento porfavor.');
 
-
-
-    for (const bundle of bundles) {
-        await flowDynamic([{ 
-            body: bundle.name, // Send the bundle name
-            media: join('assets',bundle.url) ,
-            delay: 100
-        }]);
-    }
-
-        } catch (error) {
-            console.error(error);
-            return await flowDynamic('Error al obtener los paquetes.');
         }
-    })
-    .addAnswer(
-        ["¿Cuál de ellos es el que desea contratar?"],
-        null,
-        { capture: true },
-        [askPlace]
     );
 
 
-    const askEvent = addKeyword([])
-    .addAction(async (_, { flowDynamic }) => {
-        await flowDynamic('Genial, aquí en Eilyn Garcia Fotografía ofrecemos servicio para los siguientes eventos:');
-        await flowDynamic('Seleccione el evento escribiéndolo:');
+const askBundle = addKeyword(EVENTS.ACTION)
+    .addAnswer("Para su tipo de evento ofrecemos los siguientes paquetes:", { delay: 1000 })
+    .addAction(
+        async (ctx, { flowDynamic }) => {
+            const selectedEventType = ctx.body;
+            userInputs.eventId = (await axios.get(`http://localhost:3001/events/by-name/${selectedEventType}`)).data.id;
+
+            try {
+                const response = await axios.get(`http://localhost:3001/bundle/by-event-type/${selectedEventType}`);
+                bundles = response.data;
+                bundleOptions = bundles.map(bundle => bundle.name.toLowerCase());
+                bundleList = bundleOptions.join('\n');
+
+                if (!Array.isArray(bundles) || bundles.length === 0) {
+                    return await flowDynamic("Lo siento, no se pudieron cargar los paquetes.");
+                }
+
+                for (const bundle of bundles) {
+                    await flowDynamic([{
+                        body: bundle.name, // Send the bundle name
+                        media: join('assets', bundle.url),
+                        delay: 100
+                    }]);
+                }
+
+                await flowDynamic("Escriba el que desee contratar");
+
+            } catch (error) {
+                console.error(error);
+                return await flowDynamic('Error al obtener los paquetes.');
+            }
+        })
+    .addAction({ capture: true }, async (ctx, { fallBack, gotoFlow, flowDynamic }) => {
+        try {
+            const input = ctx.body.toLowerCase().trim();
+            if (bundleOptions.includes(input)) {
+                const selectedBundle = bundles.find(bundle => bundle.name.toLowerCase() === input);
+                userInputs.bundleID = selectedBundle.id;
+                return gotoFlow(askPlace);
+            } else {
+                await flowDynamic('La opción seleccionada no existe o es errónea, por favor intente nuevamente.');
+                await flowDynamic(`Los paquetes disponibles son:`);
+
+                for (const bundle of bundles) {
+                    await flowDynamic([{
+                        body: bundle.name, // Send the bundle name
+                        media: join('assets', bundle.url),
+                        delay: 100
+                    }]);
+                }
+
+                return fallBack();
+            }
+        } catch (error) {
+            console.error(error);
+            await flowDynamic('Error al procesar evento');
+        }
+    });
+
+const askEvent = addKeyword(EVENTS.ACTION)
+    .addAction(async (_, { flowDynamic, gotoFlow }) => {
+        await flowDynamic('Genial ' + userInputs.name + ', aquí en Eilyn Garcia Fotografía ofrecemos servicio para los siguientes eventos:');
+        await flowDynamic('Seleccione su evento escribiendo el nombre del evento:');
+
+
         try {
             const response = await axios.get('http://localhost:3001/events');
             events = response.data;
-            console.log(events)
             eventOptions = events.map(event => event.event.toLowerCase());
-            const eventList = eventOptions.join('\n');
+            eventList = eventOptions.join('\n');
 
             if (!eventOptions.length) {
                 await flowDynamic("Lo siento, hubo un error al intentar cargar los eventos.");
-                return fallBack();  // Ensure fallBack is returned
+                return gotoFlow(flowPrincipal);
             } else {
                 await flowDynamic(`Los eventos disponibles son:\n${eventList}\n`);
             }
-    }catch(error){
-        console.log(error);
-        await flowDynamic('Error1');
-        return fallBack(); // Ensure fallBack is returned on error
-    }})
-    .addAction({ capture: true },async (ctx, {gotoFlow, fallBack, flowDynamic }) => {
-        try{
-
-                const input = ctx.body.toLowerCase().trim();
-
-                if (eventOptions.includes(input)) {
-                    const selectedEvent = events.find(event => event.event.toLowerCase() === input);
-                    userInputs.eventId = selectedEvent.id;  // Store selected event ID
-                    return gotoFlow(askBundle); // Transition to askBundle if input is valid
-                } else {
-                    await flowDynamic('La opción seleccionada no existe o es errónea, por favor intente nuevamente.');
-                    return fallBack();  // Ensure fallBack is returned here
-                }
-
         } catch (error) {
-            console.log(error);
-            await flowDynamic('Error .');
-            return fallBack(); // Ensure fallBack is returned on error
+            console.error(error);
+            
+            await flowDynamic('Error al cargar eventos');
+            return gotoFlow(flowPrincipal);
         }
     })
+    .addAction({ capture: true }, async (ctx, { fallBack, gotoFlow, flowDynamic }) => {
+        try {
+            const input = ctx.body.toLowerCase().trim();
+            if (eventOptions.includes(input)) {
+                const selectedEvent = events.find(event => event.event.toLowerCase() === input);
+                userInputs.eventId = selectedEvent.id;
+                return gotoFlow(askBundle);
+            } else {
+                await flowDynamic('La opción seleccionada no existe o es errónea, por favor intente nuevamente.');
+                return fallBack(`Los eventos disponibles son:\n${eventList}\n`);
+
+            }
+        } catch (error) {
+            console.error(error);
+            await flowDynamic('Error al procesar evento');
+        }
+    });
 
 
-    const hireServices = addKeyword(["Contratar servicios"])
-    .addAction(async (_, { flowDynamic }) => {
-        await flowDynamic("Gracias por escoger nuestros servicios fotográficos");
-        await flowDynamic("Para comenzar, ¿puede decirme el nombre de la persona a la que tomaremos fotos?");
-    })
+const hireServices = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Gracias por escoger nuestros servicios fotográficos"])
+    .addAnswer(["Para comenzar, ¿puede decirme el nombre de la persona a la que tomaremos fotos"])
     .addAction(
         { capture: true },
-        async (ctx, { fallBack, flowDynamic }) => {
-            let input = ctx.body.toLowerCase().trim();
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.trim();
 
-            if (input !== null && input !== '') {
-                userInputs.name = input;
-                await flowDynamic('El nombre registrado fue: ' + input);
-            } else {
-                await flowDynamic('Tu nombre es inválido, intentalo de nuevo por favor.');
-                return fallBack();
+            if (input.length < 50 && !(emojiRegex.test(input))) {
+
+                if (!(emojiRegex.test(input))) {
+                    userInputs.name = input;
+
+                    return gotoFlow(askEvent);
+
+                    ;
+                }
             }
-        }, [askEvent]
+            await flowDynamic('Disculpe los inconvenientes, pero el nombre proporcionado es inválido o contiene caracteres o emojis que no están permitidos.');
+            ctx.body = "";
+            return fallBack('¿Puede decirme el nombre de la persona a la que tomaremos fotos?.');
+
+        }
     );
 
-    const flowPrincipal = addKeyword(["hola", "ola", "que", "tal", "disponible", "estan"])
+
+const flowPrincipal = addKeyword(EVENTS.WELCOME)
     .addAnswer(["Hola, bienvenido al ChatBot de Eilyn Garcia Fotografía!"])
     .addAnswer([
         "¿En qué puedo ayudarle?\n" +
@@ -225,36 +364,42 @@ const askPlace = addKeyword([]).addAction(async (ctx, { flowDynamic }) => {
         "👉 *Hablar con un empleado*: para redirigirlo con un empleado"])
     .addAction(
         { capture: true },
-        async (ctx, { fallBack, flowDynamic }) => {
-
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
             const input = ctx.body.toLowerCase().trim();
             if (input === 'contratar servicios' || input === 'contratar servicio') {
                 await flowDynamic('Usted ha seleccionado *Contratar servicios*.');
+                return gotoFlow(hireServices);
             } else if (input === 'consultar información') {
                 await flowDynamic('Usted ha seleccionado *Consultar información*. Aquí tiene la información que necesita...');
-                return;
+                return gotoFlow(consultInformation);
             } else if (input === 'hablar con un empleado') {
                 await flowDynamic('Redirigiéndole con un empleado...');
-                return;
+                return gotoFlow(talkToAnEmployee);
             } else {
-
                 await flowDynamic('La opción seleccionada no existe, por favor intente nuevamente.');
                 await flowDynamic(
                     "¿En qué puedo ayudarle?\n" +
                     "👉 *Contratar servicios*: para contratar alguno de nuestros paquetes fotográficos\n" +
                     "👉 *Consultar información*: para consultar información acerca de nuestros servicios\n" +
-                    "👉 *Hablar con un empleado*: para redirigirlo con un empleado"
-                );
-
-                return fallBack()
+                    "👉 *Hablar con un empleado*: para redirigirlo con un empleado");
+                return fallBack();
             }
-        }, [hireServices]
+        }
     );
+
+const consultInformation = addKeyword(["Consultar informacion"])
+    .addAnswer(["Esta es la informacion de nuestro horario y promociones existentes"])
+    .addAnswer(["Para comenzar, ¿puede decirme el nombre de la persona a la que tomaremos fotos"]);
+
+const talkToAnEmployee = addKeyword(["Hablar con un empleado"])
+    .addAnswer(["Gracias por contactar con nuestros servicios fotográficos"])
+    .addAnswer(["Espere unos momentos, nos contactaremos con usted lo antes posible!"])
+    .addAnswer(["Si desea volver al menu principal escriba 'Hola' o 'Menu principal'."]);
 
 
 const main = async () => {
-    const adapterFlow = createFlow([flowPrincipal,hireServices,askEvent,askBundle])
-    
+    const adapterFlow = createFlow([flowPrincipal, hireServices, askEvent, askBundle, askPlace, askDay,askMonth,askYear,askHour,ending])
+
     const adapterProvider = createProvider(Provider)
     const adapterDB = new Database()
 
@@ -302,8 +447,6 @@ const main = async () => {
             return res.end(JSON.stringify({ status: 'ok', number, intent }))
         })
     )
-
     httpServer(+PORT)
 }
-
 main()
