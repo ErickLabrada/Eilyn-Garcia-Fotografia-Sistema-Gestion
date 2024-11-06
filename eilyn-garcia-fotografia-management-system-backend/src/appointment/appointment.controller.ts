@@ -39,9 +39,15 @@ export class AppointmentController {
 
     @Get('unavailableHours/:date')
     async getUnavailableHours(@Param('date') date: string): Promise<GetUnavailableHoursDTO[]> {
-        const targetDate = new Date(date);  // Convert date string to Date object
+        const fixedDate = date+" ";
+        console.log('Trimmed date received:', fixedDate);
+        const targetDate = new Date(fixedDate);
+        console.log('Parsed date:', targetDate);  // Log the parsed date
         return this.appointmentService.getUnavailableHours(targetDate);
     }
+    
+    
+
 
     @Get('by-date/:date')
     async getAppointmentsByDate(@Param('date') date: string): Promise<Appointment[]> {
