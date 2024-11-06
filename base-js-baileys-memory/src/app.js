@@ -37,23 +37,28 @@ const DEFAULT_STATUS_ID = 1;
 // Flow for ending the conversation
 const ending = addKeyword(EVENTS.ACTION).addAction(async (ctx, { flowDynamic }) => {
 
-    const client = { phone: userInputs.phone };
-    try {
-        const response = await axios.get(`http://localhost:3001/clients/by-phone/${userInputs.phone}`);
-        const clientResponse = response.data;
+    userInputs.phone=ctx.from
 
-        if (!clientResponse || clientResponse.length <= 0) {
-            // Cliente no existe, crearlo
-            const newClientResponse = await axios.post('http://localhost:3001/clients/', client);
-            console.log("Cliente guardado:", newClientResponse.data);
-            userInputs.clientID = newClientResponse.data.id;
-        } else {
-            // Cliente ya existe, usar su ID
-            userInputs.clientID = clientResponse.id;
-        }
-    } catch (error) {
-        console.error('Error guardando el cliente:', error);
+    const client = { name: ctx.name, phone: userInputs.phone };
+
+try {
+    // Check if client already exists by phone
+    const response = await axios.get(`http://localhost:3001/clients/by-phone/${userInputs.phone}`);
+    const clientResponse = response.data;
+
+    if (!clientResponse) {
+        // Client doesn't exist; create a new one
+        const newClientResponse = await axios.post('http://localhost:3001/clients/', client);
+        console.log("Cliente guardado:", newClientResponse.data);
+        userInputs.clientID = newClientResponse.data.id;
+    } else {
+        // Client exists, use its ID
+        userInputs.clientID = clientResponse.id;
     }
+} catch (error) {
+    console.error('Error guardando el cliente:', error.response ? error.response.data : error.message);
+}
+
 
     const appointment = {
         date: userInputs.eventDate,
