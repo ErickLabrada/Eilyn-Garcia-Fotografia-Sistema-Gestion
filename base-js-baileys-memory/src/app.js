@@ -66,7 +66,6 @@ try {
     console.error('Error guardando el cliente:', error.response ? error.response.data : error.message);
 }
 
-
     const appointment = {
         date: userInputs.eventDate,
         hours: DEFAULT_HOURS,
@@ -103,12 +102,47 @@ try {
     }
 })
     .addAnswer(
-        ["Genial, en breves recibirá un mensaje confirmando la cita :D"],
-        null,
-        null,
-        []
+        ["Genial, en breves recibirá un mensaje confirmando la cita :D"])
+        .addAnswer(['¿Desea realizar otro proceso?, escriba "Si" para reiniciar el sistema.'])
+        .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+
+            const input = ctx.body.toLowerCase().trim();
+
+            if(input === "si"){
+                gotoFlow(flowPrincipal);
+            }else{
+                await flowDynamic("La opcion seleccionada fue erronea intentelo denuevo");
+                return fallBack('¿Desea realizar otro proceso?, escriba "Si" para reiniciar el sistema.');
+            }
+
+
+                }
     );
 
+    const validateAppointmentInfo = addKeyword(EVENTS.ACTION)
+    .addAnswer(["Genial, ya casi terminamos, esta es la información que has proporcionada, dime 'Si', si es correcta o 'No', si no lo es!."])
+    .addAction(
+        { capture: true },
+        async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
+            const input = ctx.body.toLowerCase().trim();
+            
+            await flowDynamic("Nombre del festejado: " + userInputs.name);
+            await flowDynamic("Dirección del evento: " + userInputs.place);
+            await flowDynamic("Fecha del evento: " + userInputs.date);
+            
+            if(input === "si"){
+                await flowDynamic("Genial, procederemos con el guardado de la informacion!")
+                return gotoFlow(ending);
+            }else if(input === "no"){
+                await flowDynamic("¡Entendido!, iniciemos denuevo entonces!")
+                return gotoFlow(hireServices);
+            }else{
+                return fallBack("Opcion no valida, ingrese un 'Si' o un 'No' como respuesta porfavor!")
+            }
+        }
+    );
 
     const askHour = addKeyword(EVENTS.ACTION)
     .addAnswer(['Por favor, proporcione la hora en la cual se realizará el evento en formato "HH:MM".'])
