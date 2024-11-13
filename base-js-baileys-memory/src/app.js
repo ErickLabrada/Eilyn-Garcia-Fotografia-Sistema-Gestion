@@ -22,6 +22,7 @@ let userInputs = {
     phone: '',
     eventDate: '',
     selectedBundleId: null,
+    bundleName: null,
     eventId: null,
     appointmentID: null,
 };
@@ -122,27 +123,34 @@ try {
     );
 
     const validateAppointmentInfo = addKeyword(EVENTS.ACTION)
-    .addAnswer(["Genial, ya casi terminamos, esta es la información que has proporcionada, dime 'Si', si es correcta o 'No', si no lo es!."])
+    .addAnswer(["Genial, ya casi terminamos, esta es la información que has proporcionado. Dime 'Sí' si es correcta o 'No' si no lo es."])
     .addAction(
         { capture: true },
         async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
             const input = ctx.body.toLowerCase().trim();
-            
-            await flowDynamic("Nombre del festejado: " + userInputs.name);
-            await flowDynamic("Dirección del evento: " + userInputs.place);
-            await flowDynamic("Fecha del evento: " + userInputs.date);
-            
-            if(input === "si"){
-                await flowDynamic("Genial, procederemos con el guardado de la informacion!")
+
+            // Displaying the provided information
+            await flowDynamic([
+                `Nombre del festejado: ${userInputs.name}`,
+                `Paquete del contratado: ${userInputs.bundleName}`,
+                `Dirección del evento: ${userInputs.place}`,
+                `Fecha del evento: ${userInputs.date}`
+            ]);
+
+            // Wait for a response from the user
+            if (input === "si" || input === "sí") { // Accept both 'si' and 'sí'
+                await flowDynamic("¡Genial, procederemos con el guardado de la información!");
                 return gotoFlow(ending);
-            }else if(input === "no"){
-                await flowDynamic("¡Entendido!, iniciemos denuevo entonces!")
+            } else if (input === "no") {
+                await flowDynamic("¡Entendido! Iniciaremos de nuevo entonces.");
                 return gotoFlow(hireServices);
-            }else{
-                return fallBack("Opcion no valida, ingrese un 'Si' o un 'No' como respuesta porfavor!")
+            } else {
+                // Invalid option fallback
+                return fallBack("Opción no válida, ingrese 'Sí' o 'No' como respuesta, por favor.");
             }
         }
     );
+
 
     const askHour = addKeyword(EVENTS.ACTION)
     .addAnswer(['Por favor, proporcione la hora en la cual se realizará el evento en formato "HH:MM".'])
@@ -197,9 +205,23 @@ try {
                         });
 
                         if (isBusy) {
-                            await flowDynamic('La hora proporcionada está dentro de las horas ocupadas. Por favor, elija otra hora.');
-                            return fallBack('Proporcione una hora válida en formato "HH:MM".');
+                            // Create a readable format for busy hours
+                            const formattedBusyHours = busyHours.map(period => {
+                                const startHourFormatted = `${period.startHour.toString().padStart(2, '0')}:${period.startMinute.toString().padStart(2, '0')}`;
+                                const endHourFormatted = `${period.endHour.toString().padStart(2, '0')}:${period.endMinute.toString().padStart(2, '0')}`;
+                                return `De ${startHourFormatted} a ${endHourFormatted}`;
+                            }).join('\n');
+                        
+                            // Inform the user about the busy hours
+                            await flowDynamic('Dicha hora está ocupada, a continuación le mostramos nuestra agenda para el día seleccionado, por favor escoja una fecha diferente o una hora que tengamos libre.');
+                            
+                            // Display the formatted busy hours
+                            await flowDynamic(formattedBusyHours);
+                            
+                            // Redirect to askDay flow to choose another time
+                            return gotoFlow(askDay);
                         }
+                        
                     }
 
                     // If not busy, set the event date and proceed
@@ -209,7 +231,7 @@ try {
                     date.setHours(hours, minutes);
                     userInputs.eventDate = date;
     
-                    return gotoFlow(ending); // Cambia "ending" al flujo adecuado que debe continuar después de la hora
+                    return gotoFlow(validateAppointmentInfo); // Cambia "ending" al flujo adecuado que debe continuar después de la hora
                 } else {
                     await flowDynamic('La hora proporcionada está fuera del horario permitido. Ingrese una hora entre las 9 AM y las 11 PM.');
                     return fallBack('Proporcione una hora válida en formato "HH:MM".');
@@ -407,6 +429,7 @@ const askBundle = addKeyword(EVENTS.ACTION)
             if (bundleOptions.includes(input)) {
                 const selectedBundle = bundles.find(bundle => bundle.name.toLowerCase() === input);
                 userInputs.bundleID = selectedBundle.id;
+                userInputs.bundleName=input;
                 return gotoFlow(askPlace);
             } else if (saleBundleOptions.includes(input)){
                 const selectedBundle = saleBundle.find(saleBundle => saleBundle.name.toLowerCase() === input);
