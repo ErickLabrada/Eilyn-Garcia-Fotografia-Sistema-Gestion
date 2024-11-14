@@ -113,7 +113,10 @@ try {
 
             if(input === "si"){
                 gotoFlow(flowPrincipal);
-            }else{
+            }else if(input === "no"){
+                await flowDynamic("¡Entendido!, cualquier otra cosa que necesites, aqui estare!.");
+                return;
+            } else{
                 await flowDynamic("La opcion seleccionada fue erronea intentelo denuevo");
                 return fallBack('¿Desea realizar otro proceso?, escriba "Si" para reiniciar el sistema.');
             }
@@ -124,32 +127,38 @@ try {
 
     const validateAppointmentInfo = addKeyword(EVENTS.ACTION)
     .addAnswer(["Genial, ya casi terminamos, esta es la información que has proporcionado. Dime 'Sí' si es correcta o 'No' si no lo es."])
+    .addAction({ capture: false },
+        async (ctx, { flowDynamic }) => {
+            // Formatear la fecha al estilo DD/MM/AAAA
+            const eventDate = userInputs.eventDate;
+            const formattedDate = eventDate.getDate().toString().padStart(2, '0') + '/' +
+                                  (eventDate.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                  eventDate.getFullYear();
+
+            await flowDynamic([
+                `Nombre del festejado: ${userInputs.name}`,
+                `Paquete contratado: ${userInputs.bundleName}`,
+                `Dirección del evento: ${userInputs.place}`,
+                `Fecha del evento: ${formattedDate}`
+            ]);
+        })
     .addAction(
         { capture: true },
         async (ctx, { fallBack, flowDynamic, gotoFlow }) => {
-            const input = ctx.body.toLowerCase().trim();
-
-            // Displaying the provided information
-            await flowDynamic([
-                `Nombre del festejado: ${userInputs.name}`,
-                `Paquete del contratado: ${userInputs.bundleName}`,
-                `Dirección del evento: ${userInputs.place}`,
-                `Fecha del evento: ${userInputs.date}`
-            ]);
-
-            // Wait for a response from the user
-            if (input === "si" || input === "sí") { // Accept both 'si' and 'sí'
+            const input = ctx.body.trim();
+            if (input === "si" || input === "sí") {
                 await flowDynamic("¡Genial, procederemos con el guardado de la información!");
                 return gotoFlow(ending);
             } else if (input === "no") {
                 await flowDynamic("¡Entendido! Iniciaremos de nuevo entonces.");
                 return gotoFlow(hireServices);
             } else {
-                // Invalid option fallback
                 return fallBack("Opción no válida, ingrese 'Sí' o 'No' como respuesta, por favor.");
             }
         }
     );
+
+
 
 
     const askHour = addKeyword(EVENTS.ACTION)
@@ -230,7 +239,7 @@ try {
                     date.setYear(year);
                     date.setHours(hours, minutes);
                     userInputs.eventDate = date;
-    
+                 
                     return gotoFlow(validateAppointmentInfo); // Cambia "ending" al flujo adecuado que debe continuar después de la hora
                 } else {
                     await flowDynamic('La hora proporcionada está fuera del horario permitido. Ingrese una hora entre las 9 AM y las 11 PM.');
@@ -593,7 +602,7 @@ const talkToAnEmployee = addKeyword(["Hablar con un empleado"])
 
 
 const main = async () => {
-    const adapterFlow = createFlow([flowPrincipal, hireServices, askEvent, askBundle, askPlace, askDay,askMonth,askYear,askHour,ending,documentFlow,locationFLow,mediaFlow,audioFlow])
+    const adapterFlow = createFlow([flowPrincipal, hireServices, askEvent, askBundle, askPlace, askDay,askMonth,askYear,askHour,ending,documentFlow,locationFLow,mediaFlow,audioFlow,validateAppointmentInfo])
 
     const adapterProvider = createProvider(Provider)
     const adapterDB = new Database()
