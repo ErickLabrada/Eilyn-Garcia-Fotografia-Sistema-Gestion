@@ -19,6 +19,8 @@
   <div id="paquetes">
     <h2>Paquetes actuales</h2>
     <button class="nuevo-boton" @click="abrirModalNuevo">Nuevo</button>
+    <button class="generar-reporte-boton" @click="generarReportePaquetesPDF">Generar Reporte</button>
+
     <div class="paquetes-grid">
       <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.nombre">
         <h3>{{ paquete.nombre }}</h3>
@@ -122,6 +124,9 @@
 </template>
 
 <script>
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 export default {
   data() {
     return {
@@ -171,8 +176,10 @@ export default {
       console.log("Cerrando sesión...");
     },
     navigate(subItem) {
-      if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes"); 
+      if (subItem === "Administrar citas") {
+        this.$router.push("/citas");
+      } else if (subItem === "Administrar paquetes") {
+        this.$router.push("/paquetes");
       } else {
         console.log(`Navegando a: ${subItem}`);
       }
@@ -242,10 +249,44 @@ export default {
         this.nuevoPaquete.imagen = URL.createObjectURL(file);
       }
     },
+    generarReportePaquetesPDF() {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Reporte de Paquetes", 10, 10);
+
+      // Encabezados de la tabla
+      const encabezados = ["Nombre", "Descripción", "Costo", "Promoción", "Estado"];
+      // Datos de la tabla
+      const filas = this.paquetes.map((paquete) => [
+        paquete.nombre,
+        paquete.descripcion,
+        paquete.costo,
+        paquete.promocion || "Sin promoción",
+        paquete.activo ? "Activo" : "Inactivo",
+      ]);
+
+      // Genera la tabla usando autoTable
+      if (doc.autoTable) {
+        doc.autoTable({
+          head: [encabezados],
+          body: filas,
+          startY: 20,
+        });
+      } else {
+        // Alternativa si no está disponible autoTable
+        let y = 20;
+        filas.forEach((fila, index) => {
+          doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
+          y += 10;
+        });
+      }
+
+      // Guarda el PDF
+      doc.save("reporte_paquetes.pdf");
+    },
   },
 };
 </script>
-
 <style scoped>
 
 * {
@@ -436,5 +477,48 @@ h2 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+.modal-actions button {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.modal-actions button:hover {
+  background-color: #ddd;
+}
+.report-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+.report-btn:hover {
+  background-color: #0056b3;
+}
+.generar-reporte-boton {
+  background-color: #28a745; /* Verde */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.3s;
+  margin: 10px auto;
+  display: block;
+}
 
+.generar-reporte-boton:hover {
+  background-color: #218838; /* Verde más oscuro */
+  transform: scale(1.05); /* Efecto de agrandamiento al pasar el mouse */
+}
+
+.generar-reporte-boton:active {
+  background-color: #1e7e34; /* Verde aún más oscuro al hacer clic */
+  transform: scale(0.98); /* Efecto de pulsación al hacer clic */
+}
 </style>

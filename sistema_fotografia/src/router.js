@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from './components/UserLogin.vue'; 
 import PaginaInicial from './components/PaginaInicial.vue';
 import PaginaPaquetes from './components/PaginaPaquetes.vue';
+import ConfirmarCita from './components/AdministrarCita.vue';
 const routes = [
   {
     path: '/', 
@@ -17,6 +18,11 @@ const routes = [
     path: "/paquetes",
     name: "Paquetes",
     component: PaginaPaquetes,
+  },
+  {
+    path: "/citas",
+    name: "Citas",
+    component: ConfirmarCita,
   }
 ];
 

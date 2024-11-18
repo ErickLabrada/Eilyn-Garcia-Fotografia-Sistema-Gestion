@@ -50,8 +50,10 @@ export default {
       console.log("Cerrando sesión...");
     },
     navigate(subItem) {
-      if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes"); // Cambia "/paquetes" a la ruta correcta
+      if (subItem === "Administrar citas") {
+        this.$router.push("/citas"); 
+      } else if (subItem === "Administrar paquetes") {
+        this.$router.push("/paquetes"); 
       } else {
         console.log(`Navegando a: ${subItem}`);
       }
@@ -59,6 +61,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 * {
