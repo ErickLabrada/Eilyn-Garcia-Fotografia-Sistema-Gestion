@@ -8,12 +8,15 @@
       <div class="menu-item" v-for="menu in menus" :key="menu.title">
         <span @click="toggleDropdown(menu.title)">{{ menu.title }}</span>
         <ul v-if="menu.isOpen" class="dropdown">
-          <li v-for="subItem in menu.items" :key="subItem">{{ subItem }}</li>
+          <li v-for="subItem in menu.items" :key="subItem" @click="navigate(subItem)">
+            {{ subItem }}
+          </li>
         </ul>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   data() {
@@ -46,9 +49,17 @@ export default {
     logout() {
       console.log("Cerrando sesión...");
     },
+    navigate(subItem) {
+      if (subItem === "Administrar paquetes") {
+        this.$router.push("/paquetes"); // Cambia "/paquetes" a la ruta correcta
+      } else {
+        console.log(`Navegando a: ${subItem}`);
+      }
+    },
   },
 };
 </script>
+
 <style scoped>
 * {
   margin: 0;
@@ -59,7 +70,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: rgb(255, 255, 255); 
+  background-color: rgb(255, 255, 255);
 }
 #navbar {
   display: flex;
