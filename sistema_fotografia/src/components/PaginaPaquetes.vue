@@ -18,66 +18,194 @@
 
   <div id="paquetes">
     <h2>Paquetes actuales</h2>
-    <button class="nuevo-boton" @click="nuevoPaquete">Nuevo</button>
+    <button class="nuevo-boton" @click="abrirModalNuevo">Nuevo</button>
     <div class="paquetes-grid">
       <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.nombre">
         <h3>{{ paquete.nombre }}</h3>
         <p>{{ paquete.descripcion }}</p>
         <p><strong>{{ paquete.costo }}</strong></p>
-        <div class="imagen-placeholder">Imagen</div>
-        <button class="opciones-boton">Opciones</button>
+        <div class="imagen-placeholder">
+          <img v-if="paquete.imagen" :src="paquete.imagen" alt="Imagen del paquete" />
+          <span v-else>Sin imagen</span>
+        </div>
+        <button class="opciones-boton" @click="abrirModal(paquete)">Opciones</button>
       </div>
     </div>
   </div>
+
+  <div v-if="modalNuevoVisible" class="modal-overlay">
+    <div class="modal">
+      <h3>Nuevo Paquete</h3>
+      <form @submit.prevent="agregarPaquete">
+        <div class="form-group">
+          <label for="nuevoNombre">Nombre:</label>
+          <input type="text" id="nuevoNombre" v-model="nuevoPaquete.nombre" required />
+        </div>
+        <div class="form-group">
+          <label for="nuevaDescripcion">Descripción:</label>
+          <textarea id="nuevaDescripcion" v-model="nuevoPaquete.descripcion" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="nuevoCosto">Costo:</label>
+          <input type="text" id="nuevoCosto" v-model="nuevoPaquete.costo" required />
+        </div>
+        <div class="form-group">
+          <label for="nuevaImagen">Imagen:</label>
+          <input type="file" id="nuevaImagen" @change="cargarNuevaImagen" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Agregar</button>
+          <button type="button" @click="cerrarModalNuevo">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div v-if="modalVisible" class="modal-overlay">
+    <div class="modal">
+      <h3>Detalles del Paquete</h3>
+      <p><strong>Nombre:</strong> {{ paqueteSeleccionado.nombre }}</p>
+      <p><strong>Descripción:</strong> {{ paqueteSeleccionado.descripcion }}</p>
+      <p><strong>Costo:</strong> {{ paqueteSeleccionado.costo }}</p>
+      <p>
+        <strong>Estado:</strong>
+        <span>{{ paqueteSeleccionado.activo ? 'Activo' : 'Inactivo' }}</span>
+        <button @click="toggleEstadoPaquete">{{ paqueteSeleccionado.activo ? 'Desactivar' : 'Activar' }}</button>
+      </p>
+      <div class="modal-actions">
+        <button @click="abrirEditarPaquete">Editar</button>
+        <button @click="eliminarPaquete">Eliminar</button>
+        <button @click="cerrarModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="modalEditarVisible" class="modal-overlay">
+    <div class="modal">
+      <h3>Editar Paquete</h3>
+      <form @submit.prevent="guardarCambios">
+        <div class="form-group">
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" v-model="paqueteSeleccionado.nombre" />
+        </div>
+        <div class="form-group">
+          <label for="descripcion">Descripción:</label>
+          <textarea id="descripcion" v-model="paqueteSeleccionado.descripcion"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="costo">Costo:</label>
+          <input type="text" id="costo" v-model="paqueteSeleccionado.costo" />
+        </div>
+        <div class="form-group">
+          <label for="imagen">Imagen:</label>
+          <input type="file" id="imagen" @change="cargarImagen" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Guardar</button>
+          <button type="button" @click="cerrarEditarModal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
+
 
 <script>
 export default {
   data() {
     return {
-      menus: [
-        {
-          title: "Administrar",
-          items: ["Administrar citas", "Administrar empleados", "Administrar promociones", "Administrar paquetes"],
-          isOpen: false,
-        },
-        {
-          title: "Consultas",
-          items: ["Consultar cliente", "Consultar paquete con permiso de publicación"],
-          isOpen: false,
-        },
-        {
-          title: "Reportes",
-          items: ["Reporte de ventas por paquete", "Reporte de ventas por evento"],
-          isOpen: false,
-        },
-      ],
+      menus: [],
       paquetes: [
-        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100" },
-        { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200" },
-        { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300" },
-        { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400" },
+        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", activo: true, imagen: null },
+        { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },
+        { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300", activo: false, imagen: null },
+        { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400", activo: false, imagen: null },
       ],
+      modalVisible: false,
+      modalEditarVisible: false,
+      modalNuevoVisible: false,
+      paqueteSeleccionado: null,
+      nuevoPaquete: {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        imagen: null,
+      },
     };
   },
   methods: {
-    toggleDropdown(title) {
-      this.menus = this.menus.map((menu) =>
-        menu.title === title ? { ...menu, isOpen: !menu.isOpen } : { ...menu, isOpen: false }
-      );
+    abrirModal(paquete) {
+      this.paqueteSeleccionado = { ...paquete };
+      this.modalVisible = true;
     },
-    logout() {
-      console.log("Cerrando sesión...");
+    cerrarModal() {
+      this.modalVisible = false;
+      this.paqueteSeleccionado = null;
     },
-    navigate(subItem) {
-      if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes");
-      } else {
-        console.log(`Navegando a: ${subItem}`);
+    abrirEditarPaquete() {
+      this.modalVisible = false; 
+      this.modalEditarVisible = true;
+    },
+    cerrarEditarModal() {
+      this.modalEditarVisible = false;
+      this.paqueteSeleccionado = null;
+    },
+    guardarCambios() {
+      const index = this.paquetes.findIndex((p) => p.nombre === this.paqueteSeleccionado.nombre);
+      if (index !== -1) {
+        this.paquetes[index] = { ...this.paqueteSeleccionado };
+        console.log("Paquete actualizado:", this.paqueteSeleccionado);
+      }
+      this.cerrarEditarModal();
+    },
+    cargarImagen(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.paqueteSeleccionado.imagen = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        console.log("Imagen cargada:", file.name);
       }
     },
-    nuevoPaquete() {
-      console.log("Crear nuevo paquete...");
+    eliminarPaquete() {
+      this.paquetes = this.paquetes.filter((p) => p.nombre !== this.paqueteSeleccionado.nombre);
+      console.log("Paquete eliminado:", this.paqueteSeleccionado.nombre);
+      this.cerrarModal();
+    },
+    toggleEstadoPaquete() {
+      if (this.paqueteSeleccionado) {
+        this.paqueteSeleccionado.activo = !this.paqueteSeleccionado.activo;
+        console.log(`Estado actualizado: ${this.paqueteSeleccionado.activo}`);
+      }
+    },
+    
+    abrirModalNuevo() {
+      this.modalNuevoVisible = true;
+      this.nuevoPaquete = { nombre: "", descripcion: "", costo: "", imagen: null };
+    },
+    cerrarModalNuevo() {
+      this.modalNuevoVisible = false;
+    },
+    cargarNuevaImagen(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.nuevoPaquete.imagen = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    agregarPaquete() {
+      if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
+        this.paquetes.push({ ...this.nuevoPaquete, activo: true });
+        console.log("Paquete agregado:", this.nuevoPaquete);
+        this.cerrarModalNuevo();
+      } else {
+        alert("Por favor completa todos los campos.");
+      }
     },
   },
 };
@@ -200,4 +328,78 @@ h2 {
 .opciones-boton:hover {
   background-color: #555;
 }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+.modal-actions button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modal-actions button:hover {
+  background-color: #ddd;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+.modal-actions button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modal-actions button:hover {
+  background-color: #ddd;
+}
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 </style>
