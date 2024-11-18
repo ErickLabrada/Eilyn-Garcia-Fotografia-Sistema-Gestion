@@ -24,6 +24,7 @@
         <h3>{{ paquete.nombre }}</h3>
         <p>{{ paquete.descripcion }}</p>
         <p><strong>{{ paquete.costo }}</strong></p>
+        <p v-if="paquete.promocion"><strong>Promoción:</strong> {{ paquete.promocion }}</p>
         <div class="imagen-placeholder">
           <img v-if="paquete.imagen" :src="paquete.imagen" alt="Imagen del paquete" />
           <span v-else>Sin imagen</span>
@@ -33,6 +34,7 @@
     </div>
   </div>
 
+  <!-- Modal para agregar nuevo paquete -->
   <div v-if="modalNuevoVisible" class="modal-overlay">
     <div class="modal">
       <h3>Nuevo Paquete</h3>
@@ -48,6 +50,10 @@
         <div class="form-group">
           <label for="nuevoCosto">Costo:</label>
           <input type="text" id="nuevoCosto" v-model="nuevoPaquete.costo" required />
+        </div>
+        <div class="form-group">
+          <label for="nuevaPromocion">Promoción:</label>
+          <input type="text" id="nuevaPromocion" v-model="nuevoPaquete.promocion" placeholder="Ej: 10% de descuento" />
         </div>
         <div class="form-group">
           <label for="nuevaImagen">Imagen:</label>
@@ -67,6 +73,7 @@
       <p><strong>Nombre:</strong> {{ paqueteSeleccionado.nombre }}</p>
       <p><strong>Descripción:</strong> {{ paqueteSeleccionado.descripcion }}</p>
       <p><strong>Costo:</strong> {{ paqueteSeleccionado.costo }}</p>
+      <p><strong>Promocion:</strong> {{ paqueteSeleccionado.promocion }}</p>
       <p>
         <strong>Estado:</strong>
         <span>{{ paqueteSeleccionado.activo ? 'Activo' : 'Inactivo' }}</span>
@@ -80,6 +87,7 @@
     </div>
   </div>
 
+  <!-- Modal para editar paquete -->
   <div v-if="modalEditarVisible" class="modal-overlay">
     <div class="modal">
       <h3>Editar Paquete</h3>
@@ -97,6 +105,10 @@
           <input type="text" id="costo" v-model="paqueteSeleccionado.costo" />
         </div>
         <div class="form-group">
+          <label for="promocion">Promoción:</label>
+          <input type="text" id="promocion" v-model="paqueteSeleccionado.promocion" />
+        </div>
+        <div class="form-group">
           <label for="imagen">Imagen:</label>
           <input type="file" id="imagen" @change="cargarImagen" />
         </div>
@@ -109,14 +121,29 @@
   </div>
 </template>
 
-
 <script>
 export default {
   data() {
     return {
-      menus: [],
+      menus: [
+        {
+          title: "Administrar",
+          items: ["Administrar citas", "Administrar empleados", "Administrar promociones", "Administrar paquetes"],
+          isOpen: false,
+        },
+        {
+          title: "Consultas",
+          items: ["Consultar cliente", "Consultar paquete con permiso de publicación"],
+          isOpen: false,
+        },
+        {
+          title: "Reportes",
+          items: ["Reporte de ventas por paquete", "Reporte de ventas por evento"],
+          isOpen: false,
+        },
+      ],
       paquetes: [
-        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", activo: true, imagen: null },
+        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", promocion: "10% descuento", activo: true, imagen: null },
         { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },
         { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300", activo: false, imagen: null },
         { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400", activo: false, imagen: null },
@@ -129,11 +156,27 @@ export default {
         nombre: "",
         descripcion: "",
         costo: "",
+        promocion: "",
         imagen: null,
       },
     };
   },
   methods: {
+    toggleDropdown(title) {
+      this.menus = this.menus.map((menu) =>
+        menu.title === title ? { ...menu, isOpen: !menu.isOpen } : { ...menu, isOpen: false }
+      );
+    },
+    logout() {
+      console.log("Cerrando sesión...");
+    },
+    navigate(subItem) {
+      if (subItem === "Administrar paquetes") {
+        this.$router.push("/paquetes"); 
+      } else {
+        console.log(`Navegando a: ${subItem}`);
+      }
+    },
     abrirModal(paquete) {
       this.paqueteSeleccionado = { ...paquete };
       this.modalVisible = true;
@@ -143,7 +186,7 @@ export default {
       this.paqueteSeleccionado = null;
     },
     abrirEditarPaquete() {
-      this.modalVisible = false; 
+      this.modalVisible = false;
       this.modalEditarVisible = true;
     },
     cerrarEditarModal() {
@@ -161,50 +204,42 @@ export default {
     cargarImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.paqueteSeleccionado.imagen = e.target.result;
-        };
-        reader.readAsDataURL(file);
-        console.log("Imagen cargada:", file.name);
+        this.paqueteSeleccionado.imagen = URL.createObjectURL(file);
       }
     },
     eliminarPaquete() {
-      this.paquetes = this.paquetes.filter((p) => p.nombre !== this.paqueteSeleccionado.nombre);
-      console.log("Paquete eliminado:", this.paqueteSeleccionado.nombre);
+      const index = this.paquetes.findIndex((p) => p.nombre === this.paqueteSeleccionado.nombre);
+      if (index !== -1) {
+        this.paquetes.splice(index, 1);
+        console.log("Paquete eliminado");
+      }
       this.cerrarModal();
     },
     toggleEstadoPaquete() {
-      if (this.paqueteSeleccionado) {
-        this.paqueteSeleccionado.activo = !this.paqueteSeleccionado.activo;
-        console.log(`Estado actualizado: ${this.paqueteSeleccionado.activo}`);
-      }
+      this.paqueteSeleccionado.activo = !this.paqueteSeleccionado.activo;
+      console.log("Estado del paquete actualizado:", this.paqueteSeleccionado.activo);
     },
-    
     abrirModalNuevo() {
       this.modalNuevoVisible = true;
-      this.nuevoPaquete = { nombre: "", descripcion: "", costo: "", imagen: null };
     },
     cerrarModalNuevo() {
       this.modalNuevoVisible = false;
+      this.nuevoPaquete = {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        imagen: null,
+      };
+    },
+    agregarPaquete() {
+      this.paquetes.push({ ...this.nuevoPaquete });
+      this.cerrarModalNuevo();
     },
     cargarNuevaImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.nuevoPaquete.imagen = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    agregarPaquete() {
-      if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
-        this.paquetes.push({ ...this.nuevoPaquete, activo: true });
-        console.log("Paquete agregado:", this.nuevoPaquete);
-        this.cerrarModalNuevo();
-      } else {
-        alert("Por favor completa todos los campos.");
+        this.nuevoPaquete.imagen = URL.createObjectURL(file);
       }
     },
   },
