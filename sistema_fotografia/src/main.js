@@ -1,7 +1,11 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "@/assets/styles.css";
 
-const app = createApp(App); // Crear instancia de la aplicación
-app.use(router); // Usar el enrutador
-app.mount('#app'); // Montar la aplicación
+
+const app = createApp(App); 
+app.use(router); 
+app.mount('#app'); 
