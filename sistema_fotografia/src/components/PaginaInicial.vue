@@ -151,7 +151,7 @@ export default {
         },
         {
           title: "Reportes",
-          items: ["Reporte de ventas por paquete", "Reporte de ventas por evento"],
+          items: ["Reporte de ventas"],
         },
       ],
       paquetes: [],
@@ -195,7 +195,8 @@ export default {
         this.$router.push("/citas");
       } else if (subItem === "Administrar paquetes") {
         this.$router.push("/paquetes");
-      } else {
+      } else if(subItem === "Reporte de ventas"){
+        this.$router.push("/reporte");
         console.log(`Navegando a: ${subItem}`);
       }
     },
@@ -211,7 +212,8 @@ body {
 }
 
 .navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+  background-color: #3a4046 !important; 
 }
 
 .navbar-text {

@@ -106,8 +106,8 @@ export default {
         {
           title: "Reportes",
           items: [
-            "Reporte de ventas por paquete",
-            "Reporte de ventas por evento",
+            "Reporte de ventas"
+            
           ],
           isOpen: false,
         },
@@ -159,10 +159,11 @@ export default {
     },
     navigate(subItem) {
       if (subItem === "Administrar citas") {
-        this.$router.push("/citas"); 
+        this.$router.push("/citas");
       } else if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes"); 
-      } else {
+        this.$router.push("/paquetes");
+      } else if(subItem === "Reporte de ventas"){
+        this.$router.push("/reporte");
         console.log(`Navegando a: ${subItem}`);
       }
     },

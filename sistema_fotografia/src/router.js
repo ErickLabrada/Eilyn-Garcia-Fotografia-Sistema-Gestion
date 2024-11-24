@@ -3,6 +3,7 @@ import Login from './components/UserLogin.vue';
 import PaginaInicial from './components/PaginaInicial.vue';
 import PaginaPaquetes from './components/PaginaPaquetes.vue';
 import ConfirmarCita from './components/AdministrarCita.vue';
+import ReporteVentas from './components/ReporteVentas.vue';
 const routes = [
   {
     path: '/', 
@@ -23,6 +24,11 @@ const routes = [
     path: "/citas",
     name: "Citas",
     component: ConfirmarCita,
+  },
+  {
+    path: "/reporte",
+    name: "Reporte",
+    component: ReporteVentas,
   }
 ];
 
