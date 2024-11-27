@@ -1,157 +1,52 @@
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import axios from "axios";
 
-export default {
-  data() {
-    return {
-      menus: [
-        {
-          title: "Administrar",
-          items: [
-            "Administrar citas",
-            "Administrar empleados",
-            "Administrar promociones",
-            "Administrar paquetes",
-          ],
-          isOpen: false,
-        },
-        {
-          title: "Consultas",
-          items: [
-            "Consultar cliente",
-            "Consultar paquete con permiso de publicación",
-          ],
-          isOpen: false,
-        },
-        {
-          title: "Reportes",
-          items: [
-            "Reporte de ventas"
-            
-          ],
-          isOpen: false,
-        },
-      ],
-      citas: [
-        {
-          cliente: "Nombre 1",
-          lugar: "Villa Itson",
-          paquete: 1,
-          fecha: "2024-09-12T12:00",
-          estatus: "Por Confirmar",
-        },
-        {
-          cliente: "Nombre 2",
-          lugar: "Casa Blanca",
-          paquete: 3,
-          fecha: "2024-09-10T12:00",
-          estatus: "Cita Confirmada",
-        },
-        {
-          cliente: "Nombre 3",
-          lugar: "Villa Itson",
-          paquete: 1,
-          fecha: "2024-09-12T12:00",
-          estatus: "Por Confirmar",
-        },
-        {
-          cliente: "Nombre 4",
-          lugar: "Casa Blanca",
-          paquete: 3,
-          fecha: "2024-09-10T12:00",
-          estatus: "Cita Confirmada",
-        },
-      ],
-      mostrarModal: false,
-      citaSeleccionada: null,
-    };
+// Configuración del cliente Axios
+const apiClient = axios.create({
+  baseURL: "http://localhost:3001/appointment", // URL del backend
+  headers: {
+    "Content-Type": "application/json",
   },
-  methods: {
-    toggleDropdown(title) {
-      this.menus = this.menus.map((menu) =>
-        menu.title === title
-          ? { ...menu, isOpen: !menu.isOpen }
-          : { ...menu, isOpen: false }
-      );
-    },
-    logout() {
-      console.log("Cerrando sesión...");
-    },
-    navigate(subItem) {
-      if (subItem === "Administrar citas") {
-        this.$router.push("/citas");
-      } else if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes");
-      } else if(subItem === "Reporte de ventas"){
-        this.$router.push("/reporte");
-        console.log(`Navegando a: ${subItem}`);
-      }
-    },
-    getStatusClass(estatus) {
-      return {
-        "status-confirmed": estatus === "Cita Confirmada",
-        "status-pending": estatus === "Por Confirmar",
-        "status-upcoming": estatus === "Cita Próxima",
-      };
-    },
-    confirmarCita(cita) {
-      cita.estatus = "Cita Confirmada";
-    },
-    cancelarCita(cita) {
-      cita.estatus = "Por Confirmar";
-    },
-    eliminarCita(cita) {
-      this.citas = this.citas.filter((c) => c !== cita);
-    },
-    abrirModal(cita) {
-      this.citaSeleccionada = { ...cita };
-      this.mostrarModal = true;
-    },
-    cerrarModal() {
-      this.mostrarModal = false;
-      this.citaSeleccionada = null;
-    },
-    guardarCambios() {
-      const index = this.citas.findIndex(
-        (c) => c.cliente === this.citaSeleccionada.cliente
-      );
-      if (index !== -1) {
-        this.citas.splice(index, 1, { ...this.citaSeleccionada });
-      }
-      this.cerrarModal();
-    },
-    generarReportePDF() {
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text("Reporte de Citas", 10, 10);
-      const encabezados = [
-        "Nombre del Cliente",
-        "Lugar",
-        "Paquete",
-        "Fecha y Hora",
-        "Estatus",
-      ];
-      const filas = this.citas.map((cita) => [
-        cita.cliente,
-        cita.lugar,
-        cita.paquete,
-        cita.fecha,
-        cita.estatus,
-      ]);
-      if (doc.autoTable) {
-        doc.autoTable({
-          head: [encabezados],
-          body: filas,
-          startY: 20,
-        });
-      } else {
-        let y = 20;
-        filas.forEach((fila, index) => {
-          doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
-          y += 10;
-        });
-      }
-      doc.save("reporte_citas.pdf");
-    },
+});
+
+export const citaService = {
+  // Obtener todas las citas desde el backend
+  async getCitas() {
+    try {
+      const response = await apiClient.get("/");
+      return response.data; // Retorna las citas obtenidas
+    } catch (error) {
+      console.error("Error al obtener citas:", error.message);
+      throw error;
+    }
+  },
+
+  // Confirmar una cita por su ID
+  async confirmarCita(id) {
+    try {
+      await apiClient.patch(`/${id}`, { estatus: "Cita Confirmada" });
+    } catch (error) {
+      console.error("Error al confirmar cita:", error.message);
+      throw error;
+    }
+  },
+
+  // Eliminar una cita por su ID
+  async eliminarCita(id) {
+    try {
+      await apiClient.delete(`/${id}`);
+    } catch (error) {
+      console.error("Error al eliminar cita:", error.message);
+      throw error;
+    }
+  },
+
+  // Actualizar una cita por su ID
+  async actualizarCita(id, data) {
+    try {
+      await apiClient.patch(`/${id}`, data);
+    } catch (error) {
+      console.error("Error al actualizar cita:", error.message);
+      throw error;
+    }
   },
 };

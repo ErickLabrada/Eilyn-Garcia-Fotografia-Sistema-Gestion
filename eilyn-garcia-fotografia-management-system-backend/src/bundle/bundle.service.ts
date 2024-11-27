@@ -64,9 +64,15 @@ export class BundleService {
         this.bundleRepository.save(newBundle);
     }
 
-    async getBundles(){
-        return await this.bundleRepository.find()
+    async getBundles() {
+        return await this.bundleRepository
+            .createQueryBuilder('bundle')
+            .where('bundle.type = :type', { type: 'Bundle' })
+            .getMany();
     }
+    
+    
+    
 
     async getBundle(id: number){
         return await this.bundleRepository.findOne({
@@ -89,8 +95,10 @@ export class BundleService {
             .createQueryBuilder('bundle')
             .innerJoinAndSelect('bundle.events', 'event')
             .where('event.event = :eventType', { eventType })
+            .andWhere('bundle.type = :type', { type: 'Bundle' })  // Filter by base type "Bundle"
             .getMany();
     }
+    
 
     async getBundleByName(name: string): Promise<Bundle> {
         try {

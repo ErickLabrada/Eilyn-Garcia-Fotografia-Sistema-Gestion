@@ -6,7 +6,6 @@ export class CreateContractDTO{
     celebratedsName: string
     description: string
     postingConsent: boolean
-    guarantee: Date
     appointmentsID: number[]
     deliverysID: number[]
     bundleID: number

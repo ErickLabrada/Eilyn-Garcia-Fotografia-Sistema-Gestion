@@ -3,6 +3,7 @@ import { SaleBundlesService } from './sale-bundles.service';
 import { CreateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/create-sale-bundle.dto';
 import { SaleBundle } from 'src/Domain/sale.bundle.entity';
 import { UpdateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/update-sale-bundle.dto';
+import { EventsEnum } from 'src/Domain/enums/events.enum';
 
 @Controller('sale-bundles')
 export class SaleBundlesController {
@@ -34,4 +35,10 @@ export class SaleBundlesController {
     deleteSaleBundle(@Param("id", ParseIntPipe)id: number){
         return this.saleBundlesService.deleteSaleBundle(id)
     }
+
+    @Get('by-event-type/:eventType')
+    async getBundlesByEventType(@Param('eventType') eventType: EventsEnum) {
+        return await this.saleBundlesService.getActiveSaleBundle(eventType);
+    }
+
 }

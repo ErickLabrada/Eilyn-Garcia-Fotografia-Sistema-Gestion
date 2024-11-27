@@ -19,6 +19,9 @@ export class Bundle{
     @Column()
     price: number
 
+    @Column()
+    url: string
+
     @OneToMany(()=>Contract,(contract)=>contract.bundle)
     contracts: Contract[]
 

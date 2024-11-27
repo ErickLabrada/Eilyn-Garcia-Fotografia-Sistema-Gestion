@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Sistema de fotografía</a>
+      <a class="navbar-brand" href="#">Sistema de Fotografía</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -52,14 +52,14 @@
     <button class="btn-action report-btn" @click="generarReportePDF">Generar Reporte PDF</button>
   </div>
 
-  <h2>Administrar citas</h2>
+  <h2>Administrar Citas</h2>
   <table class="appointment-table">
     <thead>
       <tr>
         <th>Nombre del Cliente</th>
         <th>Lugar</th>
         <th>Paquete</th>
-        <th>Fecha y hora de cita</th>
+        <th>Fecha y Hora</th>
         <th>Estatus</th>
         <th>Opciones</th>
       </tr>
@@ -74,10 +74,9 @@
           <span :class="getStatusClass(cita.estatus)">{{ cita.estatus }}</span>
         </td>
         <td class="options">
-          <button @click="confirmarCita(cita)">✔</button>
+          <button @click="confirmarCita(cita.id)">✔</button>
           <button @click="abrirModal(cita)">✎</button>
-          <button @click="cancelarCita(cita)">✖</button>
-          <button @click="eliminarCita(cita)">🗑</button>
+          <button @click="eliminarCita(cita.id)">🗑</button>
         </td>
       </tr>
     </tbody>
@@ -112,19 +111,78 @@
 </template>
 
 <script>
-import logica3 from "../logic/cita.js";
+import { citaService } from "../logic/cita.js";
 
 export default {
-  mixins: [logica3],
+  data() {
+    return {
+      menus: [
+        { title: "Menú 1", items: ["Submenú 1", "Submenú 2"] },
+        { title: "Menú 2", items: ["Submenú 3", "Submenú 4"] },
+      ],
+      citas: [],
+      mostrarModal: false,
+      citaSeleccionada: {},
+    };
+  },
   methods: {
-    agendarCita() {
-      // Lógica para abrir un modal o redirigir a la página de agendar cita
-      alert("Agendar cita no implementado");
+    async fetchCitas() {
+      try {
+        this.citas = await citaService.getCitas();
+      } catch (error) {
+        console.error("Error al cargar citas:", error);
+      }
     },
+    getStatusClass(estatus) {
+      switch (estatus) {
+        case "Cita Confirmada":
+          return "text-success";
+        case "Pendiente":
+          return "text-warning";
+        case "Cancelada":
+          return "text-danger";
+        default:
+          return "text-muted";
+      }
+    },
+    confirmarCita(id) {
+      citaService.confirmarCita(id).then(this.fetchCitas);
+    },
+    eliminarCita(id) {
+      citaService.eliminarCita(id).then(this.fetchCitas);
+    },
+    abrirModal(cita) {
+      this.citaSeleccionada = { ...cita };
+      this.mostrarModal = true;
+    },
+    cerrarModal() {
+      this.mostrarModal = false;
+    },
+    guardarCambios() {
+      citaService.actualizarCita(this.citaSeleccionada.id, this.citaSeleccionada)
+        .then(() => {
+          this.mostrarModal = false;
+          this.fetchCitas();
+        });
+    },
+  },
+  async created() {
+    await this.fetchCitas();
   },
 };
 </script>
 
 <style scoped>
-
+.text-success {
+  color: green;
+}
+.text-warning {
+  color: orange;
+}
+.text-danger {
+  color: red;
+}
+.text-muted {
+  color: gray;
+}
 </style>

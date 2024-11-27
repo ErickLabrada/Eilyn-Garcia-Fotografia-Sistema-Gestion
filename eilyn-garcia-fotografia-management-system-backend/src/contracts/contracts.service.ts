@@ -32,6 +32,7 @@ export class ContractsService {
             clientID,
             eventID,
             statusID,
+            postingConsent,
             ...contractData
         } = contractDTO;
     
@@ -66,6 +67,12 @@ export class ContractsService {
                 throw new Error(`Client with ID ${clientID} not found.`);
             }
     
+            let guarantee = null;
+                if (appointmentEntities.length > 0) {
+                    const appointmentDate = new Date(appointmentEntities[0].date);
+                    guarantee = new Date(appointmentDate);
+                     guarantee.setMonth(guarantee.getMonth() + 6);
+                }
             // Creating a new contract entity
             const newContract = this.contractRepository.create({
                 ...contractData,
@@ -75,6 +82,8 @@ export class ContractsService {
                 client: clientEntity,
                 event: eventEntity,
                 status: statusEntity,
+                postingConsent,
+                guarantee
             });
     
             // Saving the new contract to the database
@@ -105,6 +114,8 @@ export class ContractsService {
     async deleteContract(id: number){
         return await this.contractRepository.delete({id})
     }
+
+
 
 
 }

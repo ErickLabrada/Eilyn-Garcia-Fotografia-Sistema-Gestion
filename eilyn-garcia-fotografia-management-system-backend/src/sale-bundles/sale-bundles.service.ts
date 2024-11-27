@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentTemplate } from 'src/Domain/appointment.template.entity';
 import { Contract } from 'src/Domain/contract.entity';
+import { EventsEnum } from 'src/Domain/enums/events.enum';
 import { Event } from 'src/Domain/event.entity';
 import { Item } from 'src/Domain/item.entity';
 import { SaleBundle } from 'src/Domain/sale.bundle.entity';
 import { CreateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/create-sale-bundle.dto';
 import { UpdateSaleBundleDTO } from 'src/dtos/sale-bundle-dtos/update-sale-bundle.dto';
-import {In, Repository} from "typeorm"
+import {In, MoreThan, Repository} from "typeorm"
 
 @Injectable()
 export class SaleBundlesService {
@@ -83,6 +84,16 @@ export class SaleBundlesService {
 
     async deleteSaleBundle(id: number){
         return await this.saleBundleRepository.delete({id})
+    }
+
+
+    async getActiveSaleBundle(eventType: EventsEnum) {
+        return await this.saleBundleRepository
+            .createQueryBuilder('bundle')
+            .innerJoinAndSelect('bundle.events', 'event')
+            .where('bundle.expirationDate > :expirationDate', { expirationDate: new Date() }) // Filter by expiration date
+            .andWhere('event.event = :eventType', { eventType }) // Filter by event type
+            .getMany();
     }
 
 }
