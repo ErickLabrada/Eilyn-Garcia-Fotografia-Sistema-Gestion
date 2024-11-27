@@ -66,12 +66,12 @@
     </thead>
     <tbody>
       <tr v-for="(cita, index) in citas" :key="index">
-        <td>{{ cita.cliente }}</td>
+        <td>Pepe 123</td>
         <td>{{ cita.lugar }}</td>
         <td>{{ cita.paquete }}</td>
         <td>{{ cita.fecha }}</td>
         <td>
-          <span :class="getStatusClass(cita.estatus)">{{ cita.estatus }}</span>
+          <span :class="getStatusClass(cita.estatus)">cita</span>
         </td>
         <td class="options">
           <button @click="confirmarCita(cita.id)">✔</button>
