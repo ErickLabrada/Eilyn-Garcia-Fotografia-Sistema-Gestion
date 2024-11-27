@@ -23,7 +23,7 @@ export const citaService = {
   // Confirmar una cita por su ID
   async confirmarCita(id) {
     try {
-      await apiClient.patch(`/${id}`, { estatus: "Cita Confirmada" });
+      await apiClient.patch(`/${id}`, { status: "Cita Confirmada" });
     } catch (error) {
       console.error("Error al confirmar cita:", error.message);
       throw error;

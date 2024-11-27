@@ -7,4 +7,5 @@ export class CreateAppointmentDTO{
     bundleId:number
     employeeID?: number
     contractID?: number
+    statusID?: number
 }

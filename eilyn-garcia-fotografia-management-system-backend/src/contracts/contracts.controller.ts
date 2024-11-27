@@ -32,4 +32,7 @@ export class ContractsController {
         return this.contractsService.deleteContract(id)
     }
 
+
+    
+
 }

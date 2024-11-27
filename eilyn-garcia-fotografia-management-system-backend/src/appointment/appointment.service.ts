@@ -59,7 +59,7 @@ export class AppointmentService {
     }
 
     async getAppointments(){
-        return await this.appointmentRepository.find()
+        return await this.appointmentRepository.find({relations: ['bundle','contract',  'contract.client','contract.status']})
     }
 
     async getAppointmentsByDate(targetDate: Date) {

@@ -103,8 +103,9 @@ export class ContractsService {
         return await this.contractRepository.findOne({
             where:{
                 id
-            }
-        })
+            },
+            relations: ['client','status']
+        },)
     }
 
     async updateContract(id: number, contractDTO: UpdateContractDTO){
