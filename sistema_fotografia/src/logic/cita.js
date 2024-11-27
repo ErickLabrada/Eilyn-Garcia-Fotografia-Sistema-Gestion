@@ -1,4 +1,6 @@
 import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 // Configuración del cliente Axios
 const apiClient = axios.create({
@@ -48,5 +50,75 @@ export const citaService = {
       console.error("Error al actualizar cita:", error.message);
       throw error;
     }
+  },
+
+  // Generar un reporte PDF de las citas
+  generarReportePDF(citas) {
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Reporte de Citas", 10, 10);
+
+      const encabezados = [
+        "Nombre del Cliente",
+        "Lugar",
+        "Paquete",
+        "Fecha y Hora",
+        "Estatus",
+      ];
+
+      const filas = citas.map((cita) => [
+        cita.cliente,
+        cita.lugar,
+        cita.paquete,
+        cita.fecha,
+        cita.estatus,
+      ]);
+
+      if (doc.autoTable) {
+        doc.autoTable({
+          head: [encabezados],
+          body: filas,
+          startY: 20,
+        });
+      } else {
+        let y = 20;
+        filas.forEach((fila, index) => {
+          doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
+          y += 10;
+        });
+      }
+
+      doc.save("reporte_citas.pdf");
+    } catch (error) {
+      console.error("Error al generar el reporte PDF:", error.message);
+      throw error;
+    }
+  },
+
+  // Opciones del menú
+  getMenuOptions() {
+    return [
+      {
+        title: "Administrar",
+        items: [
+          "Administrar citas",
+          "Administrar empleados",
+          "Administrar promociones",
+          "Administrar paquetes",
+        ],
+      },
+      {
+        title: "Consultas",
+        items: [
+          "Consultar cliente",
+          "Consultar paquete con permiso de publicación",
+        ],
+      },
+      {
+        title: "Reportes",
+        items: ["Reporte de ventas"],
+      },
+    ];
   },
 };

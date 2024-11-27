@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Sistema de Fotografía</a>
+      <a class="navbar-brand" href="#">Sistema de fotografía</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -71,7 +71,7 @@
         <td>{{ cita.bundle.name }}</td>
         <td>{{ cita.date }}</td>
         <td>
-          <span :class="getStatusClass(cita.estatus)">{{ cita.contract.status.status }}</span>
+          <span :class="getStatusClass(cita.contract.status.status)">{{ cita.contract.status.status }}</span>
         </td>
         <td class="options">
           <button @click="confirmarCita(cita.id)">✔</button>
@@ -88,19 +88,19 @@
       <h3>Editar datos del cliente</h3>
       <label>
         Nombre:
-        <input v-model="citaSeleccionada.cliente" />
+        <input v-model="citaSeleccionada.contract.client.name" />
       </label>
       <label>
         Lugar:
-        <input v-model="citaSeleccionada.lugar" />
+        <input v-model="citaSeleccionada.place" />
       </label>
       <label>
         Paquete:
-        <input type="number" v-model="citaSeleccionada.paquete" />
+        <input v-model="citaSeleccionada.bundle.name" />
       </label>
       <label>
         Fecha y hora:
-        <input type="datetime-local" v-model="citaSeleccionada.fecha" />
+        <input type="datetime-local" v-model="citaSeleccionada.date" />
       </label>
       <div class="modal-actions">
         <button @click="guardarCambios">Guardar</button>
@@ -116,13 +116,10 @@ import { citaService } from "../logic/cita.js";
 export default {
   data() {
     return {
-      menus: [
-        { title: "Menú 1", items: ["Submenú 1", "Submenú 2"] },
-        { title: "Menú 2", items: ["Submenú 3", "Submenú 4"] },
-      ],
       citas: [],
       mostrarModal: false,
       citaSeleccionada: {},
+      menus: [],
     };
   },
   methods: {
@@ -133,17 +130,13 @@ export default {
         console.error("Error al cargar citas:", error);
       }
     },
-    getStatusClass(estatus) {
-      switch (estatus) {
-        case "Cita Confirmada":
-          return "text-success";
-        case "Pendiente":
-          return "text-warning";
-        case "Cancelada":
-          return "text-danger";
-        default:
-          return "text-muted";
-      }
+    getStatusClass(status) {
+      const classes = {
+        "Aceptada": "text-success",
+        "Pendiente": "text-warning",
+        "Rechazada": "text-danger",
+      };
+      return classes[status] || "text-muted";
     },
     confirmarCita(id) {
       citaService.confirmarCita(id).then(this.fetchCitas);
@@ -165,8 +158,26 @@ export default {
           this.fetchCitas();
         });
     },
+    // Método para generar el reporte
+    async generarReportePDF() {
+      try {
+        await citaService.generarReportePDF(this.citas);
+      } catch (error) {
+        console.error("Error al generar el reporte PDF:", error);
+      }
+    },
+    // Manejo de la navegación por el menú
+    navigate(subItem) {
+      console.log("Navegando a:", subItem);
+      // Aquí puedes agregar la lógica para navegar a las distintas vistas de la página
+    },
+    logout() {
+      // Implementar lógica para cerrar sesión
+      console.log("Cerrar sesión");
+    },
   },
   async created() {
+    this.menus = citaService.getMenuOptions();
     await this.fetchCitas();
   },
 };
