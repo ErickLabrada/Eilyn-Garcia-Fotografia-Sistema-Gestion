@@ -9,7 +9,11 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
 }
-
+.carousel-items img {
+  width: 1900px;
+  height: 400px;
+  object-fit: cover;
+}
 /* Navbar Styles */
 .navbar {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

@@ -53,15 +53,14 @@
         <div class="carousel-item active">
           <div class="carousel-items">
             <img src="../assets/imgcarrusel.jpg" class="d-block w-100" alt="Imagen 1" />
-            <img src="../assets/imgcarrusel2.jpg" class="d-block w-100" alt="Imagen 2" />
-            <img src="../assets/imgcarrusel.jpg" class="d-block w-100" alt="Imagen 3" />
+            
+           
           </div>
         </div>
         <div class="carousel-item">
           <div class="carousel-items">
             <img src="../assets/imgcarrusel2.jpg" class="d-block w-100" alt="Imagen 4" />
-            <img src="../assets/imgcarrusel.jpg" class="d-block w-100" alt="Imagen 5" />
-            <img src="../assets/imgcarrusel2.jpg" class="d-block w-100" alt="Imagen 6" />
+           
           </div>
         </div>
       </div>
