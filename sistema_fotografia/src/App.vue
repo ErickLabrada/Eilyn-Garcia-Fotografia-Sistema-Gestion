@@ -5,8 +5,10 @@
 </template>
 
 <script>
+import navbar from "./components/HeaderComponent.vue";
 export default {
   name: 'App',
+  navbar
 };
 </script>
 
