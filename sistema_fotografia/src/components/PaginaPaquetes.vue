@@ -1,56 +1,10 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Sistema de fotografía</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item dropdown" v-for="menu in menus" :key="menu.title">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {{ menu.title }}
-              </a>
-              <ul class="dropdown-menu">
-                <li
-                  v-for="subItem in menu.items"
-                  :key="subItem"
-                  @click="navigate(subItem)"
-                >
-                  <a class="dropdown-item" href="#">{{ subItem }}</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-
-          <span class="navbar-text me-3">Usuario: (Nombre de usuario)</span>
-
-          <button class="btn btn-outline-danger" @click="logout">
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-    </nav>
-
+  <Navbar :menus="menus" />
   <div id="paquetes">
     <h2>Paquetes actuales</h2>
-    <button class="nuevo-boton" @click="abrirModalNuevo">Nuevo</button>
+
     <button class="generar-reporte-boton" @click="generarReportePaquetesPDF">Generar Reporte</button>
+    <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
 
     <div class="paquetes-grid">
       <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.nombre">
@@ -62,106 +16,244 @@
           <img v-if="paquete.imagen" :src="paquete.imagen" alt="Imagen del paquete" />
           <span v-else>Sin imagen</span>
         </div>
-        <button class="opciones-boton" @click="abrirModal(paquete)">Opciones</button>
+
+        <!-- Botón de opciones flotante para editar el paquete -->
+        <button class="boton-opciones" @click="abrirModalEditar(paquete)">Editar</button>
       </div>
     </div>
-  </div>
 
-  <!-- Modal para agregar nuevo paquete -->
-  <div v-if="modalNuevoVisible" class="modal-overlay">
-    <div class="modal">
-      <h3>Nuevo Paquete</h3>
-      <form @submit.prevent="agregarPaquete">
-        <div class="form-group">
-          <label for="nuevoNombre">Nombre:</label>
-          <input type="text" id="nuevoNombre" v-model="nuevoPaquete.nombre" required />
-        </div>
-        <div class="form-group">
-          <label for="nuevaDescripcion">Descripción:</label>
-          <textarea id="nuevaDescripcion" v-model="nuevoPaquete.descripcion" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="nuevoCosto">Costo:</label>
-          <input type="text" id="nuevoCosto" v-model="nuevoPaquete.costo" required />
-        </div>
-        <div class="form-group">
-          <label for="nuevaPromocion">Promoción:</label>
-          <input type="text" id="nuevaPromocion" v-model="nuevoPaquete.promocion" placeholder="Ej: 10% de descuento" />
-        </div>
-        <div class="form-group">
-          <label for="nuevaImagen">Imagen:</label>
-          <input type="file" id="nuevaImagen" @change="cargarNuevaImagen" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Agregar</button>
-          <button type="button" @click="cerrarModalNuevo">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div v-if="modalVisible" class="modal-overlay">
-    <div class="modal">
-      <h3>Detalles del Paquete</h3>
-      <p><strong>Nombre:</strong> {{ paqueteSeleccionado.nombre }}</p>
-      <p><strong>Descripción:</strong> {{ paqueteSeleccionado.descripcion }}</p>
-      <p><strong>Costo:</strong> {{ paqueteSeleccionado.costo }}</p>
-      <p><strong>Promocion:</strong> {{ paqueteSeleccionado.promocion }}</p>
-      <p>
-        <strong>Estado:</strong>
-        <span>{{ paqueteSeleccionado.activo ? 'Activo' : 'Inactivo' }}</span>
-        <button @click="toggleEstadoPaquete">{{ paqueteSeleccionado.activo ? 'Desactivar' : 'Activar' }}</button>
-      </p>
-      <div class="modal-actions">
-        <button @click="abrirEditarPaquete">Editar</button>
-        <button @click="eliminarPaquete">Eliminar</button>
-        <button @click="cerrarModal">Cerrar</button>
+    <!-- Modal para agregar nuevo paquete -->
+<div v-if="modalNuevoVisible" class="modal-overlay">
+  <div class="modal">
+    <h3>Agregar Nuevo Paquete</h3>
+    <form @submit.prevent="agregarPaquete">
+      <div>
+        <label for="nombre">Nombre:</label>
+        <input v-model="nuevoPaquete.nombre" type="text" id="nombre" required />
       </div>
-    </div>
+      <div>
+        <label for="descripcion">Descripción:</label>
+        <textarea v-model="nuevoPaquete.descripcion" id="descripcion" required></textarea>
+      </div>
+      <div>
+        <label for="costo">Costo:</label>
+        <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
+      </div>
+      <div>
+        <label for="promocion">Promoción:</label>
+        <input v-model="nuevoPaquete.promocion" type="text" id="promocion" />
+      </div>
+      <div>
+        <label for="activo">Activo:</label>
+        <input v-model="nuevoPaquete.activo" type="checkbox" id="activo" />
+      </div>
+      <div>
+        <label for="imagen">Imagen:</label>
+        <input type="file" id="imagen" @change="procesarImagen" />
+        <div v-if="nuevoPaquete.imagen" class="imagen-preview">
+          <img :src="nuevoPaquete.imagen" alt="Vista previa de la imagen" />
+        </div>
+      </div>
+      <button type="submit">Guardar Paquete</button>
+      <button type="button" @click="cerrarModalNuevo">Cancelar</button>
+    </form>
   </div>
+</div>
 
-  <!-- Modal para editar paquete -->
-  <div v-if="modalEditarVisible" class="modal-overlay">
-    <div class="modal">
-      <h3>Editar Paquete</h3>
-      <form @submit.prevent="guardarCambios">
-        <div class="form-group">
-          <label for="nombre">Nombre:</label>
-          <input type="text" id="nombre" v-model="paqueteSeleccionado.nombre" />
-        </div>
-        <div class="form-group">
-          <label for="descripcion">Descripción:</label>
-          <textarea id="descripcion" v-model="paqueteSeleccionado.descripcion"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="costo">Costo:</label>
-          <input type="text" id="costo" v-model="paqueteSeleccionado.costo" />
-        </div>
-        <div class="form-group">
-          <label for="promocion">Promoción:</label>
-          <input type="text" id="promocion" v-model="paqueteSeleccionado.promocion" />
-        </div>
-        <div class="form-group">
-          <label for="imagen">Imagen:</label>
-          <input type="file" id="imagen" @change="cargarImagen" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Guardar</button>
-          <button type="button" @click="cerrarEditarModal">Cancelar</button>
-        </div>
-      </form>
+
+    <!-- Modal para editar paquete -->
+    <div v-if="modalEditarVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>Editar Paquete</h3>
+        <form @submit.prevent="editarPaquete">
+          <div>
+            <label for="nombre">Nombre:</label>
+            <input v-model="paqueteEditar.nombre" type="text" id="nombre" required />
+          </div>
+          <div>
+            <label for="descripcion">Descripción:</label>
+            <textarea v-model="paqueteEditar.descripcion" id="descripcion" required></textarea>
+          </div>
+          <div>
+            <label for="costo">Costo:</label>
+            <input v-model="paqueteEditar.costo" type="text" id="costo" required />
+          </div>
+          <div>
+            <label for="promocion">Promoción:</label>
+            <input v-model="paqueteEditar.promocion" type="text" id="promocion" />
+          </div>
+          <div>
+            <label for="activo">Activo:</label>
+            <input v-model="paqueteEditar.activo" type="checkbox" id="activo" />
+          </div>
+          <button type="submit">Guardar Cambios</button>
+          <button @click="cerrarModalEditar" type="button">Cancelar</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Navbar from '../components/HeaderComponent.vue';
 import logica2 from '../logic/paquetes.js'; 
 
 export default {
+  components: {
+    Navbar, 
+  },
   mixins: [logica2], 
+  data() {
+    return {
+      paquetes: [
+        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", promocion: "10% descuento", activo: true, imagen: null },
+        { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },
+        { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300", activo: false, imagen: null },
+        { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400", activo: false, imagen: null },
+      ],
+      modalNuevoVisible: false,
+      modalEditarVisible: false,
+      nuevoPaquete: {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        activo: false,
+        imagen: null,
+      },
+      paqueteEditar: {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        activo: false,
+        imagen: null,
+      },
+    };
+  },
+  methods: {
+  abrirModalNuevo() {
+    this.modalNuevoVisible = true;
+  },
+  cerrarModalNuevo() {
+    this.modalNuevoVisible = false;
+    this.nuevoPaquete = {
+      nombre: "",
+      descripcion: "",
+      costo: "",
+      promocion: "",
+      activo: false,
+      imagen: null,
+    };
+  },
+  agregarPaquete() {
+    if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
+      this.paquetes.push({ ...this.nuevoPaquete });
+      this.cerrarModalNuevo();
+    } else {
+      alert("Por favor, llena todos los campos obligatorios.");
+    }
+  },
+  procesarImagen(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.nuevoPaquete.imagen = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  },
+},
+    abrirModalEditar(paquete) {
+      // Copiar los datos del paquete seleccionado para edición
+      this.paqueteEditar = { ...paquete };
+      this.modalEditarVisible = true;
+    },
+    cerrarModalEditar() {
+      this.modalEditarVisible = false;
+      this.paqueteEditar = {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        activo: false,
+        imagen: null,
+      };
+    },
+    editarPaquete() {
+      // Buscar y actualizar el paquete
+      const index = this.paquetes.findIndex(p => p.nombre === this.paqueteEditar.nombre);
+      if (index !== -1) {
+        this.paquetes.splice(index, 1, { ...this.paqueteEditar });  // Reemplazar el paquete editado
+        this.cerrarModalEditar();
+      }
+    },
+ 
 };
 </script>
-<style scoped>
-@import '../assets/styles.css'; 
-</style>
 
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.boton-opciones {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.boton-opciones:hover {
+  background-color: #0056b3;
+}
+
+.modal form button {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal form button[type="button"] {
+  background-color: #f44336;
+}
+
+.modal form button:hover {
+  background-color: #0056b3;
+}
+
+.modal form button[type="button"]:hover {
+  background-color: #d32f2f;
+}
+</style>

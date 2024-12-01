@@ -1,60 +1,6 @@
 <template>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Sistema de fotografía</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-  
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item dropdown" v-for="menu in menus" :key="menu.title">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                :class="{ 'active-menu': activeMenu === menu.title }"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                @click="activeMenu = menu.title"
-              >
-                {{ menu.title }}
-              </a>
-              <ul class="dropdown-menu">
-                <li
-                  v-for="subItem in menu.items"
-                  :key="subItem"
-                  @click="navigate(subItem)"
-                >
-                  <a
-                    class="dropdown-item"
-                    href="#"
-                    :class="{ 'active-subitem': activeSubItem === subItem }"
-                  >
-                    {{ subItem }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-  
-          <span class="navbar-text me-3">Usuario: (Nombre de usuario)</span>
-  
-          <button class="btn btn-outline-danger" @click="logout">
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-    </nav>
-  
+    
+    <Navbar :menus="menus" />
     <div class="container mt-5">
       <h2 class="text-center">Reportes de ventas</h2>
       <div class="row justify-content-center mt-3">
@@ -108,9 +54,13 @@
   </template>
   
   <script>
+  import Navbar from '../components/HeaderComponent.vue';
   import logica from '../logic/ventas.js'; 
 
-export default {
+  export default {
+  components: {
+    Navbar, 
+  },
   mixins: [logica], 
 };
   </script>

@@ -4,23 +4,7 @@ import "jspdf-autotable";
 export default {
   data() {
     return {
-      menus: [
-        {
-          title: "Administrar",
-          items: ["Administrar citas", "Administrar empleados", "Administrar promociones", "Administrar paquetes"],
-          isOpen: false,
-        },
-        {
-          title: "Consultas",
-          items: ["Consultar cliente", "Consultar paquete con permiso de publicación"],
-          isOpen: false,
-        },
-        {
-          title: "Reportes",
-          items: ["Reporte de ventas" ],
-          isOpen: false,
-        },
-      ],
+      
       paquetes: [
         { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", promocion: "10% descuento", activo: true, imagen: null },
         { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },

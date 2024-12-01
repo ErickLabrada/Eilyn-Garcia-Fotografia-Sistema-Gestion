@@ -1,52 +1,6 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Sistema de fotografía</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item dropdown" v-for="menu in menus" :key="menu.title">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {{ menu.title }}
-            </a>
-            <ul class="dropdown-menu">
-              <li
-                v-for="subItem in menu.items"
-                :key="subItem"
-                @click="navigate(subItem)"
-              >
-                <a class="dropdown-item" href="#">{{ subItem }}</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-
-        <span class="navbar-text me-3">Usuario: (Nombre de usuario)</span>
-
-        <button class="btn btn-outline-danger" @click="logout">
-          Cerrar sesión
-        </button>
-      </div>
-    </div>
-  </nav>
-
+  
+  <Navbar :menus="menus" />
   <div class="actions-container">
     <button class="btn-action schedule-btn" @click="agendarCita">Agendar cita</button>
     <button class="btn-action report-btn" @click="generarReportePDF">Generar Reporte PDF</button>
@@ -112,14 +66,17 @@
 
 <script>
 import { citaService } from "../logic/cita.js";
-
+import Navbar from '../components/HeaderComponent.vue';
 export default {
+  components: {
+    Navbar,
+  },
   data() {
     return {
+      menus: [],
       citas: [],
       mostrarModal: false,
       citaSeleccionada: {},
-      menus: [],
     };
   },
   methods: {
@@ -158,7 +115,7 @@ export default {
           this.fetchCitas();
         });
     },
-    // Método para generar el reporte
+    
     async generarReportePDF() {
       try {
         await citaService.generarReportePDF(this.citas);
@@ -166,10 +123,10 @@ export default {
         console.error("Error al generar el reporte PDF:", error);
       }
     },
-    // Manejo de la navegación por el menú
+    
     navigate(subItem) {
       console.log("Navegando a:", subItem);
-      // Aquí puedes agregar la lógica para navegar a las distintas vistas de la página
+      
     },
     logout() {
       // Implementar lógica para cerrar sesión
@@ -184,6 +141,7 @@ export default {
 </script>
 
 <style scoped>
+@import '../assets/styles.css'; 
 .text-success {
   color: green;
 }

@@ -79,9 +79,9 @@ import logica1 from '../logic/paginaInicial.js';
 
 export default {
   components: {
-    Navbar, // Registro del componente Navbar
+    Navbar, 
   },
-  mixins: [logica1], // Mezcla la lógica para paquetes, eventos y promociones
+  mixins: [logica1], 
 };
 </script>
 <style scoped>
