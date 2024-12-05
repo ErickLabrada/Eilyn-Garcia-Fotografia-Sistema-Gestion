@@ -8,6 +8,8 @@ import { CreateAppointmentDTO } from 'src/dtos/appointmentsDTO/create-appointmen
 import { GetUnavailableHoursDTO } from 'src/dtos/appointmentsDTO/get-unavailable-dates.dto';
 import { UpdateAppointmentDTO } from 'src/dtos/appointmentsDTO/update-appointment.dto';
 import { Repository } from "typeorm"
+import { StatusEnum } from 'src/Domain/enums/status.enum';
+import { Status } from 'src/Domain/status.entity';
 @Injectable()
 export class AppointmentService {
 
@@ -107,6 +109,46 @@ export class AppointmentService {
         }
 
         return unavailableHours;
+    }
+
+
+    async confirmAppointment(id: number): Promise<Appointment> {
+        const appointment = await this.appointmentRepository.findOne({ where: { id }, relations: ['contract','contract.status'] });
+    
+        if (!appointment) {
+            throw new Error('Appointment not found.');
+        }
+    
+     
+        appointment.contract.status.id = 2;
+    
+        try {
+            await this.contractRepository.save(appointment.contract);
+            return appointment;
+        } catch (error) {
+            console.error('Error confirming appointment:', error);
+            throw new Error('Failed to confirm appointment.');
+        }
+    }
+
+    async cancelAppointment(id: number): Promise<Appointment> {
+        const appointment = await this.appointmentRepository.findOne({ where: { id }, relations: ['contract','contract.status'] });
+    
+        if (!appointment) {
+            throw new Error('Appointment not found.');
+        }
+    
+   
+
+        appointment.contract.status.id = 3;
+    
+        try {
+            await this.contractRepository.save(appointment.contract);
+            return appointment;
+        } catch (error) {
+            console.error('Error cancelled appointment:', error);
+            throw new Error('Failed to cancelled appointment.');
+        }
     }
       
 
