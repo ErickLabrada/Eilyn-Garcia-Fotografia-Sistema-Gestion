@@ -108,7 +108,7 @@ export default {
     },
     getImageUrl(url) {
       try {
-        return require(`../assetsbundles/${url}`);
+        return require(`../../assetsbundles/${url}`);
       } catch (e) {
         return null;
       }

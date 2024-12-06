@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDTO } from 'src/dtos/appointmentsDTO/create-appointment.dto';
 import { Appointment } from 'src/Domain/appointment.entity';
 import { UpdateAppointmentDTO } from 'src/dtos/appointmentsDTO/update-appointment.dto';
 import { GetUnavailableHoursDTO } from 'src/dtos/appointmentsDTO/get-unavailable-dates.dto';
+import { ReportAppointmentDTO } from 'src/dtos/appointmentsDTO/report-appointment.dto';
 
 @Controller('appointment')
 export class AppointmentController {
@@ -64,5 +65,21 @@ export class AppointmentController {
     cancelAppointment(@Param('id', ParseIntPipe) id: number): Promise<Appointment> {
         return this.appointmentService.cancelAppointment(id);
     }
+
+    @Get('report')
+    async getAppointmentsReport(
+     @Body()
+     reportAppointmentDTO: ReportAppointmentDTO
+    ) {
+        console.log(reportAppointmentDTO)
+       
+
+        if (!reportAppointmentDTO.startDate || !reportAppointmentDTO.endDate || !reportAppointmentDTO.bundleId) {
+          
+            throw new BadRequestException('Missing required query parameters');
+        }
+        return this.appointmentService.getAppointmentsReport(reportAppointmentDTO);
+    }
+    
 
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Appointment } from 'src/Domain/appointment.entity';
 import { Bundle } from 'src/Domain/bundle.entity';
@@ -7,9 +7,11 @@ import { Employee } from 'src/Domain/employee.entity';
 import { CreateAppointmentDTO } from 'src/dtos/appointmentsDTO/create-appointment.dto';
 import { GetUnavailableHoursDTO } from 'src/dtos/appointmentsDTO/get-unavailable-dates.dto';
 import { UpdateAppointmentDTO } from 'src/dtos/appointmentsDTO/update-appointment.dto';
-import { Repository } from "typeorm"
+import { Between, Repository } from "typeorm"
 import { StatusEnum } from 'src/Domain/enums/status.enum';
 import { Status } from 'src/Domain/status.entity';
+import { ReportAppointmentDTO } from 'src/dtos/appointmentsDTO/report-appointment.dto';
+import { report } from 'process';
 @Injectable()
 export class AppointmentService {
 
@@ -150,6 +152,27 @@ export class AppointmentService {
             throw new Error('Failed to cancelled appointment.');
         }
     }
-      
+
+    async getAppointmentsReport(reportAppointmentDTO: ReportAppointmentDTO) {
+        try {
+            const appointments = await this.appointmentRepository.find({
+                where: {
+                    date: Between(new Date(reportAppointmentDTO.startDate), new Date(reportAppointmentDTO.endDate)),
+                    bundle: { id: reportAppointmentDTO.bundleId },
+                },
+                relations: ['bundle', 'contract', 'contract.client', 'contract.status'],
+                select: ['date', 'bundle', 'place', 'description'],
+            });
+
+
+            console.log('Appointments found:', appointments);
+            
+
+            return appointments;
+        } catch (error) {
+            console.error('Error al obtener citas:', error);
+            throw new Error('No se pudo obtener las citas');
+        }
+    }
 
 }
