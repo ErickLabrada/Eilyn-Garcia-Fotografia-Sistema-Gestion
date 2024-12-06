@@ -1,13 +1,13 @@
-
 import axios from "axios";
-
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 export default {
   data() {
     return {
       filters: {
         startDate: "",
         endDate: "",
-        package: "",
+        bundleId: 0,
       },
       datos: [],
       dataAvailable: false,
@@ -27,33 +27,35 @@ export default {
       }
     },
     async generateReport() {
-      const { startDate, endDate, package: selectedPackage } = this.filters;
+      const { startDate, endDate, bundleId } = this.filters;
 
-      if (!startDate || !endDate || !selectedPackage) {
+      if (!startDate || !endDate || !bundleId) {
         alert("Por favor, completa todos los campos antes de generar el reporte.");
         return;
       }
 
       try {
-        
         const report = {
           startDate: startDate,
           endDate: endDate,
-          bundleId: selectedPackage.bundleId,
-      };
+          bundleId: bundleId,
+        };
 
         const response = await axios.post('http://localhost:3001/appointment/report', report);
 
-     
+        if (response.data.length === 0) {
+          alert("No hay datos para mostrar con los filtros seleccionados.");
+          return;
+        }
 
         this.datos = response.data.map(appointment => ({
-          appointmentId: appointment.appointmentId,
           date: appointment.date,
           place: appointment.place,
           description: appointment.description,
-          bundleName: appointment.bundleName,
-          contractId: appointment.contractId,
-          contractStatus: appointment.contractStatus,
+          bundleName: appointment.bundle.name,
+          contractId: appointment.contract.id,
+          contractStatus: appointment.contract.status.status,
+          contractCost: appointment.contract.cost,
         }));
         this.dataAvailable = true;
 
@@ -64,12 +66,51 @@ export default {
       }
     },
     exportData() {
-      if (!this.dataAvailable) {
-        alert("No hay datos para exportar.");
-        return;
+
+      try {
+
+        if (!this.dataAvailable) {
+          alert("No hay datos para exportar.");
+          return;
+        }
+
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Reporte de ventas por paquete", 10, 10);
+
+        const encabezados = [
+          "Fecha y Hora",
+          "Lugar",
+          "Descripción",
+          "Nombre del Paquete",
+          "Contrato",
+          "Estado del Contrato",
+          "Costo",
+        ];
+
+        const filas = this.datos.map((appointment) => [
+          appointment.date,
+          appointment.place,
+          appointment.description,
+          appointment.bundleName,
+          appointment.contractId,
+          appointment.contractStatus,
+          appointment.contractCost,
+        ]);
+
+        if (doc.autoTable) {
+          doc.autoTable({
+            head: [encabezados],
+            body: filas,
+            startY: 20,
+          });
+        }
+
+        doc.save("reporte_citas.pdf");
+      } catch (error) {
+        console.error("Error al generar PDF:", error.message);
+        throw error;
       }
-      console.log("Exportando datos:", this.datos);
-      // Aquí puedes agregar la lógica para exportar los datos, por ejemplo, a un archivo CSV o PDF
     },
   },
 };

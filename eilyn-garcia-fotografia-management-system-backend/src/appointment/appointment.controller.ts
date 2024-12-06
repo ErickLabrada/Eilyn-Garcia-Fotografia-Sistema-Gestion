@@ -66,7 +66,7 @@ export class AppointmentController {
         return this.appointmentService.cancelAppointment(id);
     }
 
-    @Get('report')
+    @Post('report')
     async getAppointmentsReport(
      @Body()
      reportAppointmentDTO: ReportAppointmentDTO

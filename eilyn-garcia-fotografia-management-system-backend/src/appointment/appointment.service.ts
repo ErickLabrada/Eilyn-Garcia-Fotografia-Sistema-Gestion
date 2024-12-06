@@ -159,6 +159,7 @@ export class AppointmentService {
                 where: {
                     date: Between(new Date(reportAppointmentDTO.startDate), new Date(reportAppointmentDTO.endDate)),
                     bundle: { id: reportAppointmentDTO.bundleId },
+                    contract: { status: { id: 2 } }
                 },
                 relations: ['bundle', 'contract', 'contract.client', 'contract.status'],
                 select: ['date', 'bundle', 'place', 'description'],

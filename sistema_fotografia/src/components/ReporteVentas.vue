@@ -23,7 +23,7 @@
       </div>
       <div class="col-md-3">
         <label for="paquete">Por paquete</label>
-        <select id="paquete" class="form-control" v-model="filters.package">
+        <select id="paquete" class="form-control" v-model="filters.bundleId">
           <option value="">Selecciona un paquete</option>
           <option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id">{{ bundle.name }}</option>
         </select>
@@ -42,24 +42,24 @@
           <table v-else class="table">
             <thead>
               <tr>
-                <th>ID Cita</th>
                 <th>Fecha</th>
                 <th>Lugar</th>
                 <th>Descripción</th>
                 <th>Paquete</th>
                 <th>ID Contrato</th>
                 <th>Estado Contrato</th>
+                <th>Costo</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(dato, index) in datos" :key="index">
-                <td>{{ dato.appointmentId }}</td>
                 <td>{{ dato.date }}</td>
                 <td>{{ dato.place }}</td>
                 <td>{{ dato.description }}</td>
                 <td>{{ dato.bundleName }}</td>
                 <td>{{ dato.contractId }}</td>
                 <td>{{ dato.contractStatus }}</td>
+                <td>{{ dato.contractCost }}</td>
               </tr>
             </tbody>
           </table>
