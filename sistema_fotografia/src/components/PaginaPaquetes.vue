@@ -7,13 +7,12 @@
     <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
 
     <div class="paquetes-grid">
-      <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.nombre">
-        <h3>{{ paquete.nombre }}</h3>
-        <p>{{ paquete.descripcion }}</p>
-        <p><strong>{{ paquete.costo }}</strong></p>
-        <p v-if="paquete.promocion"><strong>Promoción:</strong> {{ paquete.promocion }}</p>
+      <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.name">
+        <h3>{{ paquete.name }}</h3>
+        <p><strong>${{ paquete.price }}</strong></p>
+      
         <div class="imagen-placeholder">
-          <img v-if="paquete.imagen" :src="paquete.imagen" alt="Imagen del paquete" />
+          <img v-if="paquete.url" :src="getImageUrl(paquete.url)" alt="Imagen del paquete"  id="bundle-image"/>
           <span v-else>Sin imagen</span>
         </div>
 
@@ -23,43 +22,42 @@
     </div>
 
     <!-- Modal para agregar nuevo paquete -->
-<div v-if="modalNuevoVisible" class="modal-overlay">
-  <div class="modal">
-    <h3>Agregar Nuevo Paquete</h3>
-    <form @submit.prevent="agregarPaquete">
-      <div>
-        <label for="nombre">Nombre:</label>
-        <input v-model="nuevoPaquete.nombre" type="text" id="nombre" required />
+    <div v-if="modalNuevoVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>Agregar Nuevo Paquete</h3>
+        <form @submit.prevent="agregarPaquete">
+          <div>
+            <label for="nombre">Nombre:</label>
+            <input v-model="nuevoPaquete.nombre" type="text" id="nombre" required />
+          </div>
+          <div>
+            <label for="descripcion">Descripción:</label>
+            <textarea v-model="nuevoPaquete.descripcion" id="descripcion" required></textarea>
+          </div>
+          <div>
+            <label for="costo">Costo:</label>
+            <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
+          </div>
+          <div>
+            <label for="promocion">Promoción:</label>
+            <input v-model="nuevoPaquete.promocion" type="text" id="promocion" />
+          </div>
+          <div>
+            <label for="activo">Activo:</label>
+            <input v-model="nuevoPaquete.activo" type="checkbox" id="activo" />
+          </div>
+          <div>
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" @change="procesarImagen" />
+            <div v-if="nuevoPaquete.imagen" class="imagen-preview">
+              <img :src="nuevoPaquete.imagen" alt="Vista previa de la imagen" />
+            </div>
+          </div>
+          <button type="submit">Guardar Paquete</button>
+          <button type="button" @click="cerrarModalNuevo">Cancelar</button>
+        </form>
       </div>
-      <div>
-        <label for="descripcion">Descripción:</label>
-        <textarea v-model="nuevoPaquete.descripcion" id="descripcion" required></textarea>
-      </div>
-      <div>
-        <label for="costo">Costo:</label>
-        <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
-      </div>
-      <div>
-        <label for="promocion">Promoción:</label>
-        <input v-model="nuevoPaquete.promocion" type="text" id="promocion" />
-      </div>
-      <div>
-        <label for="activo">Activo:</label>
-        <input v-model="nuevoPaquete.activo" type="checkbox" id="activo" />
-      </div>
-      <div>
-        <label for="imagen">Imagen:</label>
-        <input type="file" id="imagen" @change="procesarImagen" />
-        <div v-if="nuevoPaquete.imagen" class="imagen-preview">
-          <img :src="nuevoPaquete.imagen" alt="Vista previa de la imagen" />
-        </div>
-      </div>
-      <button type="submit">Guardar Paquete</button>
-      <button type="button" @click="cerrarModalNuevo">Cancelar</button>
-    </form>
-  </div>
-</div>
-
+    </div>
 
     <!-- Modal para editar paquete -->
     <div v-if="modalEditarVisible" class="modal-overlay">
@@ -105,12 +103,7 @@ export default {
   mixins: [logica2], 
   data() {
     return {
-      paquetes: [
-        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", promocion: "10% descuento", activo: true, imagen: null },
-        { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },
-        { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300", activo: false, imagen: null },
-        { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400", activo: false, imagen: null },
-      ],
+      paquetes: [],
       modalNuevoVisible: false,
       modalEditarVisible: false,
       nuevoPaquete: {
@@ -131,40 +124,49 @@ export default {
       },
     };
   },
+  created() {
+    this.fetchPaquetes();
+  },
   methods: {
-  abrirModalNuevo() {
-    this.modalNuevoVisible = true;
-  },
-  cerrarModalNuevo() {
-    this.modalNuevoVisible = false;
-    this.nuevoPaquete = {
-      nombre: "",
-      descripcion: "",
-      costo: "",
-      promocion: "",
-      activo: false,
-      imagen: null,
-    };
-  },
-  agregarPaquete() {
-    if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
-      this.paquetes.push({ ...this.nuevoPaquete });
-      this.cerrarModalNuevo();
-    } else {
-      alert("Por favor, llena todos los campos obligatorios.");
-    }
-  },
-  procesarImagen(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        this.nuevoPaquete.imagen = e.target.result;
+    getImageUrl(url) {
+      try {
+        return require(`../assetsbundles/${url}`);
+      } catch (e) {
+        return null;
+      }
+    },
+    abrirModalNuevo() {
+      this.modalNuevoVisible = true;
+    },
+    cerrarModalNuevo() {
+      this.modalNuevoVisible = false;
+      this.nuevoPaquete = {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        activo: false,
+        imagen: null,
       };
-      reader.readAsDataURL(file);
-    }
-  },
-},
+    },
+    agregarPaquete() {
+      if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
+        this.paquetes.push({ ...this.nuevoPaquete });
+        this.cerrarModalNuevo();
+      } else {
+        alert("Por favor, llena todos los campos obligatorios.");
+      }
+    },
+    procesarImagen(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.nuevoPaquete.imagen = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
     abrirModalEditar(paquete) {
       // Copiar los datos del paquete seleccionado para edición
       this.paqueteEditar = { ...paquete };
@@ -189,11 +191,17 @@ export default {
         this.cerrarModalEditar();
       }
     },
- 
+  },
 };
 </script>
 
 <style scoped>
+.imagen-placeholder img{
+  width: 200px;
+  height: 100px;
+  object-fit: cover;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

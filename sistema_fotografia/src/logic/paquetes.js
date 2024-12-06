@@ -1,16 +1,11 @@
+import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 export default {
   data() {
     return {
-      
-      paquetes: [
-        { nombre: "Paquete 1", descripcion: "Descripción del paquete 1", costo: "$100", promocion: "10% descuento", activo: true, imagen: null },
-        { nombre: "Paquete 2", descripcion: "Descripción del paquete 2", costo: "$200", activo: false, imagen: null },
-        { nombre: "Paquete 3", descripcion: "Descripción del paquete 3", costo: "$300", activo: false, imagen: null },
-        { nombre: "Paquete 4", descripcion: "Descripción del paquete 4", costo: "$400", activo: false, imagen: null },
-      ],
+      paquetes: [],
       modalVisible: false,
       modalEditarVisible: false,
       modalNuevoVisible: false,
@@ -24,7 +19,18 @@ export default {
       },
     };
   },
+  created() {
+    this.fetchPaquetes();
+  },
   methods: {
+    async fetchPaquetes() {
+      try {
+        const response = await axios.get("http://localhost:3001/bundle");
+        this.paquetes = response.data;
+      } catch (error) {
+        console.error("Error al obtener paquetes:", error.message);
+      }
+    },
     toggleDropdown(title) {
       this.menus = this.menus.map((menu) =>
         menu.title === title ? { ...menu, isOpen: !menu.isOpen } : { ...menu, isOpen: false }
@@ -60,7 +66,7 @@ export default {
       this.paqueteSeleccionado = null;
     },
     guardarCambios() {
-      const index = this.paquetes.findIndex((p) => p.nombre === this.paqueteSeleccionado.nombre);
+      const index = this.paquetes.findIndex((p) => p.id === this.paqueteSeleccionado.id);
       if (index !== -1) {
         this.paquetes[index] = { ...this.paqueteSeleccionado };
         console.log("Paquete actualizado:", this.paqueteSeleccionado);
@@ -74,7 +80,7 @@ export default {
       }
     },
     eliminarPaquete() {
-      const index = this.paquetes.findIndex((p) => p.nombre === this.paqueteSeleccionado.nombre);
+      const index = this.paquetes.findIndex((p) => p.id === this.paqueteSeleccionado.id);
       if (index !== -1) {
         this.paquetes.splice(index, 1);
         console.log("Paquete eliminado");
@@ -113,7 +119,6 @@ export default {
       doc.setFontSize(16);
       doc.text("Reporte de Paquetes", 10, 10);
 
-      
       const encabezados = ["Nombre", "Descripción", "Costo", "Promoción", "Estado"];
     
       const filas = this.paquetes.map((paquete) => [
@@ -124,7 +129,6 @@ export default {
         paquete.activo ? "Activo" : "Inactivo",
       ]);
 
-    
       if (doc.autoTable) {
         doc.autoTable({
           head: [encabezados],
@@ -132,7 +136,6 @@ export default {
           startY: 20,
         });
       } else {
-       
         let y = 20;
         filas.forEach((fila, index) => {
           doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
