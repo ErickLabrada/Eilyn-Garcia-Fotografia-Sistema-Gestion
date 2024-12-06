@@ -30,6 +30,7 @@
         </td>
         <td class="options">
           <button @click="confirmarCita(cita.id)">✔</button>
+          <button @click="cancelarCita(cita.id)">X</button>
           <button @click="abrirModal(cita)">✎</button>
           <button @click="eliminarCita(cita.id)">🗑</button>
         </td>
@@ -98,6 +99,8 @@ export default {
     },
     confirmarCita(id) {
       citaService.confirmarCita(id).then(this.fetchCitas);
+    }, cancelarCita(id) {
+      citaService.cancelarCita(id).then(this.fetchCitas);
     },
     eliminarCita(id) {
       citaService.eliminarCita(id).then(this.fetchCitas);
@@ -112,7 +115,7 @@ export default {
     guardarCambios() {
       citaService.actualizarCita(this.citaSeleccionada.id, this.citaSeleccionada)
         .then(() => {
-          this.mostrarModal = false;
+          this.mostrarModal = true;
           this.fetchCitas();
         });
     },

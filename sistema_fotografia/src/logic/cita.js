@@ -22,10 +22,32 @@ export const citaService = {
     }
   },
 
-  // Confirmar una cita por su ID
+  // Obtener el appointment por su ID
+  async getAppointmentById(appointmentId) {
+    try {
+      const response = await apiClient.get(`/${appointmentId}`);
+      return response.data; // Retorna el appointment
+    } catch (error) {
+      console.error("Error al obtener appointment:", error.message);
+      throw error;
+    }
+  },
+
+ 
+  async cancelarCita(id) {
+    try {
+      const response = await apiClient.patch(`/cancel/${id}`);
+      return response.data; // Retorna el appointment confirmado
+    } catch (error) {
+      console.error("Error al rechazar cita:", error.message);
+      throw error;
+    }
+  },
+ // Confirmar una cita por su ID
   async confirmarCita(id) {
     try {
-      await apiClient.patch(`/${id}`, { status: "Cita Confirmada" });
+      const response = await apiClient.patch(`/confirm/${id}`);
+      return response.data; // Retorna el appointment confirmado
     } catch (error) {
       console.error("Error al confirmar cita:", error.message);
       throw error;
@@ -45,14 +67,20 @@ export const citaService = {
   // Actualizar una cita por su ID
   async actualizarCita(id, data) {
     try {
-      await apiClient.patch(`/${id}`, data);
+      await apiClient.patch(`/${id}`, {
+        contract: {
+          client: { name: data.contract.client.name },
+        },
+        place: data.place,
+        bundle: { name: data.bundle.name },
+        date: data.date,
+      });
     } catch (error) {
       console.error("Error al actualizar cita:", error.message);
       throw error;
     }
   },
 
-  // Generar un reporte PDF de las citas
   generarReportePDF(citas) {
     try {
       const doc = new jsPDF();
@@ -68,11 +96,11 @@ export const citaService = {
       ];
 
       const filas = citas.map((cita) => [
-        cita.cliente,
-        cita.lugar,
-        cita.paquete,
-        cita.fecha,
-        cita.estatus,
+        cita.contract.client.name,
+        cita.place,
+        cita.bundle.name,
+        cita.date,
+        cita.contract.status.status,
       ]);
 
       if (doc.autoTable) {
@@ -81,17 +109,11 @@ export const citaService = {
           body: filas,
           startY: 20,
         });
-      } else {
-        let y = 20;
-        filas.forEach((fila, index) => {
-          doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
-          y += 10;
-        });
       }
 
       doc.save("reporte_citas.pdf");
     } catch (error) {
-      console.error("Error al generar el reporte PDF:", error.message);
+      console.error("Error al generar PDF:", error.message);
       throw error;
     }
   },

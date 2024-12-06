@@ -54,4 +54,15 @@ export class AppointmentController {
         const targetDate = new Date(date);  // Convert date string to Date object
         return this.appointmentService.getAppointmentsByDate(targetDate);
     }
+    
+    @Patch('confirm/:id')
+    confirmAppointment(@Param('id', ParseIntPipe) id: number): Promise<Appointment> {
+        return this.appointmentService.confirmAppointment(id);
+    }
+
+    @Patch('cancel/:id')
+    cancelAppointment(@Param('id', ParseIntPipe) id: number): Promise<Appointment> {
+        return this.appointmentService.cancelAppointment(id);
+    }
+
 }
