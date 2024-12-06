@@ -12,10 +12,9 @@ export default {
       paqueteSeleccionado: null,
       nuevoPaquete: {
         nombre: "",
-        descripcion: "",
+       
         costo: "",
-        promocion: "",
-        imagen: null,
+    
       },
     };
   },
@@ -98,10 +97,10 @@ export default {
       this.modalNuevoVisible = false;
       this.nuevoPaquete = {
         nombre: "",
-        descripcion: "",
+     
         costo: "",
-        promocion: "",
-        imagen: null,
+      
+        
       };
     },
     agregarPaquete() {
@@ -119,14 +118,13 @@ export default {
       doc.setFontSize(16);
       doc.text("Reporte de Paquetes", 10, 10);
 
-      const encabezados = ["Nombre", "Descripción", "Costo", "Promoción", "Estado"];
+      const encabezados = ["Nombre",  "Costo", ];
     
       const filas = this.paquetes.map((paquete) => [
         paquete.nombre,
-        paquete.descripcion,
+       
         paquete.costo,
-        paquete.promocion || "Sin promoción",
-        paquete.activo ? "Activo" : "Inactivo",
+       
       ]);
 
       if (doc.autoTable) {

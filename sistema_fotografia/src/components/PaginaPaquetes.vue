@@ -14,32 +14,25 @@
           <img v-if="paquete.url" :src="getImageUrl(paquete.url)" alt="Imagen del paquete" id="bundle-image"/>
           <span v-else>Sin imagen</span>
         </div>
-
         <!-- Botón de opciones flotante para editar el paquete -->
         <button class="boton-opciones" @click="abrirModalEditar(paquete)">Editar</button>
       </div>
     </div>
 
-    <!-- Modal para agregar nuevo paquete -->
-    <div v-if="modalNuevoVisible" class="modal-overlay">
+    
+      <!-- Modal para agregar nuevo paquete -->
+      <div v-if="modalNuevoVisible" class="modal-overlay">
       <div class="modal">
         <h3>Agregar Nuevo Paquete</h3>
         <form @submit.prevent="agregarPaquete">
           <div>
             <label for="nombre">Nombre:</label>
             <input v-model="nuevoPaquete.nombre" type="text" id="nombre" required />
-          </div>
-          
+          </div>         
           <div>
             <label for="costo">Costo:</label>
             <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
-          </div>
-          <div>
-            <label for="imagen">Imagen:</label>
-            <input type="file" id="imagen" @change="procesarImagen" />
-            <div v-if="nuevoPaquete.imagen" class="imagen-preview">
-              <img :src="nuevoPaquete.imagen" alt="Vista previa de la imagen" />
-            </div>
+            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
           <button type="submit">Guardar Paquete</button>
           <button type="button" @click="cerrarModalNuevo">Cancelar</button>
@@ -47,8 +40,8 @@
       </div>
     </div>
 
-   <!-- Modal para editar paquete -->
-   <div v-if="modalEditarVisible" class="modal-overlay">
+    <!-- Modal para editar paquete -->
+    <div v-if="modalEditarVisible" class="modal-overlay">
       <div class="modal">
         <h3>Editar Paquete</h3>
         <form @submit.prevent="editarPaquete">
@@ -56,20 +49,11 @@
             <label for="nombre">Nombre:</label>
             <input v-model="paqueteEditar.name" type="text" id="nombre" required />
           </div>
-        
           <div>
             <label for="price">Costo:</label>
             <input v-model="paqueteEditar.price" type="text" id="price" required />
+            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
-          
-          <div>
-            <label for="imagen">Imagen:</label>
-            <input type="file" id="imagen" @change="procesarImagenEditar" />
-            <div v-if="paqueteEditar.url" class="imagen-preview">
-              <img :src="getImageUrl(paqueteEditar.url)" alt="Vista previa de la imagen" />
-            </div>
-          </div>
-
           <button type="submit">Guardar Cambios</button>
           <button @click="cerrarModalEditar" type="button">Cancelar</button>
         </form>
@@ -95,26 +79,33 @@ export default {
       modalEditarVisible: false,
       nuevoPaquete: {
         nombre: "",
-        descripcion: "",
+    
         costo: "",
-        promocion: "",
-        activo: false,
-        imagen: null,
+        
+    
       },
       paqueteEditar: {
         nombre: "",
-        descripcion: "",
+        
         costo: "",
-        promocion: "",
-        activo: false,
-        imagen: null,
+       
+        
       },
+      errorCosto: "",
     };
   },
   created() {
     this.fetchPaquetes();
   },
   methods: {
+    validarCosto(costo) {
+      const costoNumerico = parseFloat(costo);
+      // Verificar si el costo no es un número válido o contiene letras
+      if (isNaN(costoNumerico) || costoNumerico <= 0 || /[a-zA-Z]/.test(costo)) {
+        return false;
+      }
+      return true;
+    },
     getImageUrl(url) {
       try {
         return require(`../assetsbundles/${url}`);
@@ -129,15 +120,21 @@ export default {
       this.modalNuevoVisible = false;
       this.nuevoPaquete = {
         nombre: "",
-        descripcion: "",
+       
         costo: "",
         promocion: "",
-        activo: false,
-        imagen: null,
+       
       };
     },
     agregarPaquete() {
-      if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
+      if (!this.validarCosto(this.nuevoPaquete.costo)) {
+        this.errorCosto = "El costo debe ser un número positivo sin letras.";
+        return;
+      } else {
+        this.errorCosto = "";
+      }
+
+      if (this.nuevoPaquete.nombre && this.nuevoPaquete.costo) {
         this.paquetes.push({ ...this.nuevoPaquete });
         this.cerrarModalNuevo();
       } else {
@@ -163,18 +160,23 @@ export default {
       this.modalEditarVisible = false;
       this.paqueteEditar = {
         nombre: "",
-        descripcion: "",
+    
         costo: "",
-        promocion: "",
-        activo: false,
-        imagen: null,
+     
+  
       };
     },
     editarPaquete() {
-      // Buscar y actualizar el paquete
+      if (!this.validarCosto(this.paqueteEditar.costo)) {
+        this.errorCosto = "El costo debe ser un número positivo o no debe contener letras.";
+        return;
+      } else {
+        this.errorCosto = "";
+      }
+
       const index = this.paquetes.findIndex(p => p.nombre === this.paqueteEditar.nombre);
       if (index !== -1) {
-        this.paquetes.splice(index, 1, { ...this.paqueteEditar });  // Reemplazar el paquete editado
+        this.paquetes.splice(index, 1, { ...this.paqueteEditar });
         this.cerrarModalEditar();
       }
     },
