@@ -34,6 +34,13 @@
             <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
             <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
+
+          <div>
+        
+        <label for="imagen">Imagen:</label>
+        <input type="file" id="imagen" @change="procesarImagen" />
+      </div>
+     
           <button type="submit">Guardar Paquete</button>
           <button type="button" @click="cerrarModalNuevo">Cancelar</button>
         </form>
@@ -54,6 +61,12 @@
             <input v-model="paqueteEditar.price" type="text" id="price" required />
             <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
+          <div>
+        
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" @change="procesarImagen" />
+          </div>
+
           <button type="submit">Guardar Cambios</button>
           <button @click="cerrarModalEditar" type="button">Cancelar</button>
         </form>
@@ -108,7 +121,8 @@ export default {
     },
     getImageUrl(url) {
       try {
-        return require(`../../assetsbundles/${url}`);
+        
+        return require(`../../../base-js-baileys-memory/assets/${url}`);
       } catch (e) {
         return null;
       }
