@@ -2,11 +2,12 @@
   
   <Navbar :menus="menus" />
   <div class="actions-container">
-    <button class="btn-action schedule-btn" @click="agendarCita">Agendar cita</button>
-    <button class="btn-action report-btn" @click="generarReportePDF">Generar Reporte PDF</button>
+  
   </div>
 
   <h2>Administrar Citas</h2>
+  <button class="btn-action schedule-btn" @click="agendarCita">Agendar cita</button>
+  <button class="btn-action report-btn" @click="generarReportePDF">Generar Reporte PDF</button>
   <table class="appointment-table">
     <thead>
       <tr>
@@ -154,4 +155,5 @@ export default {
 .text-muted {
   color: gray;
 }
+
 </style>

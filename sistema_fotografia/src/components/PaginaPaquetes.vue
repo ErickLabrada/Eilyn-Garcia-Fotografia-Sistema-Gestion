@@ -132,39 +132,28 @@ export default {
     };
   },
   methods: {
-  abrirModalNuevo() {
-    this.modalNuevoVisible = true;
-  },
-  cerrarModalNuevo() {
-    this.modalNuevoVisible = false;
-    this.nuevoPaquete = {
-      nombre: "",
-      descripcion: "",
-      costo: "",
-      promocion: "",
-      activo: false,
-      imagen: null,
-    };
-  },
-  agregarPaquete() {
-    if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
-      this.paquetes.push({ ...this.nuevoPaquete });
-      this.cerrarModalNuevo();
-    } else {
-      alert("Por favor, llena todos los campos obligatorios.");
-    }
-  },
-  procesarImagen(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        this.nuevoPaquete.imagen = e.target.result;
+    abrirModalNuevo() {
+      this.modalNuevoVisible = true;
+    },
+    cerrarModalNuevo() {
+      this.modalNuevoVisible = false;
+      this.nuevoPaquete = {
+        nombre: "",
+        descripcion: "",
+        costo: "",
+        promocion: "",
+        activo: false,
+        imagen: null,
       };
-      reader.readAsDataURL(file);
-    }
-  },
-},
+    },
+    agregarPaquete() {
+      if (this.nuevoPaquete.nombre && this.nuevoPaquete.descripcion && this.nuevoPaquete.costo) {
+        this.paquetes.push({ ...this.nuevoPaquete });  // Al agregar un paquete, también se le asigna un botón de editar
+        this.cerrarModalNuevo();
+      } else {
+        alert("Por favor, llena todos los campos obligatorios.");
+      }
+    },
     abrirModalEditar(paquete) {
       // Copiar los datos del paquete seleccionado para edición
       this.paqueteEditar = { ...paquete };
@@ -189,7 +178,7 @@ export default {
         this.cerrarModalEditar();
       }
     },
- 
+  },
 };
 </script>
 
@@ -256,4 +245,42 @@ export default {
 .modal form button[type="button"]:hover {
   background-color: #d32f2f;
 }
+.generar-reporte-boton,
+.nuevo-paquete-boton {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(45deg, #4caf50, #81c784);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.generar-reporte-boton:hover,
+.nuevo-paquete-boton:hover {
+  background: linear-gradient(45deg, #388e3c, #66bb6a);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.generar-reporte-boton:active,
+.nuevo-paquete-boton:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nuevo-paquete-boton {
+  background: linear-gradient(45deg, #2196f3, #64b5f6);
+}
+
+.nuevo-paquete-boton:hover {
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+}
+
 </style>
+
