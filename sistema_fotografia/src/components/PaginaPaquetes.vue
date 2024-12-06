@@ -266,15 +266,14 @@ h2 {
 }
 
 .boton-opciones {
-  position: absolute;
-  bottom: 15px;
+  bottom: 25px;
   right: 15px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  border-radius: 30%;
+  width: 55px;
+  height: 55px;
   font-size: 20px;
   cursor: pointer;
   display: flex;
@@ -283,9 +282,7 @@ h2 {
   transition: background-color 0.3s ease;
 }
 
-.boton-opciones:hover {
-  background-color: #0056b3;
-}
+
 
 .modal-overlay {
   position: fixed;
@@ -354,7 +351,7 @@ h2 {
 .modal form button {
   margin-top: 20px;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #289924;
   color: white;
   border: none;
   border-radius: 5px;

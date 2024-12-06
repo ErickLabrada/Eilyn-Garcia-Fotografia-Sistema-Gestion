@@ -31,7 +31,7 @@
         <td class="options">
           <button @click="confirmarCita(cita.id)">✔</button>
           <button @click="cancelarCita(cita.id)">X</button>
-          <button @click="abrirModal(cita)">✎</button>
+          
           <button @click="eliminarCita(cita.id)">🗑</button>
         </td>
       </tr>

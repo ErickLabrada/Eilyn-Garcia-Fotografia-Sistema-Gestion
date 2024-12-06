@@ -38,11 +38,10 @@
           </li>
         </ul>
 
-        <span class="navbar-text me-3">Usuario: (Nombre de usuario)</span>
+        
 
-        <button class="btn btn-outline-danger" @click="logout">
-          Cerrar sesión
-        </button>
+        
+        
       </div>
     </div>
   </nav>
