@@ -136,40 +136,104 @@ body {
 
 
 /* Cards and Packages */
-.package-item {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  background-color: #fff;
+#paquetes {
+  max-width: 1000px; /* Ancho máximo del contenedor */
+  margin: 40px auto; /* Centrado horizontal con más margen superior */
+  padding: 20px; /* Espaciado interno */
+  background-color: #f9f9f9; /* Fondo suave */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para separar el contenedor */
+}
+
+h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
 }
 
 .paquetes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  display: grid; /* Diseño de cuadrícula */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Tarjetas dinámicas */
+  gap: 20px; /* Espaciado entre tarjetas */
 }
 
 .paquete-card {
-  background-color: #ddd;
-  padding: 15px;
-  border-radius: 8px;
+  background-color: #ffffff; /* Fondo blanco */
+  padding: 20px;
+  border-radius: 10px; /* Bordes redondeados */
   text-align: center;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15); /* Sombra para destacar */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación al pasar el mouse */
+}
+
+.paquete-card:hover {
+  transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el mouse */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra más prominente */
 }
 
 .paquete-card h3 {
   margin-bottom: 10px;
+  font-size: 20px;
+  color: #444;
+  font-family: 'Arial', sans-serif;
+}
+
+.paquete-card p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 15px;
 }
 
 .imagen-placeholder {
-  background-color: #f5f5f5;
-  height: 100px;
-  margin: 10px 0;
+  background-color: #f4f4f4; /* Fondo claro para contraste */
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  color: #999;
+  border-radius: 6px;
+  overflow: hidden; /* Asegura que las imágenes no se salgan del contenedor */
 }
+
+.imagen-placeholder img {
+  max-height: 100%; /* Ajuste de imagen */
+  max-width: 100%;
+}
+
+.nuevo-paquete-boton {
+  display: block;
+  margin: 0 auto 20px; /* Centrado y margen inferior */
+  padding: 10px 20px;
+  background-color: #4caf50; /* Verde brillante */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.nuevo-paquete-boton:hover {
+  background-color: #45a049; /* Verde más oscuro al pasar el mouse */
+}
+
+.boton-opciones {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #2196f3; /* Azul para las opciones */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.boton-opciones:hover {
+  background-color: #1976d2; /* Azul más oscuro al pasar el mouse */
+}
+
 
 /* Miscellaneous */
 h2 {

@@ -3,7 +3,7 @@
   <div id="paquetes">
     <h2>Paquetes actuales</h2>
 
-    <button class="generar-reporte-boton" @click="generarReportePaquetesPDF">Generar Reporte</button>
+    
     <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
 
     <div class="paquetes-grid">
