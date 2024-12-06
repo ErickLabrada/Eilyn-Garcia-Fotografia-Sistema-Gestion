@@ -1,13 +1,9 @@
 <template>
-  
   <Navbar :menus="menus" />
-  <div class="actions-container">
-  
-  </div>
+  <div class="actions-container"></div>
 
   <h2>Administrar Citas</h2>
   <button class="btn-action schedule-btn" @click="agendarCita">Agendar cita</button>
-  <button class="btn-action report-btn" @click="generarReportePDF">Generar Reporte PDF</button>
   <table class="appointment-table">
     <thead>
       <tr>
@@ -29,9 +25,8 @@
           <span :class="getStatusClass(cita.contract.status.status)">{{ cita.contract.status.status }}</span>
         </td>
         <td class="options">
-          <button @click="confirmarCita(cita.id)">✔</button>
-          <button @click="cancelarCita(cita.id)">X</button>
-          
+          <button @click="confirmarCita(cita)">✔</button>
+          <button @click="cancelarCita(cita)">X</button>
           <button @click="eliminarCita(cita.id)">🗑</button>
         </td>
       </tr>
@@ -69,6 +64,7 @@
 <script>
 import { citaService } from "../logic/cita.js";
 import Navbar from '../components/HeaderComponent.vue';
+
 export default {
   components: {
     Navbar,
@@ -97,10 +93,19 @@ export default {
       };
       return classes[status] || "text-muted";
     },
-    confirmarCita(id) {
-      citaService.confirmarCita(id).then(this.fetchCitas);
-    }, cancelarCita(id) {
-      citaService.cancelarCita(id).then(this.fetchCitas);
+    confirmarCita(cita) {
+      if (cita.contract.status.status === "Aceptada") {
+        alert("La cita ya está confirmada.");
+        return;
+      }
+      citaService.confirmarCita(cita.id).then(this.fetchCitas);
+    },
+    cancelarCita(cita) {
+      if (cita.contract.status.status === "Rechazada") {
+        alert("La cita ya está rechazada.");
+        return;
+      }
+      citaService.cancelarCita(cita.id).then(this.fetchCitas);
     },
     eliminarCita(id) {
       citaService.eliminarCita(id).then(this.fetchCitas);
@@ -115,11 +120,10 @@ export default {
     guardarCambios() {
       citaService.actualizarCita(this.citaSeleccionada.id, this.citaSeleccionada)
         .then(() => {
-          this.mostrarModal = true;
+          this.mostrarModal = false;
           this.fetchCitas();
         });
     },
-    
     async generarReportePDF() {
       try {
         await citaService.generarReportePDF(this.citas);
@@ -127,13 +131,10 @@ export default {
         console.error("Error al generar el reporte PDF:", error);
       }
     },
-    
     navigate(subItem) {
       console.log("Navegando a:", subItem);
-      
     },
     logout() {
-      // Implementar lógica para cerrar sesión
       console.log("Cerrar sesión");
     },
   },
@@ -158,5 +159,4 @@ export default {
 .text-muted {
   color: gray;
 }
-
 </style>

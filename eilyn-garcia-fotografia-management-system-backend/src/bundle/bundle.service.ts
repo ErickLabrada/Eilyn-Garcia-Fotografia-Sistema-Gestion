@@ -22,47 +22,51 @@ export class BundleService {
         @InjectRepository(Event) private eventRepository: Repository<Event>,
 ){}
 
-    async createBundle(bundleDTO: CreateBundleDTO){
+async createBundle(bundleDTO: CreateBundleDTO) {
+    const {
+      contractsId = [],
+      itemsID = [],
+      eventsID = [],
+      appointmentTemplateID,
+      ...bundleData
+    } = bundleDTO;
 
-        const {contractsId,
-            itemsID,
-            eventsID,
-            appointmentTemplateID,
-            ...bundleData } = bundleDTO;
+    const contractEntities = await this.contractRepository.find({
+      where: {
+        id: In(contractsId),
+      },
+    });
 
-        const contractEntities = await this.contractRepository.find({
-            where:{
-                id:In(contractsId)
-            }
-        })
-    
-        const itemEntities = await this.itemRepository.find({
-            where:{
-                id:In(itemsID)
-            }
-        })
-    
-        const eventEntities = await this.eventRepository.find({
-            where:{
-                id: In(eventsID)
-            }
-        })
-        
-        const appointmentTemplateEntity = await this.appointmentTemplateRepository.find({
-            where: {
-                id: appointmentTemplateID,
-            },
-        });
+    const itemEntities = await this.itemRepository.find({
+      where: {
+        id: In(itemsID),
+      },
+    });
 
-        const newBundle = this.bundleRepository.create({
-            ...bundleData,
-            contracts:contractEntities,
-            items:itemEntities,
-            events:eventEntities,
-            appointmentTemplates: appointmentTemplateEntity,
-        });
-        this.bundleRepository.save(newBundle);
-    }
+    const eventEntities = await this.eventRepository.find({
+      where: {
+        id: In(eventsID),
+      },
+    });
+
+    const appointmentTemplateEntity = appointmentTemplateID
+      ? await this.appointmentTemplateRepository.findOne({
+          where: {
+            id: appointmentTemplateID,
+          },
+        })
+      : null;
+
+    const newBundle = this.bundleRepository.create({
+      ...bundleData,
+      contracts: contractEntities,
+      items: itemEntities,
+      events: eventEntities,
+      appointmentTemplates: appointmentTemplateEntity ? [appointmentTemplateEntity] : [],
+    });
+
+    return this.bundleRepository.save(newBundle);
+  }
 
     async getBundles() {
         return await this.bundleRepository

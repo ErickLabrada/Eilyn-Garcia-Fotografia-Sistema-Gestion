@@ -15,32 +15,34 @@
           <span v-else>Sin imagen</span>
         </div>
         <!-- Botón de opciones flotante para editar el paquete -->
-        <button class="boton-opciones" @click="abrirModalEditar(paquete)">Editar</button>
+        <button class="boton-opciones" @click="abrirEditarPaquete(paquete)">Editar</button>
       </div>
     </div>
 
-    
-      <!-- Modal para agregar nuevo paquete -->
-      <div v-if="modalNuevoVisible" class="modal-overlay">
+    <!-- Modal para agregar nuevo paquete -->
+    <div v-if="modalNuevoVisible" class="modal-overlay">
       <div class="modal">
         <h3>Agregar Nuevo Paquete</h3>
         <form @submit.prevent="agregarPaquete">
           <div>
-            <label for="nombre">Nombre:</label>
-            <input v-model="nuevoPaquete.nombre" type="text" id="nombre" required />
+            <label for="name">Nombre:</label>
+            <input v-model="nuevoPaquete.name" type="text" id="name" required />
           </div>         
           <div>
-            <label for="costo">Costo:</label>
-            <input v-model="nuevoPaquete.costo" type="text" id="costo" required />
+            <label for="price">Costo:</label>
+            <input v-model="nuevoPaquete.price" type="text" id="price" required />
             <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
-
           <div>
-        
-        <label for="imagen">Imagen:</label>
-        <input type="file" id="imagen" @change="procesarImagen" />
-      </div>
-     
+            <label for="event">Evento:</label>
+            <select v-model="nuevoPaquete.eventId" id="event" required>
+              <option v-for="event in eventos" :key="event.id" :value="event.id">{{ event.event }}</option>
+            </select>
+          </div>
+          <div>
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" @change="cargarNuevaImagen" />
+          </div>
           <button type="submit">Guardar Paquete</button>
           <button type="button" @click="cerrarModalNuevo">Cancelar</button>
         </form>
@@ -51,22 +53,21 @@
     <div v-if="modalEditarVisible" class="modal-overlay">
       <div class="modal">
         <h3>Editar Paquete</h3>
-        <form @submit.prevent="editarPaquete">
+        <form @submit.prevent="guardarCambios">
           <div>
-            <label for="nombre">Nombre:</label>
-            <input v-model="paqueteEditar.name" type="text" id="nombre" required />
+            <label for="name">Nombre:</label>
+            <input v-model="paqueteEditar.name" type="text" id="name" required />
           </div>
           <div>
             <label for="price">Costo:</label>
             <input v-model="paqueteEditar.price" type="text" id="price" required />
             <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
           </div>
+    
           <div>
-        
             <label for="imagen">Imagen:</label>
-            <input type="file" id="imagen" @change="procesarImagen" />
+            <input type="file" id="imagen" @change="cargarImagen" />
           </div>
-
           <button type="submit">Guardar Cambios</button>
           <button @click="cerrarModalEditar" type="button">Cancelar</button>
         </form>
@@ -74,7 +75,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import Navbar from '../components/HeaderComponent.vue';
@@ -88,40 +88,40 @@ export default {
   data() {
     return {
       paquetes: [],
+      eventos: [],
       modalNuevoVisible: false,
       modalEditarVisible: false,
       nuevoPaquete: {
-        nombre: "",
-    
-        costo: "",
-        
-    
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
       },
       paqueteEditar: {
-        nombre: "",
-        
-        costo: "",
-       
-        
+        id: null,
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
       },
       errorCosto: "",
     };
   },
   created() {
     this.fetchPaquetes();
+    this.fetchEventos();
   },
   methods: {
-    validarCosto(costo) {
-      const costoNumerico = parseFloat(costo);
-      // Verificar si el costo no es un número válido o contiene letras
-      if (isNaN(costoNumerico) || costoNumerico <= 0 || /[a-zA-Z]/.test(costo)) {
+    validarCosto(price) {
+      const priceNumerico = parseFloat(price);
+      // Verificar si el costo no es un número válido, es negativo o contiene letras
+      if (isNaN(priceNumerico) || priceNumerico <= 0 || /[a-zA-Z]/.test(price)) {
         return false;
       }
       return true;
     },
     getImageUrl(url) {
       try {
-        
         return require(`../../../base-js-baileys-memory/assets/${url}`);
       } catch (e) {
         return null;
@@ -133,39 +133,25 @@ export default {
     cerrarModalNuevo() {
       this.modalNuevoVisible = false;
       this.nuevoPaquete = {
-        nombre: "",
-       
-        costo: "",
-        promocion: "",
-       
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
       };
     },
-    agregarPaquete() {
-      if (!this.validarCosto(this.nuevoPaquete.costo)) {
-        this.errorCosto = "El costo debe ser un número positivo sin letras.";
-        return;
-      } else {
-        this.errorCosto = "";
-      }
-
-      if (this.nuevoPaquete.nombre && this.nuevoPaquete.costo) {
-        this.paquetes.push({ ...this.nuevoPaquete });
-        this.cerrarModalNuevo();
-      } else {
-        alert("Por favor, llena todos los campos obligatorios.");
-      }
-    },
-    procesarImagen(event) {
+    cargarNuevaImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          this.nuevoPaquete.imagen = e.target.result;
-        };
-        reader.readAsDataURL(file);
+        this.nuevoPaquete.imagen = file.name; // Solo guardamos el nombre del archivo
       }
     },
-    abrirModalEditar(paquete) {
+    cargarImagen(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.paqueteEditar.imagen = file.name; // Solo guardamos el nombre del archivo
+      }
+    },
+    abrirEditarPaquete(paquete) {
       // Copiar los datos del paquete seleccionado para edición
       this.paqueteEditar = { ...paquete };
       this.modalEditarVisible = true;
@@ -173,26 +159,12 @@ export default {
     cerrarModalEditar() {
       this.modalEditarVisible = false;
       this.paqueteEditar = {
-        nombre: "",
-    
-        costo: "",
-     
-  
+        id: null,
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
       };
-    },
-    editarPaquete() {
-      if (!this.validarCosto(this.paqueteEditar.costo)) {
-        this.errorCosto = "El costo debe ser un número positivo o no debe contener letras.";
-        return;
-      } else {
-        this.errorCosto = "";
-      }
-
-      const index = this.paquetes.findIndex(p => p.nombre === this.paqueteEditar.nombre);
-      if (index !== -1) {
-        this.paquetes.splice(index, 1, { ...this.paqueteEditar });
-        this.cerrarModalEditar();
-      }
     },
   },
 };
@@ -298,8 +270,6 @@ h2 {
   transition: background-color 0.3s ease;
 }
 
-
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -345,7 +315,7 @@ h2 {
   margin-bottom: 5px;
 }
 
-.modal form input, .modal form textarea {
+.modal form input, .modal form textarea, .modal form select {
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;

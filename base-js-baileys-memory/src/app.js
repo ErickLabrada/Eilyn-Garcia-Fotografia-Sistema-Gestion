@@ -37,7 +37,7 @@ let year;
 const DEFAULT_HOURS = 2;
 const DEFAULT_DESCRIPTION = 'Event description';
 const DEFAULT_BUNDLE_ID = 1;
-const DEFAULT_COST = 1000;
+let DEFAULT_COST = 0;
 const DEFAULT_POSTING_CONSENT = false;
 const DEFAULT_GUARANTEE = '2024-12-12';
 const DEFAULT_STATUS_ID = 1;
@@ -78,6 +78,8 @@ try {
         const appointmentResponse = await axios.post('http://localhost:3001/appointment', appointment);
         userInputs.appointmentID = appointmentResponse.data.id;
         console.log("Cita guardada:", appointmentResponse.data);
+
+        DEFAULT_COST = appointmentResponse.data.bundle.price;
     } catch (error) {
         console.error('Error guardando la cita:', error);
     }

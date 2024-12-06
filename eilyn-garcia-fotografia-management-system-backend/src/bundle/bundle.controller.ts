@@ -29,6 +29,7 @@ export class BundleController {
 
     @Patch(":id")
     updateBundle(@Param("id",ParseIntPipe)id:number, @Body()bundleDTO: UpdateBundleDTO){
+        console.log(bundleDTO);
         this.bundleService.updateBundle(id, bundleDTO)
     }
 

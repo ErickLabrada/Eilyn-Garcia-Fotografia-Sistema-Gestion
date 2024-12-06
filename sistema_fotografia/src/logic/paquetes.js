@@ -1,25 +1,39 @@
 import axios from "axios";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 
 export default {
   data() {
     return {
       paquetes: [],
+      eventos: [],
       modalVisible: false,
       modalEditarVisible: false,
       modalNuevoVisible: false,
       paqueteSeleccionado: null,
       nuevoPaquete: {
-        nombre: "",
-       
-        costo: "",
-    
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
+        contractsId: [],
+        itemsID: [],
+        appointmentTemplateID: null,
       },
+      paqueteEditar: {
+        id: null,
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
+        contractsId: [],
+        itemsID: [],
+        appointmentTemplateID: null,
+      },
+      errorCosto: "",
     };
   },
   created() {
     this.fetchPaquetes();
+    this.fetchEventos();
   },
   methods: {
     async fetchPaquetes() {
@@ -30,22 +44,12 @@ export default {
         console.error("Error al obtener paquetes:", error.message);
       }
     },
-    toggleDropdown(title) {
-      this.menus = this.menus.map((menu) =>
-        menu.title === title ? { ...menu, isOpen: !menu.isOpen } : { ...menu, isOpen: false }
-      );
-    },
-    logout() {
-      console.log("Cerrando sesión...");
-    },
-    navigate(subItem) {
-      if (subItem === "Administrar citas") {
-        this.$router.push("/citas");
-      } else if (subItem === "Administrar paquetes") {
-        this.$router.push("/paquetes");
-      } else if(subItem === "Reporte de ventas"){
-        this.$router.push("/reporte");
-        console.log(`Navegando a: ${subItem}`);
+    async fetchEventos() {
+      try {
+        const response = await axios.get("http://localhost:3001/events");
+        this.eventos = response.data;
+      } catch (error) {
+        console.error("Error al obtener eventos:", error.message);
       }
     },
     abrirModal(paquete) {
@@ -56,39 +60,62 @@ export default {
       this.modalVisible = false;
       this.paqueteSeleccionado = null;
     },
-    abrirEditarPaquete() {
-      this.modalVisible = false;
+    abrirEditarPaquete(paquete) {
+      this.paqueteEditar = { ...paquete };
       this.modalEditarVisible = true;
     },
     cerrarEditarModal() {
       this.modalEditarVisible = false;
-      this.paqueteSeleccionado = null;
+      this.paqueteEditar = {
+        id: null,
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
+        contractsId: [],
+        itemsID: [],
+        appointmentTemplateID: null,
+      };
     },
-    guardarCambios() {
-      const index = this.paquetes.findIndex((p) => p.id === this.paqueteSeleccionado.id);
-      if (index !== -1) {
-        this.paquetes[index] = { ...this.paqueteSeleccionado };
-        console.log("Paquete actualizado:", this.paqueteSeleccionado);
+    async guardarCambios() {
+      if (!this.validarCosto(this.paqueteEditar.price)) {
+        this.errorCosto = "El costo debe ser un número positivo sin letras.";
+        return;
+      } else {
+        this.errorCosto = "";
       }
-      this.cerrarEditarModal();
+
+      if (this.paqueteEditar.name && this.paqueteEditar.price) {
+        try {
+          await axios.patch(`http://localhost:3001/bundle/${this.paqueteEditar.id}`, {
+            name: this.paqueteEditar.name,
+            price: this.paqueteEditar.price,
+            url: this.paqueteEditar.imagen
+          });
+
+          this.fetchPaquetes();
+          this.cerrarEditarModal();
+        } catch (error) {
+          console.error("Error al editar el paquete:", error.message);
+        }
+      } else {
+        alert("Por favor, llena todos los campos obligatorios.");
+      }
     },
     cargarImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        this.paqueteSeleccionado.imagen = URL.createObjectURL(file);
+        this.paqueteEditar.imagen = file.name; // Solo guardamos el nombre del archivo
       }
     },
-    eliminarPaquete() {
-      const index = this.paquetes.findIndex((p) => p.id === this.paqueteSeleccionado.id);
+    eliminarPaquete(paquete) {
+      const index = this.paquetes.findIndex(p => p.name === paquete.name);
       if (index !== -1) {
         this.paquetes.splice(index, 1);
-        console.log("Paquete eliminado");
       }
-      this.cerrarModal();
     },
-    toggleEstadoPaquete() {
-      this.paqueteSeleccionado.activo = !this.paqueteSeleccionado.activo;
-      console.log("Estado del paquete actualizado:", this.paqueteSeleccionado.activo);
+    toggleEstadoPaquete(paquete) {
+      paquete.activo = !paquete.activo;
     },
     abrirModalNuevo() {
       this.modalNuevoVisible = true;
@@ -96,52 +123,60 @@ export default {
     cerrarModalNuevo() {
       this.modalNuevoVisible = false;
       this.nuevoPaquete = {
-        nombre: "",
-     
-        costo: "",
-      
-        
+        name: "",
+        price: "",
+        imagen: "",
+        eventId: null,
+        contractsId: [],
+        itemsID: [],
+        appointmentTemplateID: null,
       };
     },
-    agregarPaquete() {
-      this.paquetes.push({ ...this.nuevoPaquete });
-      this.cerrarModalNuevo();
+    async agregarPaquete() {
+      if (!this.validarCosto(this.nuevoPaquete.price)) {
+        this.errorCosto = "El costo debe ser un número positivo sin letras.";
+        return;
+      } else {
+        this.errorCosto = "";
+      }
+
+      if (this.nuevoPaquete.name && this.nuevoPaquete.price) {
+        try {
+          await axios.post("http://localhost:3001/bundle", {
+            name: this.nuevoPaquete.name,
+            price: this.nuevoPaquete.price,
+            url: this.nuevoPaquete.imagen,
+            eventsID: [this.nuevoPaquete.eventId],
+            contractsId: this.nuevoPaquete.contractsId,
+            itemsID: this.nuevoPaquete.itemsID,
+            appointmentTemplateID: this.nuevoPaquete.appointmentTemplateID,
+          });
+          
+          this.cerrarModalNuevo();
+          this.fetchPaquetes();
+        } catch (error) {
+          console.error("Error al guardar el paquete:", error.message);
+        }
+      } else {
+        alert("Por favor, llena todos los campos obligatorios.");
+      }
     },
     cargarNuevaImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        this.nuevoPaquete.imagen = URL.createObjectURL(file);
+        this.nuevoPaquete.imagen = file.name; // Solo guardamos el nombre del archivo
       }
     },
-    generarReportePaquetesPDF() {
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text("Reporte de Paquetes", 10, 10);
-
-      const encabezados = ["Nombre",  "Costo", ];
-    
-      const filas = this.paquetes.map((paquete) => [
-        paquete.nombre,
-       
-        paquete.costo,
-       
-      ]);
-
-      if (doc.autoTable) {
-        doc.autoTable({
-          head: [encabezados],
-          body: filas,
-          startY: 20,
-        });
-      } else {
-        let y = 20;
-        filas.forEach((fila, index) => {
-          doc.text(`${index + 1}. ${fila.join(" | ")}`, 10, y);
-          y += 10;
-        });
+    validarCosto(price) {
+      const priceNumerico = parseFloat(price);
+      // Verificar si el costo no es un número válido, es negativo o contiene letras
+      if (isNaN(priceNumerico) || priceNumerico <= 0 || /[a-zA-Z]/.test(price)) {
+        return false;
       }
-
-      doc.save("reporte_paquetes.pdf");
+      return true;
+    },
+    generarReportePaquetesPDF() {
+      // Lógica para generar el reporte PDF de los paquetes
     },
   },
 };
