@@ -6,7 +6,7 @@ import ConfirmarCita from './components/AdministrarCita.vue';
 import ReporteVentas from './components/ReporteVentas.vue';
 const routes = [
   {
-    path: '/', 
+    path: '/login', 
     name: 'Login',
     component: Login,
   },
