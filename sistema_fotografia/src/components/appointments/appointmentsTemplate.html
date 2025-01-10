@@ -1,0 +1,60 @@
+<Navbar :menus="menus" />
+  <div class="actions-container"></div>
+
+  <h2>Administrar Citas</h2>
+  <button class="btn-action schedule-btn" @click="agendarCita">Agendar cita</button>
+  <table class="appointment-table">
+    <thead>
+      <tr>
+        <th>Nombre del Cliente</th>
+        <th>Lugar</th>
+        <th>Paquete</th>
+        <th>Fecha y Hora</th>
+        <th>Estatus</th>
+        <th>Opciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(cita, index) in citas" :key="index">
+        <td>{{ cita.contract.client.name }}</td>
+        <td>{{ cita.place }}</td>
+        <td>{{ cita.bundle.name }}</td>
+        <td>{{ cita.date }}</td>
+        <td>
+          <span :class="getStatusClass(cita.contract.status.status)">{{ cita.contract.status.status }}</span>
+        </td>
+        <td class="options">
+          <button @click="confirmarCita(cita)">✔</button>
+          <button @click="cancelarCita(cita)">X</button>
+          <button @click="eliminarCita(cita.id)">🗑</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal para editar los datos -->
+  <div v-if="mostrarModal" class="modal">
+    <div class="modal-content">
+      <h3>Editar datos del cliente</h3>
+      <label>
+        Nombre:
+        <input v-model="citaSeleccionada.contract.client.name" />
+      </label>
+      <label>
+        Lugar:
+        <input v-model="citaSeleccionada.place" />
+      </label>
+      <label>
+        Paquete:
+        <input v-model="citaSeleccionada.bundle.name" />
+      </label>
+      <label>
+        Fecha y hora:
+        <input type="datetime-local" v-model="citaSeleccionada.date" />
+      </label>
+      <div class="modal-actions">
+        <button @click="guardarCambios">Guardar</button>
+        <button @click="cerrarModal">Cancelar</button>
+      </div>
+    </div>
+  </div>

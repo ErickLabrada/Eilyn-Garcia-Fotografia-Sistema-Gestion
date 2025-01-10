@@ -1,0 +1,13 @@
+@import '../../assets/styles.css'; 
+.text-success {
+  color: green;
+}
+.text-warning {
+  color: orange;
+}
+.text-danger {
+  color: red;
+}
+.text-muted {
+  color: gray;
+}
