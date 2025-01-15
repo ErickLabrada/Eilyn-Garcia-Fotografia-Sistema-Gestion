@@ -44,6 +44,16 @@ export const citaService = {
       }
     },
 
+      // Obtener el appointment por su ID2
+      async getAppointmentByIdElementtest2(appointmentId) {
+        try {
+          const response = await apiClient.get(`/${appointmentId}`);
+          return response.data; // Retorna el appointment
+        } catch (error) {
+          console.error("Error al obtener appointment:", error.message);
+          throw error;
+        }
+      },
  
   async cancelarCita(id) {
     try {
