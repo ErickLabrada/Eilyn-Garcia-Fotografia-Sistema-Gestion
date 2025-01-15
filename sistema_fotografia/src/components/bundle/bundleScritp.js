@@ -1,5 +1,5 @@
 import Navbar from '../../components/HeaderComponent.vue';
-import logica2 from '../../logic/paquetes.js'; 
+import logica2 from './paquetes.js'; 
 
 export default {
   components: {

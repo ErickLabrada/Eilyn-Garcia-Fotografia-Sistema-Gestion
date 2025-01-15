@@ -6,5 +6,5 @@ export default reports;
 </script>
 
 <style scoped>
-@import '../assets/styles.css'; 
+@import './reports/reportStyles.css'; 
 </style>

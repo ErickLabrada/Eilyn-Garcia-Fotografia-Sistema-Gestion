@@ -13,5 +13,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../assets/styles.css'; 
+@import './dashboard/dashboardStyles.css'; 
 </style>

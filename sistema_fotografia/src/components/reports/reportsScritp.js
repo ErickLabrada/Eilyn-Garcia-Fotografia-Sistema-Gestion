@@ -1,5 +1,5 @@
 import Navbar from '../../components/HeaderComponent.vue';
-import logica from '../../logic/ventas.js'; 
+import logica from '../bundle/ventas.js'; 
 import axios from 'axios';
 
 export default {

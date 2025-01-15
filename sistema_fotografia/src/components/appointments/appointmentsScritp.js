@@ -1,4 +1,4 @@
-import { citaService } from "../../logic/cita.js";
+import { citaService } from "./cita.js";
 import Navbar from '../../components/HeaderComponent.vue';
 
 export default {
