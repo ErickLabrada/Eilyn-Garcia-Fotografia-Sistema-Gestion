@@ -1,0 +1,74 @@
+<Navbar :menus="menus" />
+  <div id="paquetes">
+    <h2>Paquetes actuales</h2>
+
+    <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
+
+    <div class="paquetes-grid">
+      <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.name">
+        <h3>{{ paquete.name }}</h3>
+        <p><strong>${{ paquete.price }}</strong></p>
+      
+        <div class="imagen-placeholder">
+          <img v-if="paquete.url" :src="getImageUrl(paquete.url)" alt="Imagen del paquete" id="bundle-image"/>
+          <span v-else>Sin imagen</span>
+        </div>
+        <button class="boton-opciones" @click="abrirEditarPaquete(paquete)">Editar</button>
+      </div>
+    </div>
+
+    <!-- Modal para agregar nuevo paquete -->
+    <div v-if="modalNuevoVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>Agregar Nuevo Paquete</h3>
+        <form @submit.prevent="agregarPaquete">
+          <div>
+            <label for="name">Nombre:</label>
+            <input v-model="nuevoPaquete.name" type="text" id="name" required />
+          </div>         
+          <div>
+            <label for="price">Costo:</label>
+            <input v-model="nuevoPaquete.price" type="text" id="price" required />
+            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
+          </div>
+          <div>
+            <label for="event">Evento:</label>
+            <select v-model="nuevoPaquete.eventId" id="event" required>
+              <option v-for="event in eventos" :key="event.id" :value="event.id">{{ event.event }}</option>
+            </select>
+          </div>
+          <div>
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" @change="cargarNuevaImagen" />
+          </div>
+          <button type="submit">Guardar Paquete</button>
+          <button type="button" @click="cerrarModalNuevo">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal para editar paquete -->
+    <div v-if="modalEditarVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>Editar Paquete</h3>
+        <form @submit.prevent="guardarCambios">
+          <div>
+            <label for="name">Nombre:</label>
+            <input v-model="paqueteEditar.name" type="text" id="name" required />
+          </div>
+          <div>
+            <label for="price">Costo:</label>
+            <input v-model="paqueteEditar.price" type="text" id="price" required />
+            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
+          </div>
+    
+          <div>
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" @change="cargarImagen" />
+          </div>
+          <button type="submit">Guardar Cambios</button>
+          <button @click="cerrarModalEditar" type="button">Cancelar</button>
+        </form>
+      </div>
+    </div>
+  </div>

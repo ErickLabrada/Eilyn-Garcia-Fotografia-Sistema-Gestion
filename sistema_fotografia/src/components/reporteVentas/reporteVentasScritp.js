@@ -11,7 +11,7 @@ export default {
       },
       datos: [],
       dataAvailable: false,
-      bundles: [], // Aquí almacenaremos los paquetes
+      bundles: [], 
     };
   },
   created() {
