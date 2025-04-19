@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@builderbot/bot": "^1.2.2"
+    "@builderbot/bot": "^1.2.2",
+    "all": "^0.0.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^10.4.11",
