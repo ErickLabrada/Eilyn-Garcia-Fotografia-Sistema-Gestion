@@ -81,7 +81,10 @@ export default {
         this.$router.push("/citas");
       } else if (subItem === "Administrar paquetes") {
         this.$router.push("/paquetes");
-      } else if (subItem === "Reporte de ventas") {
+      }else if (subItem === "Administrar empleados"){
+        this.$router.push("/empleados");
+      } 
+      else if (subItem === "Reporte de ventas") {
         this.$router.push("/reporte");
       } else {
         console.log(`Opción no configurada: ${subItem}`);

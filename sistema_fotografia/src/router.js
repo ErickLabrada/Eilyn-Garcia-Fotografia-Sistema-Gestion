@@ -4,6 +4,7 @@ import PaginaInicial from './components/PaginaInicial.vue';
 import PaginaPaquetes from './components/PaginaPaquetes.vue';
 import ConfirmarCita from './components/AdministrarCita.vue';
 import ReporteVentas from './components/ReporteVentas.vue';
+import EmpleadosView from './components/EmpleadosView.vue';
 const routes = [
   {
     path: '/login', 
@@ -29,7 +30,13 @@ const routes = [
     path: "/reporte",
     name: "Reporte",
     component: ReporteVentas,
+  },
+  {
+    path: "/empleados",
+    name: "Empleados",
+    component: EmpleadosView,
   }
+
 ];
 
 const router = createRouter({
