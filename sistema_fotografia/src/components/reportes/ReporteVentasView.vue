@@ -73,8 +73,8 @@
 </template>
 
 <script>
-import Navbar from '../components/HeaderComponent.vue';
-import logica from '../logic/ventas.js'; 
+import Navbar from '../../components/navbar/NavegacionView.vue';
+import logica from '../../logic/ventas.js'; 
 import axios from 'axios';
 
 export default {
@@ -104,5 +104,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../assets/styles.css'; 
+@import '../../assets/styles.css'; 
 </style>

@@ -1,20 +1,23 @@
 <template>
   <Navbar :menus="menus" />
   <div id="paquetes">
-    <h2>Paquetes actuales</h2>
-
-    <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
+    <div class="header">
+      <h2>Paquetes Actuales</h2>
+      <button class="nuevo-paquete-boton" @click="abrirModalNuevo">Nuevo Paquete</button>
+    </div>
 
     <div class="paquetes-grid">
       <div class="paquete-card" v-for="paquete in paquetes" :key="paquete.name">
-        <h3>{{ paquete.name }}</h3>
-        <p><strong>${{ paquete.price }}</strong></p>
-      
+        <div class="paquete-info">
+          <h3>{{ paquete.name }}</h3>
+          <p><strong>${{ paquete.price }}</strong></p>
+        </div>
+
         <div class="imagen-placeholder">
-          <img v-if="paquete.url" :src="getImageUrl(paquete.url)" alt="Imagen del paquete" id="bundle-image"/>
+          <img v-if="paquete.url" :src="getImageUrl(paquete.url)" alt="Imagen del paquete" class="bundle-image" />
           <span v-else>Sin imagen</span>
         </div>
-        <!-- Botón de opciones flotante para editar el paquete -->
+
         <button class="boton-opciones" @click="abrirEditarPaquete(paquete)">Editar</button>
       </div>
     </div>
@@ -31,7 +34,7 @@
           <div>
             <label for="price">Costo:</label>
             <input v-model="nuevoPaquete.price" type="text" id="price" required />
-            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
+            <span v-if="errorCosto" class="error-message">{{ errorCosto }}</span>
           </div>
           <div>
             <label for="event">Evento:</label>
@@ -61,9 +64,8 @@
           <div>
             <label for="price">Costo:</label>
             <input v-model="paqueteEditar.price" type="text" id="price" required />
-            <span v-if="errorCosto" style="color: red; font-size: 12px;">{{ errorCosto }}</span>
+            <span v-if="errorCosto" class="error-message">{{ errorCosto }}</span>
           </div>
-    
           <div>
             <label for="imagen">Imagen:</label>
             <input type="file" id="imagen" @change="cargarImagen" />
@@ -77,8 +79,8 @@
 </template>
 
 <script>
-import Navbar from '../components/HeaderComponent.vue';
-import logica2 from '../logic/paquetes.js'; 
+import Navbar from '../../components/navbar/NavegacionView.vue';
+import logica2 from '../../logic/paquetes.js'; 
 
 export default {
   components: {
@@ -122,7 +124,7 @@ export default {
     },
     getImageUrl(url) {
       try {
-        return require(`../../../base-js-baileys-memory/assets/${url}`);
+        return require(`../../../../base-js-baileys-memory/assets/${url}`);
       } catch (e) {
         return null;
       }

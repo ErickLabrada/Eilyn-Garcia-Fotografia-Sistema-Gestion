@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import navbar from "./components/HeaderComponent.vue";
+import navbar from "./components/navbar/NavegacionView.vue";
 export default {
   name: 'App',
   navbar
@@ -14,7 +14,7 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

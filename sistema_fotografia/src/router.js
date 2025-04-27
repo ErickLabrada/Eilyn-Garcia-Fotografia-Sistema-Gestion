@@ -1,42 +1,69 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from './components/UserLogin.vue'; 
-import PaginaInicial from './components/PaginaInicial.vue';
-import PaginaPaquetes from './components/PaginaPaquetes.vue';
-import ConfirmarCita from './components/AdministrarCita.vue';
-import ReporteVentas from './components/ReporteVentas.vue';
-import EmpleadosView from './components/EmpleadosView.vue';
+import InicioSesionView from './components/inicioSesion/InicioSesionView.vue'; 
+import InicioView from './components/paginaInicio/InicioView.vue';
+import PaquetesView from './components/paquetes/PaquetesView.vue';
+import AdministrarCitaView from './components/administrarCita/AdministrarCitaView.vue';
+import ReporteVentasView from './components/reportes/ReporteVentasView.vue';
+import EmpleadosView from './components/empleados/EmpleadosView.vue';
+import RecordatorioView from './components/recordatorio/RecordatorioView.vue';
+import AgendarEntregaView from './components/agendarEntrega/AgendarEntregaView.vue';
+import PromocionesView from './components/promociones/PromocionesView.vue';
+import SolicitarMaterialView from './components/materiales/SolicitarMaterialView.vue';
 const routes = [
   {
-    path: '/login', 
-    name: 'Login',
-    component: Login,
+    path: '/',             
+    redirect: '/inicioSesion',    
   },
   {
-    path: '/paginaInicial', 
-    name: 'PaginaInicial', 
-    component: PaginaInicial,
+    path: '/inicioSesion', 
+    name: 'InicioSesion',
+    component: InicioSesionView,
+  },
+  {
+    path: '/inicio', 
+    name: 'Inicio', 
+    component: InicioView,
   },
   {
     path: "/paquetes",
     name: "Paquetes",
-    component: PaginaPaquetes,
+    component: PaquetesView,
   },
   {
-    path: "/citas",
-    name: "Citas",
-    component: ConfirmarCita,
+    path: "/administrarCitas",
+    name: "AdministrarCitas",
+    component: AdministrarCitaView,
   },
   {
-    path: "/reporte",
-    name: "Reporte",
-    component: ReporteVentas,
+    path: "/reporteVentas",
+    name: "ReporteVentas",
+    component: ReporteVentasView,
   },
   {
     path: "/empleados",
     name: "Empleados",
     component: EmpleadosView,
+  },
+  {
+    path: "/recordatorio",
+    name: "Recordatorio",
+    component: RecordatorioView,
+  },
+  {
+    path: "/promociones",
+    name: "Promociones",
+    component: PromocionesView,
+  },
+  {
+    path: "/entregas",
+    name: "Entregas",
+    component: AgendarEntregaView,
+  },
+  {
+    path: "/materiales",
+    name: "Materiales",
+    component: SolicitarMaterialView,
   }
-
 ];
 
 const router = createRouter({

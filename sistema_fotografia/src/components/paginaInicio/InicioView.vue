@@ -6,14 +6,14 @@
       <div class="carousel-inner">
         <div class="carousel-item active">
           <div class="carousel-items">
-            <img src="../assets/imgcarrusel.jpg" class="d-block w-100" alt="Imagen 1" />
+            <img src="../../assets/imgcarrusel.jpg" class="d-block w-100" alt="Imagen 1" />
             
            
           </div>
         </div>
         <div class="carousel-item">
           <div class="carousel-items">
-            <img src="../assets/imgcarrusel2.jpg" class="d-block w-100" alt="Imagen 4" />
+            <img src="../../assets/imgcarrusel2.jpg" class="d-block w-100" alt="Imagen 4" />
            
           </div>
         </div>
@@ -74,8 +74,8 @@
   </div>
 </template>
 <script>
-import Navbar from '../components/HeaderComponent.vue';
-import logica1 from '../logic/paginaInicial.js'; 
+import Navbar from '../../components/navbar/NavegacionView.vue';
+import logica1 from '../../logic/paginaInicial.js'; 
 
 export default {
   components: {
@@ -85,5 +85,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../assets/styles.css'; 
+@import '../../assets/styles.css'; 
 </style>

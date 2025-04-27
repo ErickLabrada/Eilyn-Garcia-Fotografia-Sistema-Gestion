@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">Sistema de fotografía</a>
+      <a class="navbar-brand fw-bold" href="#" @click="navigateToInicio">Sistema de fotografía</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -15,7 +15,7 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item dropdown" v-for="menu in menus" :key="menu.title">
             <a
               class="nav-link dropdown-toggle"
@@ -59,46 +59,71 @@ export default {
     return {
       menus: [
         {
-          title: "Administrar",
+          title: "Clientes y Citas",
           items: [
             "Administrar citas",
-            "Administrar empleados",
-            "Administrar promociones",
-            "Administrar paquetes",
+            "Consultar cliente",
+            "Mandar recordatorios",
           ],
         },
         {
-          title: "Consultas",
+          title: "Servicios y Promociones",
           items: [
-            "Consultar cliente",
+            "Administrar paquetes",
+            "Administrar promociones",
             "Consultar paquete con permiso de publicación",
           ],
         },
         {
-          title: "Reportes",
-          items: ["Reporte de ventas"],
+          title: "Inventario y Entregas",
+          items: [
+            "Solicitar material",
+            "Agendar entregas",
+          ],
         },
-      ],
+        {
+          title: "Empleados",
+          items: [
+            "Administrar empleados",
+          ],
+        },
+        {
+          title: "Reportes",
+          items: [
+            "Reporte de ventas",
+          ],
+        },
+      ]
     };
   },
   methods: {
     navigate(subItem) {
       if (subItem === "Administrar citas") {
-        this.$router.push("/citas");
+        this.$router.push("/administrarCitas");
       } else if (subItem === "Administrar paquetes") {
         this.$router.push("/paquetes");
-      }else if (subItem === "Administrar empleados"){
+      } else if (subItem === "Administrar empleados") {
         this.$router.push("/empleados");
-      } 
-      else if (subItem === "Reporte de ventas") {
-        this.$router.push("/reporte");
+      } else if (subItem === "Administrar promociones") {
+        this.$router.push("/promociones");
+      } else if (subItem === "Solicitar material") {
+        this.$router.push("/materiales");
+      } else if (subItem === "Mandar recordatorios") {
+        this.$router.push("/recordatorio");
+      } else if (subItem === "Agendar entregas") {
+        this.$router.push("/entregas");
+      } else if (subItem === "Reporte de ventas") {
+        this.$router.push("/reporteVentas");
       } else {
         console.log(`Opción no configurada: ${subItem}`);
       }
     },
+    navigateToInicio() {
+      this.$router.push('/inicio');
+    },
     logout() {
       console.log("Cerrando sesión...");
-    
+      this.$router.push('/inicioSesion');
     },
   },
 };
@@ -174,12 +199,7 @@ export default {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-
 .dropdown-toggle::after {
   transition: transform 0.2s ease-in-out;
-}
-
-.show .dropdown-toggle::after {
-  transform: rotate(-180deg);
 }
 </style>

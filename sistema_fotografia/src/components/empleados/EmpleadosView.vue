@@ -69,11 +69,11 @@
 </template>
 
 <script>
-import Navbar from '../components/HeaderComponent.vue';
-import logica1 from '../logic/paginaInicial.js';
+import Navbar from '../../components/navbar/NavegacionView.vue';
+import logica1 from '../../logic/paginaInicial.js';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection } from 'firebase/firestore'; 
-import { auth, db } from '../firebase/firebase.js';
+import { auth, db } from '../../firebase/firebase.js';
 
 export default {
   components: {
