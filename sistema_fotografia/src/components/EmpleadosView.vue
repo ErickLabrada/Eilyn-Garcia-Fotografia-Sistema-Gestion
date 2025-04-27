@@ -1,38 +1,76 @@
 <template>
+  <div class="admin-container">
     <Navbar :menus="menus" />
     
-  <h2>
-    Registrar empleado
-  </h2>
-  <h3>
-    
-  </h3>
-    <form @submit.prevent="registrarEmpleado">
-      <input v-model="empleado.email" placeholder="Correo" />
-      <input v-model="empleado.password" placeholder="Contraseña" type="password" />
-      <button type="submit">Registrar</button>
-    </form>
-    <h2>Lista de empleados</h2>
-<table border="1">
-  <thead>
-    <tr>
-      <th>Email</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="empleado in empleados" :key="empleado.id">
-      
-      <td>{{ empleado.email }}</td>
-    </tr>
-  </tbody>
-</table>
-  </template>
-  
-  <script>
+    <div class="admin-content">
+      <div class="admin-card">
+        <h2 class="admin-title">
+          <i class="bi bi-person-plus-fill"></i> Registrar empleado
+        </h2>
+        <form @submit.prevent="registrarEmpleado" class="employee-form">
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input 
+              v-model="empleado.email" 
+              id="email"
+              type="email" 
+              placeholder="correo@ejemplo.com" 
+              class="form-input"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input 
+              v-model="empleado.password" 
+              id="password"
+              type="password" 
+              placeholder="••••••••" 
+              class="form-input"
+              required
+            />
+          </div>
+          <button type="submit" class="submit-btn">
+            <i class="bi bi-save"></i> Registrar empleado
+          </button>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h2 class="admin-title">
+          <i class="bi bi-people-fill"></i> Lista de empleados
+        </h2>
+        <div class="table-responsive">
+          <table class="employee-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="empleado in empleados" :key="empleado.id">
+                <td>{{ empleado.email }}</td>
+                <td class="actions">
+                  <button class="action-btn edit">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="action-btn delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
 import Navbar from '../components/HeaderComponent.vue';
 import logica1 from '../logic/paginaInicial.js';
-
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection } from 'firebase/firestore'; 
 import { auth, db } from '../firebase/firebase.js';
@@ -45,7 +83,6 @@ export default {
   data() {
     return {
       empleado: {
-        
         email: '',
         password: '',
       },
@@ -55,21 +92,18 @@ export default {
   methods: {
     async registrarEmpleado() {
       try {
-        const {  email, password } = this.empleado;
+        const { email, password } = this.empleado;
 
         const credenciales = await createUserWithEmailAndPassword(auth, email, password);
         const uid = credenciales.user.uid;
 
         await setDoc(doc(db, 'empleados', uid), {
-          
           email,
           creado: new Date()
         });
 
         alert('Empleado registrado correctamente');
-        this.empleado = {  email: '', password: '' };
-
-        
+        this.empleado = { email: '', password: '' };
         this.cargarEmpleados();
 
       } catch (error) {
@@ -94,89 +128,163 @@ export default {
   }
 };
 </script>
-  
-  <style>
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 10;
-  padding: 0;
+<style scoped>
+.admin-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
 }
 
+.admin-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-form {
+.admin-card {
   background-color: white;
-  padding: 20px; 
-  margin: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 60%; 
-  max-width: 600px; 
-  margin-left: auto; 
-  margin-right: auto; 
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin-bottom: 2rem;
 }
 
-form input {
-  width: 80%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
+.admin-title {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 0.75rem;
+}
+
+.employee-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
-  background-color: #fafafa;
-  font-size: 16px;
-
+  font-size: 1rem;
+  transition: all 0.3s;
+  background-color: #f8fafc;
 }
 
-form button {
-  width: 80%;
-  padding: 12px;
-  background-color: #28a745;
+.form-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2b6cb0;
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-form button:hover {
-  background-color: #218838;
+.submit-btn:hover {
+  background-color: #2c5282;
 }
 
-
-h2 {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 24px;
-  color: #333;
+.table-responsive {
+  overflow-x: auto;
 }
 
-table {
-  width: 80%;
-  margin: 20px auto;
+.employee-table {
+  width: 100%;
   border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-table th,
-table td {
-  padding: 12px;
+.employee-table th,
+.employee-table td {
+  padding: 1rem;
   text-align: left;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-table th {
-  background-color: #f9f9f9;
-  color: #333;
+.employee-table th {
+  background-color: #f7fafc;
+  color: #4a5568;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
-table tr:nth-child(even) {
-  background-color: #f2f2f2;
+.employee-table tr:hover {
+  background-color: #f8fafc;
 }
 
-table tr:hover {
-  background-color: #e9e9e9;
+.actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
-</style>
+.action-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.edit {
+  background-color: #e6fffa;
+  color: #38b2ac;
+}
+
+.action-btn.edit:hover {
+  background-color: #b2f5ea;
+}
+
+.action-btn.delete {
+  background-color: #fff5f5;
+  color: #f56565;
+}
+
+.action-btn.delete:hover {
+  background-color: #fed7d7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 1rem;
+  }
   
+  .admin-card {
+    padding: 1.5rem;
+  }
+}
+</style>

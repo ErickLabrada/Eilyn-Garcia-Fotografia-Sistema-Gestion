@@ -202,7 +202,7 @@ h2 {
 
 .paquetes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Tarjetas dinámicas con mejor tamaño */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
   gap: 20px;
   justify-items: center;
 }
@@ -211,7 +211,7 @@ h2 {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para un efecto de elevación */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   width: 100%;
