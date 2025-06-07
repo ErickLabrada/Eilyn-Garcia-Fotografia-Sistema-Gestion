@@ -1,253 +1,265 @@
 <template>
- <Navbar :menus="menus" />
-    <div class="material-request">
+  <Navbar :menus="menus" />
+  <div class="material-request">
+    <header>
+      <h1>Solicitar Material Fotográfico</h1>
+      <button @click="showForm = !showForm" class="toggle-btn">
+        {{ showForm ? 'Cancelar' : '+ Nueva Solicitud' }}
+      </button>
+    </header>
 
-      <header>
-        <h1>Solicitar Material Fotográfico</h1>
-        <button @click="showForm = !showForm" class="toggle-btn">
-          {{ showForm ? 'Cancelar' : '+ Nueva Solicitud' }}
-        </button>
-      </header>
-  
-      <form v-if="showForm" @submit.prevent="submitRequest" class="request-form">
-        <div class="form-section">
-          <h2>Datos del Evento</h2>
-          
-          <div class="form-group">
-            <label>Nombre del cliente:</label>
-            <input v-model="form.clientName" required />
-          </div>
-  
-          <div class="form-group">
-            <label>Teléfono:</label>
-            <input v-model="form.phone" type="tel" required />
-          </div>
-  
-          <div class="form-group">
-            <label>Tipo de evento:</label>
-            <select v-model="form.eventType" required>
-              <option v-for="event in eventTypes" :key="event.id" :value="event.id">
-                {{ event.name }}
-              </option>
-            </select>
-          </div>
-  
-          <div class="form-group">
-            <label>Fecha del evento:</label>
-            <input v-model="form.eventDate" type="date" required :min="minDate" />
-          </div>
+    <form v-if="showForm" @submit.prevent="submitRequest" class="request-form">
+      <div class="form-section">
+        <h2>Datos del Evento</h2>
+
+        <div class="form-group">
+          <label>Nombre del cliente:</label>
+          <input v-model="form.clientName" required />
         </div>
-  
-        <div class="form-section">
-          <h2>Material Requerido</h2>
-          
-          <div class="materials-grid">
-            <div v-for="material in availableMaterials" :key="material.id" class="material-item">
-              <label class="material-checkbox">
-                <input 
-                  type="checkbox" 
-                  v-model="form.selectedMaterials" 
-                  :value="material.id" 
-                  :disabled="isMaterialDisabled(material)"
-                />
-                <span class="checkmark"></span>
-                <div class="material-info">
-                  <strong>{{ material.name }}</strong>
-                  <span>{{ material.description }}</span>
-                  <small v-if="material.stock !== undefined">Disponibles: {{ material.stock }}</small>
-                </div>
-              </label>
-              <input 
-                v-if="form.selectedMaterials.includes(material.id) && material.quantityEditable"
-                v-model.number="materialQuantities[material.id]"
-                type="number" 
-                min="1" 
-                :max="material.stock || 99"
-                class="quantity-input"
-                @click.stop
+
+        <div class="form-group">
+          <label>Nombre del proveedor:</label>
+          <select v-model="form.providerId" required>
+            <option disabled value="">Seleccione un proveedor</option>
+            <option v-for="prov in proveedores" :key="prov.id" :value="prov.id">
+              {{ prov.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono:</label>
+          <input v-model="form.phone" type="tel" required />
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de evento:</label>
+          <select v-model="nuevoPaquete.eventId" id="event" required>
+            <option v-for="event in eventos" :key="event.id" :value="event.id">
+              {{ event.event }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Fecha del evento:</label>
+          <input v-model="form.eventDate" type="date" required :min="minDate" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Materiales / Items Requeridos</h2>
+        <div class="materials-grid">
+          <div v-for="item in items" :key="item.id" class="material-item">
+            <label class="material-checkbox">
+              <input
+                type="checkbox"
+                v-model="form.selectedItems"
+                :value="item.id"
               />
-            </div>
-          </div>
-        </div>
-  
-        <div class="form-section">
-          <h2>Detalles Adicionales</h2>
-          <textarea v-model="form.notes" placeholder="Especificaciones especiales..."></textarea>
-        </div>
-  
-        <div class="form-actions">
-          <button type="button" @click="resetForm" class="cancel-btn">Cancelar</button>
-          <button type="submit" class="submit-btn">Enviar Solicitud</button>
-        </div>
-      </form>
-  
-      <!-- solicitudes -->
-      <div class="requests-list">
-        <h2>Solicitudes Recientes</h2>
-        
-        <div v-if="loading" class="loading">Cargando...</div>
-        <div v-else-if="requests.length === 0" class="empty-state">
-          No hay solicitudes registradas.
-        </div>
-  
-        <div v-for="request in requests" :key="request.id" class="request-card">
-          <div class="request-header">
-            <h3>{{ request.clientName }}</h3>
-            <span class="status-badge" :class="request.status">{{ request.status }}</span>
-          </div>
-          
-          <div class="request-details">
-            <p><strong>Evento:</strong> {{ getEventName(request.eventType) }}</p>
-            <p><strong>Fecha:</strong> {{ formatDate(request.eventDate) }}</p>
-            <p><strong>Materiales:</strong></p>
-            <ul>
-              <li v-for="item in request.materials" :key="item.id">
-                {{ item.name }} (x{{ item.quantity }})
-              </li>
-            </ul>
-            <p v-if="request.notes"><strong>Notas:</strong> {{ request.notes }}</p>
-          </div>
-  
-          <div class="request-footer">
-            <small>Solicitado el: {{ formatDateTime(request.createdAt) }}</small>
-            <button 
-              v-if="request.status === 'pendiente'" 
-              @click="cancelRequest(request.id)"
-              class="cancel-request-btn"
-            >
-              Cancelar
-            </button>
+              <span class="checkmark"></span>
+              <div class="material-info">
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.description }}</span>
+              </div>
+            </label>
+            <input
+              v-if="form.selectedItems.includes(item.id)"
+              v-model.number="itemQuantities[item.id]"
+              type="number"
+              min="1"
+              class="quantity-input"
+              @click.stop
+            />
           </div>
         </div>
       </div>
+
+      <div class="form-section">
+        <h2>Detalles Adicionales</h2>
+        <textarea v-model="form.notes" placeholder="Especificaciones especiales..."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" @click="resetForm" class="cancel-btn">Cancelar</button>
+        <button type="submit" class="submit-btn">Enviar Solicitud</button>
+      </div>
+    </form>
+
+    <!-- solicitudes -->
+    <div class="requests-list">
+      <h2>Solicitudes Recientes</h2>
+
+      <div v-if="loading" class="loading">Cargando...</div>
+      <div v-else-if="requests.length === 0" class="empty-state">
+        No hay solicitudes registradas.
+      </div>
+
+      <div v-for="request in requests" :key="request.id" class="request-card">
+        <div class="request-header">
+          <h3>{{ request.clientName }}</h3>
+          <span class="status-badge" :class="request.status">{{ request.status }}</span>
+        </div>
+
+        <div class="request-details">
+          <p><strong>Evento:</strong> {{ getEventName(request.eventType) }}</p>
+          <p><strong>Fecha:</strong> {{ formatDate(request.eventDate) }}</p>
+          <p><strong>Materiales:</strong></p>
+          <ul>
+            <li v-for="item in request.materials" :key="item.id">
+              {{ item.name }} (x{{ item.quantity }})
+            </li>
+          </ul>
+          <p v-if="request.notes"><strong>Notas:</strong> {{ request.notes }}</p>
+        </div>
+
+        <div class="request-footer">
+          <small>Solicitado el: {{ formatDateTime(request.createdAt) }}</small>
+          <button 
+            v-if="request.status === 'pendiente'" 
+            @click="cancelRequest(request.id)"
+            class="cancel-request-btn"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
-  </template>
+  </div>
+</template>
+
   
   <script>
-  import axios from 'axios';
-  import Navbar from '../../components/navbar/NavegacionView.vue';
-  export default {
-    components: {
-    Navbar,
-  },
-    data() {
-      return {
-        showForm: false,
-        loading: true,
-        requests: [],
-        eventTypes: [],
-        availableMaterials: [],
-        materialQuantities: {},
-        form: {
-          clientName: '',
-          phone: '',
-          eventType: null,
-          eventDate: '',
-          selectedMaterials: [],
-          notes: ''
-        },
-        minDate: new Date().toISOString().split('T')[0] // fecha
-      };
-    },
-    async created() {
-      await this.fetchInitialData();
-    },
-    methods: {
-      async fetchInitialData() {
-        try {
-          const [eventsRes, materialsRes, requestsRes] = await Promise.all([
-            axios.get('http://localhost:3001/events'),
-            axios.get('http://localhost:3001/materials/available'),
-            axios.get('http://localhost:3001/material-requests')
-          ]);
-          
-          this.eventTypes = eventsRes.data;
-          this.availableMaterials = materialsRes.data.map(material => ({
-            ...material,
-            quantityEditable: material.type !== 'equipo' 
-          }));
-          this.requests = requestsRes.data;
-          
-          // Inicializar cantidades
-          this.availableMaterials.forEach(material => {
-            this.materialQuantities[material.id] = 1;
-          });
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          alert('Error al cargar datos iniciales');
-        } finally {
-          this.loading = false;
-        }
-      },
-      isMaterialDisabled(material) {
-        return material.stock !== undefined && material.stock <= 0;
-      },
-      async submitRequest() {
-        try {
+import axios from 'axios';
+import Navbar from '../../components/navbar/NavegacionView.vue';
+import proveedor from './proveedor.js';
+import items from './items'; 
+import logica2 from '../../logic/paquetes.js';
 
-          const materialsWithQuantities = this.form.selectedMaterials.map(materialId => {
-            const material = this.availableMaterials.find(m => m.id === materialId);
-            return {
-              id: materialId,
-              name: material.name,
-              quantity: material.quantityEditable ? this.materialQuantities[materialId] : 1
-            };
-          });
-  
-          const payload = {
-            ...this.form,
-            materials: materialsWithQuantities,
-            status: 'pendiente',
-            createdAt: new Date().toISOString()
-          };
-  
-          await axios.post('http://localhost:3001/material-requests', payload);
-          this.resetForm();
-          await this.fetchInitialData();
-          alert('Solicitud enviada correctamente');
-        } catch (error) {
-          console.error('Error submitting request:', error);
-          alert('Error al enviar solicitud');
-        }
+export default {
+  components: { Navbar },
+  mixins: [logica2, proveedor, items],
+
+  data() {
+    return {
+      showForm: false,
+      loading: true,
+      requests: [],
+      eventTypes: [],
+      items: [],
+      itemQuantities: {},
+      form: {
+        clientName: '',
+        phone: '',
+        eventType: null,
+        eventDate: '',
+        providerId: '',
+        selectedItems: [],
+        notes: ''
       },
-      async cancelRequest(requestId) {
-        if (!confirm('¿Cancelar esta solicitud?')) return;
-        
-        try {
-          await axios.patch(`http://localhost:3001/material-requests/${requestId}`, {
-            status: 'cancelada'
-          });
-          await this.fetchInitialData();
-        } catch (error) {
-          console.error('Error canceling request:', error);
-          alert('Error al cancelar solicitud');
-        }
-      },
-      resetForm() {
-        this.form = {
-          clientName: '',
-          phone: '',
-          eventType: null,
-          eventDate: '',
-          selectedMaterials: [],
-          notes: ''
-        };
-        this.showForm = false;
-      },
-      // Helpers
-      getEventName(eventId) {
-        const event = this.eventTypes.find(e => e.id === eventId);
-        return event ? event.event : '--';
-      },
-      formatDate(dateStr) {
-        return new Date(dateStr).toLocaleDateString('es-MX');
-      },
-      formatDateTime(dateStr) {
-        return new Date(dateStr).toLocaleString('es-MX');
+      minDate: new Date().toISOString().split('T')[0]
+    };
+  },
+
+  async created() {
+    await this.fetchInitialData();
+  },
+
+  methods: {
+    async fetchInitialData() {
+      try {
+        const [eventsRes, itemsRes, requestsRes] = await Promise.all([
+          axios.get('http://localhost:3001/events'),
+          axios.get('http://localhost:3001/items'),
+          axios.get('http://localhost:3001/material-requests')
+        ]);
+
+        this.eventTypes = eventsRes.data;
+        this.items = itemsRes.data;
+        this.requests = requestsRes.data;
+
+        this.items.forEach(item => {
+          this.itemQuantities[item.id] = 1;
+        });
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+        alert("Hubo un error al cargar la información");
+      } finally {
+        this.loading = false;
       }
+    },
+
+    async submitRequest() {
+      try {
+        const itemsWithQuantities = this.form.selectedItems.map(id => {
+          const item = this.items.find(i => i.id === id);
+          return {
+            id,
+            name: item.name,
+            quantity: this.itemQuantities[id] || 1
+          };
+        });
+
+        const payload = {
+          ...this.form,
+          items: itemsWithQuantities,
+          status: 'pendiente',
+          createdAt: new Date().toISOString()
+        };
+
+        await axios.post('http://localhost:3001/material-requests', payload);
+        this.resetForm();
+        await this.fetchInitialData();
+        alert('Solicitud enviada correctamente');
+      } catch (error) {
+        console.error("Error al enviar solicitud:", error);
+        alert("Error al enviar solicitud");
+      }
+    },
+
+    async cancelRequest(requestId) {
+      if (!confirm('¿Cancelar esta solicitud?')) return;
+
+      try {
+        await axios.patch(`http://localhost:3001/material-requests/${requestId}`, {
+          status: 'cancelada'
+        });
+        await this.fetchInitialData();
+      } catch (error) {
+        console.error('Error cancelando solicitud:', error);
+        alert('Error al cancelar solicitud');
+      }
+    },
+
+    resetForm() {
+      this.form = {
+        clientName: '',
+        phone: '',
+        eventType: null,
+        eventDate: '',
+        providerId: '',
+        selectedItems: [],
+        notes: ''
+      };
+      this.showForm = false;
+    },
+
+    getEventName(eventId) {
+      const event = this.eventTypes.find(e => e.id === eventId);
+      return event ? event.event : '--';
+    },
+
+    formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('es-MX');
+    },
+
+    formatDateTime(dateStr) {
+      return new Date(dateStr).toLocaleString('es-MX');
     }
-  };
-  </script>
+  }
+};
+
+</script>
   
   <style scoped>
   .material-request {

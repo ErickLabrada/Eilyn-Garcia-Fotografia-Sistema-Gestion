@@ -34,13 +34,15 @@ import { join } from 'path';
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
-      host: process.env.HOST,
-      port: Number(process.env.PORT),
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,  // Corrected here
-      database: process.env.DATABASE_NAME,
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       entities: [__dirname + "/**/*.entity{.ts,.js}"],
-      synchronize: false
+      synchronize: false,
+      autoLoadEntities: true,
+      logging: true // Esto te ayudarÃ¡ a ver las consultas SQL
     }),
     EmployeesModule,
     RolesModule,
