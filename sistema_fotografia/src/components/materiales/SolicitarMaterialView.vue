@@ -34,7 +34,8 @@
 
         <div class="form-group">
           <label>Tipo de evento:</label>
-          <select v-model="nuevoPaquete.eventId" id="event" required>
+          <select v-model="form.eventType" id="event" required>
+
             <option v-for="event in eventos" :key="event.id" :value="event.id">
               {{ event.event }}
             </option>
@@ -129,11 +130,11 @@
 </template>
 
   
-  <script>
-import axios from 'axios';
+ <script>
+import emailjs from 'emailjs-com';
 import Navbar from '../../components/navbar/NavegacionView.vue';
 import proveedor from './proveedor.js';
-import items from './items'; 
+import items from './items';
 import logica2 from '../../logic/paquetes.js';
 
 export default {
@@ -143,7 +144,7 @@ export default {
   data() {
     return {
       showForm: false,
-      loading: true,
+      loading: false,
       requests: [],
       eventTypes: [],
       items: [],
@@ -168,15 +169,13 @@ export default {
   methods: {
     async fetchInitialData() {
       try {
-        const [eventsRes, itemsRes, requestsRes] = await Promise.all([
-          axios.get('http://localhost:3001/events'),
-          axios.get('http://localhost:3001/items'),
-          axios.get('http://localhost:3001/material-requests')
+        const [eventsRes, itemsRes] = await Promise.all([
+          fetch('http://localhost:3001/events').then(res => res.json()),
+          fetch('http://localhost:3001/items').then(res => res.json())
         ]);
 
-        this.eventTypes = eventsRes.data;
-        this.items = itemsRes.data;
-        this.requests = requestsRes.data;
+        this.eventTypes = eventsRes;
+        this.items = itemsRes;
 
         this.items.forEach(item => {
           this.itemQuantities[item.id] = 1;
@@ -184,51 +183,16 @@ export default {
       } catch (error) {
         console.error("Error cargando datos:", error);
         alert("Hubo un error al cargar la información");
-      } finally {
-        this.loading = false;
       }
     },
 
-    async submitRequest() {
-      try {
-        const itemsWithQuantities = this.form.selectedItems.map(id => {
-          const item = this.items.find(i => i.id === id);
-          return {
-            id,
-            name: item.name,
-            quantity: this.itemQuantities[id] || 1
-          };
-        });
-
-        const payload = {
-          ...this.form,
-          items: itemsWithQuantities,
-          status: 'pendiente',
-          createdAt: new Date().toISOString()
-        };
-
-        await axios.post('http://localhost:3001/material-requests', payload);
-        this.resetForm();
-        await this.fetchInitialData();
-        alert('Solicitud enviada correctamente');
-      } catch (error) {
-        console.error("Error al enviar solicitud:", error);
-        alert("Error al enviar solicitud");
-      }
+    getEventName(eventId) {
+      const event = this.eventTypes.find(e => e.id === eventId);
+      return event ? event.event : '--';
     },
 
-    async cancelRequest(requestId) {
-      if (!confirm('¿Cancelar esta solicitud?')) return;
-
-      try {
-        await axios.patch(`http://localhost:3001/material-requests/${requestId}`, {
-          status: 'cancelada'
-        });
-        await this.fetchInitialData();
-      } catch (error) {
-        console.error('Error cancelando solicitud:', error);
-        alert('Error al cancelar solicitud');
-      }
+    formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('es-MX');
     },
 
     resetForm() {
@@ -244,22 +208,44 @@ export default {
       this.showForm = false;
     },
 
-    getEventName(eventId) {
-      const event = this.eventTypes.find(e => e.id === eventId);
-      return event ? event.event : '--';
-    },
+    async submitRequest() {
+      try {
+        const selectedItems = this.form.selectedItems.map(id => {
+          const item = this.items.find(i => i.id === id);
+          return `${item.name} (x${this.itemQuantities[id] || 1})`;
+        }).join(', ');
 
-    formatDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString('es-MX');
-    },
+        const emailParams = {
+           client_name: this.form.clientName,
+  phone: this.form.phone,
+  provider: this.proveedores.find(p => p.id === this.form.providerId)?.name || '',
+  event_date: this.form.eventDate,
+  event_type: this.getEventName(this.form.eventType),
+  selected_items: selectedItems,
+  notes: this.form.notes,
+  email: this.form.email,
+  message: this.form.message
+        };
 
-    formatDateTime(dateStr) {
-      return new Date(dateStr).toLocaleString('es-MX');
+        await emailjs.send(
+          'service_mue6u1e',      
+          'template_r2yiyww',      
+          emailParams,
+          'HyMf4uLXj_anD5EEc'     
+        );
+
+        alert('Solicitud enviada correctamente por correo');
+        this.resetForm();
+      } catch (error) {
+        console.error('Error al enviar correo:', error);
+        alert('Ocurrió un error al enviar el correo');
+      }
     }
   }
 };
-
 </script>
+
+
   
   <style scoped>
   .material-request {
