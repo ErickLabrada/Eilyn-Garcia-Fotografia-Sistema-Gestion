@@ -33,6 +33,15 @@
         <input v-model="form.expiryDate" type="date" :min="new Date().toISOString().split('T')[0]" required />
       </div>
 
+<div class="form-group">
+        <label>Seleccione paquete:</label>
+        <select v-model="form.eventTypeId" required>
+          <option v-for="event in events" :key="event.id" :value="event.id">
+            {{ event.event }}
+          </option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label>Tipo de evento:</label>
         <select v-model="form.eventTypeId" required>
@@ -87,10 +96,12 @@
 <script>
 import axios from 'axios';
 import Navbar from '../../components/navbar/NavegacionView.vue';
+import paquetes from '../..logic/ paquetes.js';
 
 export default {
   components: {
     Navbar,
+    mixins: [paquetes],
   },
   data() {
     return {
