@@ -13,7 +13,6 @@
   "dependencies": {
     "@builderbot/bot": "1.2.2",
     "@builderbot/provider-baileys": "1.2.2",
-    "emoji-regex": "^10.4.0",
     "sharp": "^0.33.5"
   },
   "devDependencies": {

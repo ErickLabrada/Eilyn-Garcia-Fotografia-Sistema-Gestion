@@ -615,14 +615,15 @@ const main = async () => {
         database: adapterDB,
     })
 
-    adapterProvider.server.post(
-        '/v1/messages',
-        handleCtx(async (bot, req, res) => {
-            const { number, message, urlMedia } = req.body
-            await bot.sendMessage(number, message, { media: urlMedia ?? null })
-            return res.end('sended')
-        })
-    )
+adapterProvider.server.post(
+    '/v1/messages',
+    handleCtx(async (bot, req, res) => {
+        const { message, urlMedia } = req.body
+        const fixedNumber = '6442304259' // Coloca aquí el número deseado
+        await bot.sendMessage(fixedNumber, message, { media: urlMedia ?? null })
+        return res.end('sended')
+    })
+)
 
     adapterProvider.server.post(
         '/v1/register',
