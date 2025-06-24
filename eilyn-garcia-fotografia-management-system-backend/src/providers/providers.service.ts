@@ -1,52 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Contract } from 'src/Domain/contract.entity';
 import { Provider } from 'src/Domain/provider.entity';
 import { CreateProviderDTO } from 'src/dtos/providerDto/create-provider.dto';
 import { UpdateProviderDTO } from 'src/dtos/providerDto/update-provider.dto';
+import { Item } from 'src/Domain/item.entity';
 import { In, Repository } from "typeorm"
 
 @Injectable()
 export class ProvidersService {
 
-    constructor(
-        @InjectRepository(Provider) private providerRepository: Repository<Provider>,
-        @InjectRepository(Contract) private contractRepository: Repository<Contract>
+  constructor(
+    @InjectRepository(Provider) private providerRepository: Repository<Provider>,
+    @InjectRepository(Item) private itemRepository: Repository<Item>
+  ) {}
 
-    ){}
+  async createProvider(providerDTO: CreateProviderDTO) {
+    const { itemsID, ...providerData } = providerDTO;
 
-    async createProvider(phoneuserdto: CreateProviderDTO){
-        const {itemsID,...providerData}=phoneuserdto
-        const contractsEntities= await this.contractRepository.find({
-            where: {
-                id: In(itemsID)  
-            }
-        })
-        const newProvider = this.providerRepository.create({
-            ...providerData,
-            items: contractsEntities
-        });
-        return await this.providerRepository.save(newProvider)
-    }
+    const itemsEntities = await this.itemRepository.find({
+      where: {
+        id: In(itemsID)
+      }
+    });
 
-    async getProviders(){
-        return await this.providerRepository.find()
-    }
+    const newProvider = this.providerRepository.create({
+      ...providerData,
+      items: itemsEntities
+    });
 
-    async getProvider(id: number){
-        return await this.providerRepository.findOne({
-            where:{
-                id
-            }
-        })
-    }
+    return await this.providerRepository.save(newProvider);
+  }
 
-    async updateProvider(id: number, providerDTO: UpdateProviderDTO){
-        return await this.providerRepository.update({id}, providerDTO)
-    }
+  async getProviders() {
+    return await this.providerRepository.find({
+      relations: ['items'] 
+    });
+  }
 
-    async deleteProvider(id: number){
-        return await this.providerRepository.delete({id})
-    }
+  async getProvider(id: number) {
+    return await this.providerRepository.findOne({
+      where: { id },
+      relations: ['items']
+    });
+  }
 
+  async updateProvider(id: number, providerDTO: UpdateProviderDTO) {
+    return await this.providerRepository.update({ id }, providerDTO);
+  }
+
+  async deleteProvider(id: number) {
+    return await this.providerRepository.delete({ id });
+  }
 }

@@ -9,10 +9,11 @@ export class ProvidersController {
 
     constructor(private providersService:ProvidersService){}
 
-    @Post()
-    createProvider(@Body() providerDTO: CreateProviderDTO){
-        this.providersService.createProvider(providerDTO)
-    }
+   @Post()
+async createProvider(@Body() providerDTO: CreateProviderDTO) {
+    return await this.providersService.createProvider(providerDTO);
+}
+
 
     @Get()
     getProviders():Promise<Provider[]>{

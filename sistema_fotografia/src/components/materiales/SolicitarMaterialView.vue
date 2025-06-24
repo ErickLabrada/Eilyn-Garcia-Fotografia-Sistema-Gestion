@@ -9,17 +9,26 @@
     </header>
 
     <form v-if="showForm" @submit.prevent="submitRequest" class="request-form">
+      <!-- Datos del evento -->
       <div class="form-section">
         <h2>Datos del Evento</h2>
 
         <div class="form-group">
           <label>Nombre del cliente:</label>
-          <input v-model="form.clientName" required />
+          <select v-model="form.clientId" @change="updatePhone" required>
+            <option disabled value="">Seleccione un cliente</option>
+            <option v-for="client in clientes" :key="client.id" :value="client.id">
+              {{ client.name }}
+            </option>
+          </select>
+
+          <label>Teléfono:</label>
+          <input v-model="form.phone" type="tel" readonly />
         </div>
 
         <div class="form-group">
           <label>Nombre del proveedor:</label>
-          <select v-model="form.providerId" required>
+          <select v-model="form.providerId" @change="updateProveedorPhone" required>
             <option disabled value="">Seleccione un proveedor</option>
             <option v-for="prov in proveedores" :key="prov.id" :value="prov.id">
               {{ prov.name }}
@@ -29,65 +38,115 @@
 
         <div class="form-group">
           <label>Teléfono:</label>
-          <input v-model="form.phone" type="tel" required />
+          <input v-model="form.providerPhone" type="tel" readonly />
         </div>
+
+<div class="form-section">
+  <h2>Agregar Nuevo Proveedor</h2>
+
+  <form @submit.prevent="agregarProveedor" class="provider-form">
+    <div class="form-group">
+      <label>Nombre del Proveedor:</label>
+      <input v-model="nuevoProveedor.name" type="text" required />
+    </div>
+
+    <div class="form-group">
+      <label>Teléfono:</label>
+      <input v-model="nuevoProveedor.phone" type="tel" required />
+    </div>
+
+    <div class="form-group">
+      <label>Materiales que ofrece:</label>
+      <div v-for="item in items" :key="item.id" class="material-checkbox">
+        <label>
+          <input type="checkbox" :value="item.id" v-model="nuevoProveedor.itemsID" />
+          {{ item.name }} - {{ item.description }}
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Agregar Proveedor</button>
+  </form>
+</div>
+
 
         <div class="form-group">
           <label>Tipo de evento:</label>
           <select v-model="form.eventType" id="event" required>
-
-            <option v-for="event in eventos" :key="event.id" :value="event.id">
+            <option disabled value="">Seleccione un tipo</option>
+            <option v-for="event in eventTypes" :key="event.id" :value="event.id">
               {{ event.event }}
             </option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Fecha del evento:</label>
+          <label>Fecha de entrega del material:</label>
           <input v-model="form.eventDate" type="date" required :min="minDate" />
         </div>
       </div>
 
-      <div class="form-section">
-        <h2>Materiales / Items Requeridos</h2>
-        <div class="materials-grid">
-          <div v-for="item in items" :key="item.id" class="material-item">
-            <label class="material-checkbox">
-              <input
-                type="checkbox"
-                v-model="form.selectedItems"
-                :value="item.id"
-              />
-              <span class="checkmark"></span>
-              <div class="material-info">
-                <strong>{{ item.name }}</strong>
-                <span>{{ item.description }}</span>
-              </div>
-            </label>
-            <input
-              v-if="form.selectedItems.includes(item.id)"
-              v-model.number="itemQuantities[item.id]"
-              type="number"
-              min="1"
-              class="quantity-input"
-              @click.stop
-            />
-          </div>
-        </div>
-      </div>
+      <!-- Items -->
+    
+<div class="form-section">
+  <h2>Materiales / Items Requeridos</h2>
+  <div class="materials-grid" :class="{ disabled: !form.providerId }">
 
+    <template v-if="filteredItems && filteredItems.length">
+      <div
+        v-for="item in filteredItems"
+        :key="item.id"
+        class="material-item"
+      >
+        <label class="material-checkbox">
+          <input
+            type="checkbox"
+            v-model="form.selectedItems"
+            :value="item.id"
+            :disabled="!form.providerId"
+          />
+          <span class="checkmark"></span>
+          <div class="material-info">
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.description }}</span>
+          </div>
+        </label>
+
+        <input
+          v-if="form.selectedItems.includes(item.id)"
+          v-model.number="itemQuantities[item.id]"
+          type="number"
+          min="1"
+          class="quantity-input"
+          @click.stop
+        />
+      </div>
+    </template>
+
+    <p v-else class="no-items">
+      Seleccione un proveedor para ver los materiales disponibles.
+    </p>
+  </div>
+</div>
+
+
+      <!-- Notas -->
       <div class="form-section">
         <h2>Detalles Adicionales</h2>
-        <textarea v-model="form.notes" placeholder="Especificaciones especiales..."></textarea>
+        <textarea
+          v-model="form.notes"
+          placeholder="Especificaciones especiales..."
+        ></textarea>
       </div>
 
+      <!-- Botones -->
       <div class="form-actions">
         <button type="button" @click="resetForm" class="cancel-btn">Cancelar</button>
         <button type="submit" class="submit-btn">Enviar Solicitud</button>
       </div>
     </form>
 
-    <!-- solicitudes -->
+    <!-- Lista de solicitudes -->
     <div class="requests-list">
       <h2>Solicitudes Recientes</h2>
 
@@ -129,17 +188,18 @@
   </div>
 </template>
 
-  
- <script>
+
+<script>
 import emailjs from 'emailjs-com';
 import Navbar from '../../components/navbar/NavegacionView.vue';
 import proveedor from './proveedor.js';
 import items from './items';
 import logica2 from '../../logic/paquetes.js';
+import clients from './clients.js';
 
 export default {
   components: { Navbar },
-  mixins: [logica2, proveedor, items],
+  mixins: [logica2, proveedor, items, clients],
 
   data() {
     return {
@@ -147,16 +207,20 @@ export default {
       loading: false,
       requests: [],
       eventTypes: [],
-      items: [],
+      proveedores: [], 
+      clientes: [],
       itemQuantities: {},
       form: {
-        clientName: '',
+        clientId: '',
         phone: '',
         eventType: null,
         eventDate: '',
         providerId: '',
+        providerPhone: '',
         selectedItems: [],
-        notes: ''
+        notes: '',
+        email: '',
+        message: ''
       },
       minDate: new Date().toISOString().split('T')[0]
     };
@@ -166,20 +230,47 @@ export default {
     await this.fetchInitialData();
   },
 
+  computed: {
+    filteredItems() {
+      const proveedor = this.proveedores.find(p => p.id === this.form.providerId);
+      return proveedor ? proveedor.items : [];
+    }
+  },
+
+  watch: {
+    'form.providerId'() {
+      this.form.selectedItems = [];
+      Object.keys(this.itemQuantities).forEach(key => {
+        this.itemQuantities[key] = 1;
+      });
+    }
+  },
+
   methods: {
     async fetchInitialData() {
       try {
-        const [eventsRes, itemsRes] = await Promise.all([
+        const [eventsRes, itemsRes, clientsRes, proveedoresRes] = await Promise.all([
           fetch('http://localhost:3001/events').then(res => res.json()),
-          fetch('http://localhost:3001/items').then(res => res.json())
+          fetch('http://localhost:3001/items').then(res => res.json()), 
+          fetch('http://localhost:3001/clients').then(res => res.json()),
+          fetch('http://localhost:3001/providers').then(res => res.json())
         ]);
+
+
+         if (!proveedoresRes || !Array.isArray(proveedoresRes)) {
+      throw new Error("No se pudieron cargar los proveedores.");
+    }
 
         this.eventTypes = eventsRes;
         this.items = itemsRes;
-
-        this.items.forEach(item => {
-          this.itemQuantities[item.id] = 1;
+        this.clientes = clientsRes;
+        this.proveedores = proveedoresRes;
+        proveedoresRes.forEach(p => {
+          (p.items || []).forEach(item => {
+            this.itemQuantities[item.id] = 1;
+          });
         });
+
       } catch (error) {
         console.error("Error cargando datos:", error);
         alert("Hubo un error al cargar la información");
@@ -191,19 +282,32 @@ export default {
       return event ? event.event : '--';
     },
 
+    updatePhone() {
+      const selectedClient = this.clientes.find(c => c.id === this.form.clientId);
+      this.form.phone = selectedClient ? selectedClient.phone : '';
+    },
+
+    updateProveedorPhone() {
+      const selectedProveedor = this.proveedores.find(p => p.id === this.form.providerId);
+      this.form.providerPhone = selectedProveedor ? selectedProveedor.phone : '';
+    },
+
     formatDate(dateStr) {
       return new Date(dateStr).toLocaleDateString('es-MX');
     },
 
     resetForm() {
       this.form = {
-        clientName: '',
+        clientId: '',
         phone: '',
         eventType: null,
         eventDate: '',
         providerId: '',
+        providerPhone: '',
         selectedItems: [],
-        notes: ''
+        notes: '',
+        email: '',
+        message: ''
       };
       this.showForm = false;
     },
@@ -211,27 +315,34 @@ export default {
     async submitRequest() {
       try {
         const selectedItems = this.form.selectedItems.map(id => {
-          const item = this.items.find(i => i.id === id);
-          return `${item.name} (x${this.itemQuantities[id] || 1})`;
+          // Buscamos item en proveedores
+          const item = this.proveedores
+            .flatMap(p => p.items)
+            .find(i => i.id === id);
+
+          return `${item?.name || 'Desconocido'} (x${this.itemQuantities[id] || 1})`;
         }).join(', ');
 
+        const selectedProvider = this.proveedores.find(p => p.id === this.form.providerId);
+
         const emailParams = {
-           client_name: this.form.clientName,
-  phone: this.form.phone,
-  provider: this.proveedores.find(p => p.id === this.form.providerId)?.name || '',
-  event_date: this.form.eventDate,
-  event_type: this.getEventName(this.form.eventType),
-  selected_items: selectedItems,
-  notes: this.form.notes,
-  email: this.form.email,
-  message: this.form.message
+          client_name: this.clientes.find(c => c.id === this.form.clientId)?.name || '',
+          phone: this.form.phone,
+          provider: selectedProvider?.name || '',
+          provider_phone: this.form.providerPhone,
+          event_date: this.form.eventDate,
+          event_type: this.getEventName(this.form.eventType),
+          selected_items: selectedItems,
+          notes: this.form.notes,
+          email: this.form.email,
+          message: this.form.message
         };
 
         await emailjs.send(
-          'service_mue6u1e',      
-          'template_r2yiyww',      
+          'service_mue6u1e',
+          'template_r2yiyww',
           emailParams,
-          'HyMf4uLXj_anD5EEc'     
+          'HyMf4uLXj_anD5EEc'
         );
 
         alert('Solicitud enviada correctamente por correo');
@@ -246,8 +357,12 @@ export default {
 </script>
 
 
-  
   <style scoped>
+  .materials-grid.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
   .material-request {
     max-width: 1200px;
     margin: 0 auto;

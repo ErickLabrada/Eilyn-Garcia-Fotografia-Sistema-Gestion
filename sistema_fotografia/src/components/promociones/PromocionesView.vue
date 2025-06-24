@@ -33,23 +33,36 @@
         <input v-model="form.expiryDate" type="date" :min="new Date().toISOString().split('T')[0]" required />
       </div>
 
+<!-- Tipo de evento -->
 <div class="form-group">
-        <label>Seleccione paquete:</label>
-        <select v-model="form.eventTypeId" required>
-          <option v-for="event in events" :key="event.id" :value="event.id">
-            {{ event.event }}
-          </option>
-        </select>
-      </div>
+  <label>Tipo de evento:</label>
+  <select v-model="form.eventTypeId" required>
+    <option disabled value="">Seleccione un evento</option>
+    <option v-for="event in eventos" :key="event.id" :value="event.id">
+      {{ event.event }}
+    </option>
+  </select>
+</div>
 
-      <div class="form-group">
-        <label>Tipo de evento:</label>
-        <select v-model="form.eventTypeId" required>
-          <option v-for="event in events" :key="event.id" :value="event.id">
-            {{ event.event }}
-          </option>
-        </select>
-      </div>
+<!-- Paquete según tipo de evento -->
+<div class="form-group" v-if="filteredPackages.length > 0">
+  <label>Seleccione paquete:</label>
+  <select v-model="form.packageId">
+    <option disabled value="">Seleccione un paquete</option>
+    <option v-for="pkg in filteredPackages" :key="pkg.id" :value="pkg.id">
+      {{ pkg.name }}
+    </option>
+  </select>
+</div>
+
+<!-- Mensaje si no hay paquetes -->
+<div class="form-group" v-else-if="form.eventTypeId">
+  <p style="color: gray; font-style: italic;">
+    No hay paquetes disponibles para este tipo de evento.
+  </p>
+</div>
+
+
 
       <div class="form-group">
         <label>Imagen (URL):</label>
@@ -96,19 +109,18 @@
 <script>
 import axios from 'axios';
 import Navbar from '../../components/navbar/NavegacionView.vue';
-import paquetes from '../..logic/ paquetes.js';
+import paquete from '../../logic/paquetes.js';
 
 export default {
   components: {
     Navbar,
-    mixins: [paquetes],
   },
+  mixins: [paquete], // Usa paquetes y eventos desde el mixin
   data() {
     return {
       showForm: false,
       loading: true,
       promotions: [],
-      events: [],
       editingId: null,
       form: {
         name: '',
@@ -116,25 +128,44 @@ export default {
         originalPrice: '',
         expiryDate: '',
         eventTypeId: null,
+        packageId: null,
         url: ''
       }
     };
   },
   async created() {
-    await this.fetchData();
+    await this.fetchPaquetes(); // Desde el mixin
+    await this.fetchEventos();  // Desde el mixin
+    await this.fetchPromotions(); // Carga promociones
+  },
+  computed: {
+  filteredPackages() {
+    // Asegura que paquetes tengan un solo eventId asociado
+    return this.paquetes.filter(pkg => {
+      if (!pkg.eventId && Array.isArray(pkg.eventsID)) {
+        // Si viene como arreglo, usamos el primero
+        pkg.eventId = pkg.eventsID[0];
+      }
+      return String(pkg.eventId) === String(this.form.eventTypeId);
+    });
+  }
+},
+  watch: {
+    'form.packageId'(newPackageId) {
+      const selectedPackage = this.paquetes.find(pkg => pkg.id === newPackageId);
+      if (selectedPackage) {
+        this.form.price = selectedPackage.price;
+      }
+    }
   },
   methods: {
-    async fetchData() {
+    async fetchPromotions() {
       try {
-        const [promosRes, eventsRes] = await Promise.all([
-          axios.get('http://localhost:3001/sale-bundles/active'),
-          axios.get('http://localhost:3001/events')
-        ]);
-        this.promotions = promosRes.data;
-        this.events = eventsRes.data;
+        const response = await axios.get('http://localhost:3001/sale-bundles/active');
+        this.promotions = response.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
-        alert('Error al cargar datos');
+        console.error('Error al obtener promociones:', error.message);
+        alert('Error al cargar promociones');
       } finally {
         this.loading = false;
       }
@@ -144,14 +175,14 @@ export default {
         const url = this.editingId 
           ? `http://localhost:3001/sale-bundles/${this.editingId}`
           : 'http://localhost:3001/sale-bundles';
-        
+
         const method = this.editingId ? 'put' : 'post';
 
         await axios[method](url, this.form);
         this.resetForm();
-        await this.fetchData();
+        await this.fetchPromotions();
       } catch (error) {
-        console.error('Error saving promo:', error);
+        console.error('Error al guardar promoción:', error.message);
         alert('Error al guardar');
       }
     },
@@ -163,12 +194,12 @@ export default {
     },
     async deletePromo(id) {
       if (!confirm('¿Eliminar esta promoción?')) return;
-      
+
       try {
         await axios.delete(`http://localhost:3001/sale-bundles/${id}`);
-        await this.fetchData();
+        await this.fetchPromotions();
       } catch (error) {
-        console.error('Error deleting:', error);
+        console.error('Error al eliminar promoción:', error.message);
         alert('Error al eliminar');
       }
     },
@@ -179,12 +210,12 @@ export default {
         originalPrice: '',
         expiryDate: '',
         eventTypeId: null,
+        packageId: null,
         url: ''
       };
       this.editingId = null;
       this.showForm = false;
     },
-    // Helpers
     formatDate(dateStr) {
       return new Date(dateStr).toLocaleDateString('es-MX');
     },
@@ -196,12 +227,13 @@ export default {
       return new Date(expiryDate) < new Date();
     },
     getEventName(eventId) {
-      const event = this.events.find(e => e.id === eventId);
+      const event = this.eventos.find(e => e.id === eventId);
       return event ? event.event : '--';
     }
   }
 };
 </script>
+
 
 <style scoped>
 .admin-promotions {
