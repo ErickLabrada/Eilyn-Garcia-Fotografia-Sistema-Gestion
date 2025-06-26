@@ -7,11 +7,11 @@ import { UpdateItemDTO } from 'src/dtos/itemsDTO/update-item.dto';
 @Controller('items')
 export class ItemsController {
     constructor(private itemsService: ItemsService){}
+@Post()
+async createItem(@Body() itemDTO: CreateItemDTO): Promise<Item> {
+  return await this.itemsService.createItem(itemDTO);
+}
 
-    @Post()
-    createItem(@Body() itemDTO: CreateItemDTO){
-        this.itemsService.createItem(itemDTO)
-    }
 
     @Get()
     getItems():Promise<Item[]>{

@@ -16,29 +16,26 @@ export class ItemsService {
 
     ){}
 
-    async createItem(itemDTO: CreateItemDTO){
-        
-        const {providerID,bundlesID,...itemData}=itemDTO
+    async createItem(itemDTO: CreateItemDTO) {
+  const { providerID, bundlesID, ...itemData } = itemDTO;
 
-        const providerEntity = await this.providerRepository.findOne({
-            where:{
-                id: providerID
-            }
-        })
-        const bundlesEntity= await this.bundleRepository.find({
-            where:{
-                id: In(bundlesID)
-            }
-        })
+  const providerEntity = providerID
+    ? await this.providerRepository.findOne({ where: { id: providerID } })
+    : null;
 
-        const newItem=await this.itemRepository.create({
-            ...itemData,
-            provider: providerEntity,
-            bundles: bundlesEntity
-        })
-        return await this.itemRepository.save(newItem)
+  const bundlesEntity = bundlesID?.length
+    ? await this.bundleRepository.find({ where: { id: In(bundlesID) } })
+    : [];
 
-    }
+  const newItem = this.itemRepository.create({
+    ...itemData,
+    provider: providerEntity,
+    bundles: bundlesEntity
+  });
+
+  return await this.itemRepository.save(newItem);
+}
+
 
     async getItems(){
         return await this.itemRepository.find()

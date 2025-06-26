@@ -42,7 +42,7 @@ const DEFAULT_POSTING_CONSENT = false;
 const DEFAULT_GUARANTEE = '2024-12-12';
 const DEFAULT_STATUS_ID = 1;
 
-// Flow for ending the conversationn
+// Flow for ending the conversation
 const ending = addKeyword(EVENTS.ACTION).addAction(async (ctx, { flowDynamic }) => {
 
     userInputs.phone=ctx.from

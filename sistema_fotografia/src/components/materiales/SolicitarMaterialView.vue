@@ -356,33 +356,57 @@ export default {
     },
 
     async agregarProveedor() {
-      if (!this.nuevoProveedor.name || !this.nuevoProveedor.phone) {
-        alert('Por favor completa el nombre y teléfono del proveedor.');
-        return;
-      }
+  if (!this.nuevoProveedor.name || !this.nuevoProveedor.phone) {
+    alert('Por favor completa el nombre y teléfono del proveedor.');
+    return;
+  }
 
-      const nuevoProv = {
-        id: Date.now().toString(),
-        name: this.nuevoProveedor.name,
-        phone: this.nuevoProveedor.phone,
-        items: [...this.nuevoProveedor.materials]
+  // 1. Crear los ítems en el backend (opcionalmente puedes mover esto a otro endpoint si deseas)
+  const materiales = this.nuevoProveedor.materials;
 
-      };
+  // Paso 1: Crear los ítems uno por uno (opcional: si ya existen, omitir esto)
+  const itemIds = [];
 
-      this.proveedores.push(nuevoProv);
-      this.nuevoProveedor = {
-        name: '',
-        phone: '',
-        itemsID: []
-      };
+  for (const material of materiales) {
+    const itemRes = await fetch('http://localhost:3001/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(material)
+    });
 
-      this.showNuevoProveedor = false;
+    const item = await itemRes.json();
+    itemIds.push(item.id);
+  }
 
-      alert('Proveedor agregado correctamente.');
+  // Paso 2: Crear el proveedor con esos ítems
+  const proveedorRes = await fetch('http://localhost:3001/providers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: this.nuevoProveedor.name,
+      phone: this.nuevoProveedor.phone,
+      itemsID: itemIds
+    })
+  });
 
-      this.form.providerId = nuevoProv.id;
-      this.updateProveedorPhone();
-    },
+  const nuevoProv = await proveedorRes.json();
+
+  // Paso 3: Agregar a la lista local para que el selector se actualice
+  this.proveedores.push(nuevoProv);
+
+  // Limpieza
+  this.nuevoProveedor = {
+    name: '',
+    phone: '',
+    materials: []
+  };
+  this.showNuevoProveedor = false;
+
+  alert('Proveedor agregado correctamente.');
+  this.form.providerId = nuevoProv.id;
+  this.updateProveedorPhone();
+}
+,
 agregarMaterial() {
   if (!this.nuevoMaterial.name || !this.nuevoMaterial.description) {
     alert('Por favor completa nombre y descripción del material');

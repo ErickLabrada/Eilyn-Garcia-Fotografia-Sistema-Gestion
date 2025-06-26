@@ -15,21 +15,28 @@ export class ProvidersService {
   ) {}
 
   async createProvider(providerDTO: CreateProviderDTO) {
-    const { itemsID, ...providerData } = providerDTO;
+  const { itemsID = [], ...providerData } = providerDTO;
 
-    const itemsEntities = await this.itemRepository.find({
-      where: {
-        id: In(itemsID)
-      }
-    });
+  // Paso 1: Crear y guardar el proveedor
+  const newProvider = this.providerRepository.create(providerData);
+  const savedProvider = await this.providerRepository.save(newProvider);
 
-    const newProvider = this.providerRepository.create({
-      ...providerData,
-      items: itemsEntities
-    });
+  // Paso 2: Buscar los ítems y asignarles el proveedor
+  if (itemsID.length > 0) {
+    const itemsEntities = await this.itemRepository.findBy({ id: In(itemsID) });
 
-    return await this.providerRepository.save(newProvider);
+    for (const item of itemsEntities) {
+      item.provider = savedProvider; // ← aquí se establece la relación
+    }
+
+    await this.itemRepository.save(itemsEntities);
+
+    // Opcional: incluir los ítems en el objeto retornado
+    savedProvider.items = itemsEntities;
   }
+
+  return savedProvider;
+}
 
   async getProviders() {
     return await this.providerRepository.find({
