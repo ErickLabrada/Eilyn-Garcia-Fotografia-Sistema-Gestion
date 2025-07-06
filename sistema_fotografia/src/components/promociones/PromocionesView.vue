@@ -36,10 +36,12 @@
 <!-- Tipo de evento -->
 <div class="form-group">
   <label>Tipo de evento:</label>
-  <select v-model="form.eventTypeId" required>
+  <select v-model.number="form.eventTypeId" required>
+
     <option disabled value="">Seleccione un evento</option>
     <option v-for="event in eventos" :key="event.id" :value="event.id">
       {{ event.event }}
+      
     </option>
   </select>
 </div>
@@ -140,16 +142,16 @@ export default {
   },
   computed: {
   filteredPackages() {
-    // Asegura que paquetes tengan un solo eventId asociado
-    return this.paquetes.filter(pkg => {
-      if (!pkg.eventId && Array.isArray(pkg.eventsID)) {
-        // Si viene como arreglo, usamos el primero
-        pkg.eventId = pkg.eventsID[0];
-      }
-      return String(pkg.eventId) === String(this.form.eventTypeId);
-    });
-  }
-},
+  return this.paquetes.filter(pkg => {
+    // Verificamos si eventsID incluye el tipo de evento seleccionado
+    if (Array.isArray(pkg.eventsID)) {
+      return pkg.eventsID.includes(this.form.eventTypeId);
+    }
+    // En caso de que sólo tenga eventId (por compatibilidad)
+    return pkg.eventId === this.form.eventTypeId;
+  });
+}
+  },
   watch: {
     'form.packageId'(newPackageId) {
       const selectedPackage = this.paquetes.find(pkg => pkg.id === newPackageId);
@@ -168,6 +170,14 @@ export default {
         alert('Error al cargar promociones');
       } finally {
         this.loading = false;
+      }
+    },
+    async fetchPaquetes() {
+      try {
+        const response = await axios.get("http://localhost:3001/bundle");
+        this.paquetes = response.data;
+      } catch (error) {
+        console.error("Error al obtener paquetes:", error.message);
       }
     },
     async handleSubmit() {

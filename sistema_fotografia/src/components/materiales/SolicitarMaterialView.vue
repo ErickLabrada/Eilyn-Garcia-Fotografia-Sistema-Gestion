@@ -14,10 +14,34 @@
       @submit.prevent="submitRequest"
       class="request-form"
     >
-      <!-- Datos del evento -->
-      <div class="form-section">
-        <h2>Datos del Evento</h2>
+      <!-- Tabs de navegación -->
+      <div class="form-tabs">
+        <button
+          type="button"
+          :class="{ active: activeSection === 'cliente' }"
+          @click="activeSection = 'cliente'"
+        >
+          Cliente
+        </button>
+        <button
+          type="button"
+          :class="{ active: activeSection === 'proveedor' }"
+          @click="activeSection = 'proveedor'"
+        >
+          Proveedor
+        </button>
+        <button
+          type="button"
+          :class="{ active: activeSection === 'detalles' }"
+          @click="activeSection = 'detalles'"
+        >
+          Detalles del Evento
+        </button>
+      </div>
 
+      <!-- Sección Cliente -->
+      <div v-if="activeSection === 'cliente'" class="form-section">
+        <h2>Datos del Cliente</h2>
         <div class="form-group">
           <label>Nombre del cliente:</label>
           <select v-model="form.clientId" @change="updatePhone" required>
@@ -30,6 +54,25 @@
           <label>Teléfono:</label>
           <input v-model="form.phone" type="tel" readonly />
         </div>
+        <div class="form-group">
+  <label>Contrato:</label>
+  <select v-model="form.contractId" required>
+    <option disabled value="">Seleccione un contrato</option>
+    <option
+      v-for="contract in filteredContracts"
+      :key="contract.id"
+      :value="contract.id"
+    >
+      {{ `#${contract.id} - ${contract.celebratedName} - $${contract.cost}` }}
+    </option>
+  </select>
+</div>
+
+      </div>
+
+      <!-- Sección Proveedor -->
+      <div v-if="activeSection === 'proveedor'" class="form-section">
+        <h2>Datos del Proveedor</h2>
 
         <div class="form-group">
           <label>Nombre del proveedor:</label>
@@ -45,60 +88,84 @@
           <label>Teléfono:</label>
           <input v-model="form.providerPhone" type="tel" readonly />
         </div>
+
         <button type="button" @click="toggleNuevoProveedor" class="add-provider-btn">
           {{ showNuevoProveedor ? 'Cerrar formulario de proveedor' : '+ Agregar Nuevo Proveedor' }}
         </button>
+        <div class="form-section">
+          <h2>Materiales / Items Requeridos</h2>
+          <div class="materials-grid" :class="{ disabled: !form.providerId }">
+            <template v-if="filteredItems && filteredItems.length">
+              <div v-for="item in filteredItems" :key="item.id" class="material-item">
+                <label class="material-checkbox">
+                  <input
+                    type="checkbox"
+                    v-model="form.selectedItems"
+                    :value="item.id"
+                    :disabled="!form.providerId"
+                  />
+                  <span class="checkmark"></span>
+                  <div class="material-info">
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.description }}</span>
+                  </div>
+                </label>
+                <input
+                  v-if="form.selectedItems.includes(item.id)"
+                  v-model.number="itemQuantities[item.id]"
+                  type="number"
+                  min="1"
+                  class="quantity-input"
+                  @click.stop
+                />
+              </div>
+            </template>
+            <p v-else class="no-items">
+              Seleccione un proveedor para ver los materiales disponibles.
+            </p>
+          </div>
+        </div>
 
+        <!-- Formulario para nuevo proveedor -->
         <div v-if="showNuevoProveedor" class="form-section nuevo-proveedor-section">
           <h2>Agregar Nuevo Proveedor</h2>
-
           <form @submit.prevent="agregarProveedor" class="provider-form">
-  <div class="form-group">
-    <label>Nombre del Proveedor:</label>
-    <input v-model="nuevoProveedor.name" type="text" required />
-  </div>
-
-  <div class="form-group">
-    <label>Teléfono:</label>
-    <input v-model="nuevoProveedor.phone" type="tel" required />
-  </div>
-
-  <div class="form-group">
-    <label>Materiales que ofrece:</label>
-    <div class="material-inputs">
-      <input
-        v-model="nuevoMaterial.name"
-        type="text"
-        placeholder="Nombre del material"
-      />
-      <input
-        v-model="nuevoMaterial.description"
-        type="text"
-        placeholder="Descripción"
-      />
-      <button type="button" @click="agregarMaterial">Agregar</button>
-    </div>
-
-    <ul class="material-list">
-      <li v-for="(mat, index) in nuevoProveedor.materials" :key="index" class="material-item-edit">
-        <input
-          v-model="mat.name"
-          type="text"
-          placeholder="Nombre"
-        />
-        <input
-          v-model="mat.description"
-          type="text"
-          placeholder="Descripción"
-        />
-        <button type="button" @click="eliminarMaterial(index)">✕</button>
-      </li>
-    </ul>
-  </div>
-
-  <button type="submit" class="submit-btn">Agregar Proveedor</button>
-</form>
+            <div class="form-group">
+              <label>Nombre del Proveedor:</label>
+              <input v-model="nuevoProveedor.name" type="text" required />
+            </div>
+            <div class="form-group">
+              <label>Teléfono:</label>
+              <input v-model="nuevoProveedor.phone" type="tel" required />
+            </div>
+            <div class="form-group">
+              <label>Materiales que ofrece:</label>
+              <div class="material-inputs">
+                <input v-model="nuevoMaterial.name" type="text" placeholder="Nombre del material" />
+                <input v-model="nuevoMaterial.description" type="text" placeholder="Descripción" />
+                <button type="button" @click="agregarMaterial">Agregar</button>
+              </div>
+              <ul class="material-list">
+                <li
+                  v-for="(mat, index) in nuevoProveedor.materials"
+                  :key="index"
+                  class="material-item-edit"
+                >
+                  <input v-model="mat.name" type="text" placeholder="Nombre" />
+                  <input v-model="mat.description" type="text" placeholder="Descripción" />
+                  <button type="button" @click="eliminarMaterial(index)">✕</button>
+                </li>
+              </ul>
+            </div>
+            <button type="submit" class="submit-btn">Agregar Proveedor</button>
+          </form>
+          
         </div>
+      </div>
+
+      <!-- Sección Detalles -->
+      <div v-if="activeSection === 'detalles'" class="form-section">
+        <h2>Detalles del Evento</h2>
 
         <div class="form-group">
           <label>Tipo de evento:</label>
@@ -114,104 +181,26 @@
           <label>Fecha de entrega del material:</label>
           <input v-model="form.eventDate" type="date" required :min="minDate" />
         </div>
-      </div>
 
-      <div class="form-section">
-        <h2>Materiales / Items Requeridos</h2>
-        <div class="materials-grid" :class="{ disabled: !form.providerId }">
+        
 
-          <template v-if="filteredItems && filteredItems.length">
-            <div v-for="item in filteredItems" :key="item.id" class="material-item">
-              <label class="material-checkbox">
-                <input
-                  type="checkbox"
-                  v-model="form.selectedItems"
-                  :value="item.id"
-                  :disabled="!form.providerId"
-                />
-                <span class="checkmark"></span>
-                <div class="material-info">
-                  <strong>{{ item.name }}</strong>
-                  <span>{{ item.description }}</span>
-                </div>
-              </label>
-
-              <input
-                v-if="form.selectedItems.includes(item.id)"
-                v-model.number="itemQuantities[item.id]"
-                type="number"
-                min="1"
-                class="quantity-input"
-                @click.stop
-              />
-            </div>
-          </template>
-
-          <p v-else class="no-items">
-            Seleccione un proveedor para ver los materiales disponibles.
-          </p>
+        <div class="form-section">
+          <h2>Detalles Adicionales</h2>
+          <textarea
+            v-model="form.notes"
+            placeholder="Especificaciones especiales..."
+          ></textarea>
         </div>
-      </div>
 
-      
-      <div class="form-section">
-        <h2>Detalles Adicionales</h2>
-        <textarea
-          v-model="form.notes"
-          placeholder="Especificaciones especiales..."
-        ></textarea>
-      </div>
-
-      <!-- Botones -->
-      <div class="form-actions">
-        <button type="button" @click="resetForm" class="cancel-btn">Cancelar</button>
-        <button type="submit" class="submit-btn">Enviar Solicitud</button>
+        <div class="form-actions">
+          <button type="button" @click="resetForm" class="cancel-btn">Cancelar</button>
+          <button type="submit" class="submit-btn">Enviar Solicitud</button>
+        </div>
       </div>
     </form>
 
- 
     <div v-else-if="showForm" class="loading">
       Cargando datos para el formulario...
-    </div>
-
-    <!-- Lista de solicitudes -->
-    <div class="requests-list">
-      <h2>Solicitudes Recientes</h2>
-
-      <div v-if="loading" class="loading">Cargando...</div>
-      <div v-else-if="requests.length === 0" class="empty-state">
-        No hay solicitudes registradas.
-      </div>
-
-      <div v-for="request in requests" :key="request.id" class="request-card">
-        <div class="request-header">
-          <h3>{{ request.clientName }}</h3>
-          <span class="status-badge" :class="request.status">{{ request.status }}</span>
-        </div>
-
-        <div class="request-details">
-          <p><strong>Evento:</strong> {{ getEventName(request.eventType) }}</p>
-          <p><strong>Fecha:</strong> {{ formatDate(request.eventDate) }}</p>
-          <p><strong>Materiales:</strong></p>
-          <ul>
-            <li v-for="item in request.materials" :key="item.id">
-              {{ item.name }} (x{{ item.quantity }})
-            </li>
-          </ul>
-          <p v-if="request.notes"><strong>Notas:</strong> {{ request.notes }}</p>
-        </div>
-
-        <div class="request-footer">
-          <small>Solicitado el: {{ formatDateTime(request.createdAt) }}</small>
-          <button 
-            v-if="request.status === 'pendiente'" 
-            @click="cancelRequest(request.id)"
-            class="cancel-request-btn"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -223,23 +212,29 @@ import proveedor from './proveedor.js';
 import items from './items';
 import logica2 from '../../logic/paquetes.js';
 import clients from './clients.js';
+import contract from './contracts.js';
+import { sendReminder } from './envioMensajeProveedor.js'; // ✅ Importa función para WhatsApp
 
 export default {
   components: { Navbar },
-  mixins: [logica2, proveedor, items, clients],
+  mixins: [logica2, proveedor, items, clients, contract],
 
   data() {
     return {
       showForm: false,
       showNuevoProveedor: false,  
+      activeSection: 'cliente',
       loading: false,
+      contracts: [],
       requests: [],
+      contractId: '',
       eventTypes: [],
       proveedores: [], 
       clientes: [],
       itemQuantities: {},
       form: {
         clientId: '',
+        contractId: '',
         phone: '',
         eventType: null,
         eventDate: '',
@@ -253,13 +248,12 @@ export default {
       nuevoProveedor: {
         name: '',
         phone: '',
-         materials: []
+        materials: []
       },
       nuevoMaterial: {
-  name: '',
-  description: ''
-},
-
+        name: '',
+        description: ''
+      },
       minDate: new Date().toISOString().split('T')[0]
     };
   },
@@ -272,6 +266,9 @@ export default {
     filteredItems() {
       const proveedor = this.proveedores.find(p => p.id === this.form.providerId);
       return proveedor ? proveedor.items : [];
+    },
+    filteredContracts() {
+      return this.contracts.filter(c => c.clientId === this.form.clientId);
     }
   },
 
@@ -296,11 +293,12 @@ export default {
 
     async fetchInitialData() {
       try {
-        const [eventsRes, itemsRes, clientsRes, proveedoresRes] = await Promise.all([
+        const [eventsRes, itemsRes, clientsRes, proveedoresRes, contractsRes] = await Promise.all([
           fetch('http://localhost:3001/events').then(res => res.json()),
           fetch('http://localhost:3001/items').then(res => res.json()), 
           fetch('http://localhost:3001/clients').then(res => res.json()),
-          fetch('http://localhost:3001/providers').then(res => res.json())
+          fetch('http://localhost:3001/providers').then(res => res.json()),
+          fetch('http://localhost:3001/contracts').then(res => res.json())
         ]);
 
         if (!proveedoresRes || !Array.isArray(proveedoresRes)) {
@@ -311,6 +309,8 @@ export default {
         this.items = itemsRes;
         this.clientes = clientsRes;
         this.proveedores = proveedoresRes;
+        this.contracts = contractsRes;
+
         proveedoresRes.forEach(p => {
           (p.items || []).forEach(item => {
             this.itemQuantities[item.id] = 1;
@@ -356,75 +356,64 @@ export default {
     },
 
     async agregarProveedor() {
-  if (!this.nuevoProveedor.name || !this.nuevoProveedor.phone) {
-    alert('Por favor completa el nombre y teléfono del proveedor.');
-    return;
-  }
+      if (!this.nuevoProveedor.name || !this.nuevoProveedor.phone) {
+        alert('Por favor completa el nombre y teléfono del proveedor.');
+        return;
+      }
 
-  // 1. Crear los ítems en el backend (opcionalmente puedes mover esto a otro endpoint si deseas)
-  const materiales = this.nuevoProveedor.materials;
+      const materiales = this.nuevoProveedor.materials;
+      const itemIds = [];
 
-  // Paso 1: Crear los ítems uno por uno (opcional: si ya existen, omitir esto)
-  const itemIds = [];
+      for (const material of materiales) {
+        const itemRes = await fetch('http://localhost:3001/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(material)
+        });
 
-  for (const material of materiales) {
-    const itemRes = await fetch('http://localhost:3001/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(material)
-    });
+        const item = await itemRes.json();
+        itemIds.push(item.id);
+      }
 
-    const item = await itemRes.json();
-    itemIds.push(item.id);
-  }
+      const proveedorRes = await fetch('http://localhost:3001/providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: this.nuevoProveedor.name,
+          phone: this.nuevoProveedor.phone,
+          itemsID: itemIds
+        })
+      });
 
-  // Paso 2: Crear el proveedor con esos ítems
-  const proveedorRes = await fetch('http://localhost:3001/providers', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: this.nuevoProveedor.name,
-      phone: this.nuevoProveedor.phone,
-      itemsID: itemIds
-    })
-  });
+      const nuevoProv = await proveedorRes.json();
 
-  const nuevoProv = await proveedorRes.json();
+      this.proveedores.push(nuevoProv);
+      this.nuevoProveedor = { name: '', phone: '', materials: [] };
+      this.showNuevoProveedor = false;
 
-  // Paso 3: Agregar a la lista local para que el selector se actualice
-  this.proveedores.push(nuevoProv);
+      alert('Proveedor agregado correctamente.');
+      this.form.providerId = nuevoProv.id;
+      this.updateProveedorPhone();
+    },
 
-  // Limpieza
-  this.nuevoProveedor = {
-    name: '',
-    phone: '',
-    materials: []
-  };
-  this.showNuevoProveedor = false;
+    agregarMaterial() {
+      if (!this.nuevoMaterial.name || !this.nuevoMaterial.description) {
+        alert('Por favor completa nombre y descripción del material');
+        return;
+      }
 
-  alert('Proveedor agregado correctamente.');
-  this.form.providerId = nuevoProv.id;
-  this.updateProveedorPhone();
-}
-,
-agregarMaterial() {
-  if (!this.nuevoMaterial.name || !this.nuevoMaterial.description) {
-    alert('Por favor completa nombre y descripción del material');
-    return;
-  }
+      this.nuevoProveedor.materials.push({
+        name: this.nuevoMaterial.name,
+        description: this.nuevoMaterial.description
+      });
 
-  this.nuevoProveedor.materials.push({
-    name: this.nuevoMaterial.name,
-    description: this.nuevoMaterial.description
-  });
+      this.nuevoMaterial.name = '';
+      this.nuevoMaterial.description = '';
+    },
 
-  this.nuevoMaterial.name = '';
-  this.nuevoMaterial.description = '';
-},
-
-eliminarMaterial(index) {
-  this.nuevoProveedor.materials.splice(index, 1);
-},
+    eliminarMaterial(index) {
+      this.nuevoProveedor.materials.splice(index, 1);
+    },
 
     async submitRequest() {
       try {
@@ -451,6 +440,7 @@ eliminarMaterial(index) {
           message: this.form.message
         };
 
+        // Envío del correo
         await emailjs.send(
           'service_mue6u1e',
           'template_r2yiyww',
@@ -458,16 +448,33 @@ eliminarMaterial(index) {
           'HyMf4uLXj_anD5EEc'
         );
 
-        alert('Solicitud enviada correctamente por correo');
+        // Construir mensaje de WhatsApp
+        const whatsappMessage = `Hola ${selectedProvider?.name},\n\n` +
+          `Se ha realizado una solicitud de material con los siguientes datos:\n` +
+          `📅 Evento: ${this.getEventName(this.form.eventType)}\n` +
+          `📍 Fecha de entrega: ${this.form.eventDate}\n` +
+          `📞 Cliente: ${this.clientes.find(c => c.id === this.form.clientId)?.name} (${this.form.phone})\n` +
+          `🧾 Materiales: ${selectedItems}\n` +
+          `📝 Notas: ${this.form.notes || 'Ninguna'}\n`;
+
+        const enviado = await sendReminder(this.form.providerPhone, whatsappMessage);
+
+        if (enviado) {
+          alert('Solicitud enviada por correo y WhatsApp');
+        } else {
+          alert('Correo enviado, pero falló el envío por WhatsApp');
+        }
+
         this.resetForm();
       } catch (error) {
-        console.error('Error al enviar correo:', error);
-        alert('Ocurrió un error al enviar el correo');
+        console.error('Error al enviar la solicitud:', error);
+        alert('Ocurrió un error al enviar la solicitud');
       }
     }
   }
 };
 </script>
+
 
   <style scoped>
   .materials-grid.disabled {
@@ -741,4 +748,23 @@ eliminarMaterial(index) {
     padding: 40px;
     color: #666;
   }
+
+  /** tab */
+  .form-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.form-tabs button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: none;
+  background: #eee;
+  border-radius: 5px;
+}
+.form-tabs button.active {
+  background: #007bff;
+  color: white;
+}
+
   </style>
