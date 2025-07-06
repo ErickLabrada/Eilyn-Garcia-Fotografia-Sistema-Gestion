@@ -22,6 +22,12 @@ export class Bundle{
     @Column()
     url: string
 
+    @Column({ type: 'int', nullable: true })
+discount: number;
+
+@Column({ type: 'date', nullable: true })
+expirationDate: Date;
+
     @OneToMany(()=>Contract,(contract)=>contract.bundle)
     contracts: Contract[]
 

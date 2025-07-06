@@ -11,6 +11,12 @@
         <div class="paquete-info">
           <h3>{{ paquete.name }}</h3>
           <p><strong>${{ paquete.price }}</strong></p>
+
+          <!-- Mostrar promoción si existe -->
+          <p v-if="paquete.discount">
+            <span class="promo">Descuento: {{ paquete.discount }}%</span><br>
+            <span class="expira">Vence: {{ new Date(paquete.expirationDate).toLocaleDateString() }}</span>
+          </p>
         </div>
 
         <div class="imagen-placeholder">
@@ -19,6 +25,7 @@
         </div>
 
         <button class="boton-opciones" @click="abrirEditarPaquete(paquete)">Editar</button>
+        <button @click="abrirModalPromocion(paquete)">Promocionar</button>
       </div>
     </div>
 
@@ -30,7 +37,7 @@
           <div>
             <label for="name">Nombre:</label>
             <input v-model="nuevoPaquete.name" type="text" id="name" required />
-          </div>         
+          </div>
           <div>
             <label for="price">Costo:</label>
             <input v-model="nuevoPaquete.price" type="text" id="price" required />
@@ -71,7 +78,26 @@
             <input type="file" id="imagen" @change="cargarImagen" />
           </div>
           <button type="submit">Guardar Cambios</button>
-          <button @click="cerrarModalEditar" type="button">Cancelar</button>
+          <button type="button" @click="cerrarModalEditar">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal para aplicar promoción -->
+    <div v-if="modalPromocionVisible" class="modal-overlay">
+      <div class="modal">
+        <h3>Aplicar Promoción a {{ paquetePromocion.name }}</h3>
+        <form @submit.prevent="guardarPromocion">
+          <div>
+            <label for="descuento">Descuento (%):</label>
+            <input type="number" v-model="nuevaPromocion.descuento" min="1" max="100" required />
+          </div>
+          <div>
+            <label for="fechaVencimiento">Fecha de vencimiento:</label>
+            <input type="date" v-model="nuevaPromocion.fechaVencimiento" required />
+          </div>
+          <button type="submit">Guardar Promoción</button>
+          <button type="button" @click="cerrarModalPromocion">Cancelar</button>
         </form>
       </div>
     </div>
@@ -79,20 +105,27 @@
 </template>
 
 <script>
+import axios from 'axios';
 import Navbar from '../../components/navbar/NavegacionView.vue';
-import logica2 from '../../logic/paquetes.js'; 
+import logica2 from '../../logic/paquetes.js';
 
 export default {
   components: {
-    Navbar, 
+    Navbar,
   },
-  mixins: [logica2], 
+  mixins: [logica2],
   data() {
     return {
       paquetes: [],
       eventos: [],
       modalNuevoVisible: false,
       modalEditarVisible: false,
+      modalPromocionVisible: false,
+      paquetePromocion: {},
+      nuevaPromocion: {
+        descuento: "",
+        fechaVencimiento: "",
+      },
       nuevoPaquete: {
         name: "",
         price: "",
@@ -116,11 +149,7 @@ export default {
   methods: {
     validarCosto(price) {
       const priceNumerico = parseFloat(price);
-      // Verificar si el costo no es un número válido, es negativo o contiene letras
-      if (isNaN(priceNumerico) || priceNumerico <= 0 || /[a-zA-Z]/.test(price)) {
-        return false;
-      }
-      return true;
+      return !(isNaN(priceNumerico) || priceNumerico <= 0 || /[a-zA-Z]/.test(price));
     },
     getImageUrl(url) {
       try {
@@ -144,17 +173,16 @@ export default {
     cargarNuevaImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        this.nuevoPaquete.imagen = file.name; // Solo guardamos el nombre del archivo
+        this.nuevoPaquete.imagen = file.name;
       }
     },
     cargarImagen(event) {
       const file = event.target.files[0];
       if (file) {
-        this.paqueteEditar.imagen = file.name; // Solo guardamos el nombre del archivo
+        this.paqueteEditar.imagen = file.name;
       }
     },
     abrirEditarPaquete(paquete) {
-      // Copiar los datos del paquete seleccionado para edición
       this.paqueteEditar = { ...paquete };
       this.modalEditarVisible = true;
     },
@@ -168,6 +196,31 @@ export default {
         eventId: null,
       };
     },
+    abrirModalPromocion(paquete) {
+      this.paquetePromocion = { ...paquete };
+      this.nuevaPromocion = {
+        descuento: "",
+        fechaVencimiento: "",
+      };
+      this.modalPromocionVisible = true;
+    },
+    cerrarModalPromocion() {
+      this.modalPromocionVisible = false;
+      this.paquetePromocion = {};
+    },
+    async guardarPromocion() {
+      try {
+        await axios.patch(`http://localhost:3001/bundle/${this.paquetePromocion.id}`, {
+          discount: this.nuevaPromocion.descuento,
+          expirationDate: this.nuevaPromocion.fechaVencimiento,
+        });
+        alert("Promoción aplicada correctamente");
+        this.cerrarModalPromocion();
+        this.fetchPaquetes();
+      } catch (error) {
+        console.error("Error al guardar promoción:", error.message);
+      }
+    }
   },
 };
 </script>

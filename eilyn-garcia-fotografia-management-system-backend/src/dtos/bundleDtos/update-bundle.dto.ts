@@ -5,5 +5,7 @@ export class UpdateBundleDTO{
     contractsId?: number[]
     itemsID?: number[]
     eventsID?:number[]
+    discount?: number
+    expirationDate?: Date
     appointmentTemplateID?:number
 }
