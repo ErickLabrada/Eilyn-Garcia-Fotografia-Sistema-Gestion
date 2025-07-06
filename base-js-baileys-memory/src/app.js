@@ -625,6 +625,24 @@ adapterProvider.server.post(
     })
 )
 
+
+adapterProvider.server.post(
+  '/v1/notify',
+  handleCtx(async (bot, req, res) => {
+    try {
+      const { number, message } = req.body;
+ await bot.sendMessage(number, message, {});
+      return res.end('notificación enviada');
+    } catch (error) {
+      console.error('Dispatch Error:', error);
+      return res.end(JSON.stringify({
+        error: error.message || error,
+        code: error.code,
+        docs: "https://builderbot.vercel.app/errors"
+      }));
+    }
+  })
+);
     adapterProvider.server.post(
         '/v1/register',
         handleCtx(async (bot, req, res) => {
