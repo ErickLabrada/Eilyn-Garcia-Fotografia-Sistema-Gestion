@@ -7,7 +7,7 @@ import ReporteVentasView from './components/reportes/ReporteVentasView.vue';
 import EmpleadosView from './components/empleados/EmpleadosView.vue';
 import RecordatorioView from './components/recordatorio/RecordatorioView.vue';
 import AgendarEntregaView from './components/agendarEntrega/AgendarEntregaView.vue';
-import PromocionesView from './components/promociones/PromocionesView.vue';
+
 import SolicitarMaterialView from './components/materiales/SolicitarMaterialView.vue';
 const routes = [
   {
@@ -48,11 +48,6 @@ const routes = [
     path: "/recordatorio",
     name: "Recordatorio",
     component: RecordatorioView,
-  },
-  {
-    path: "/promociones",
-    name: "Promociones",
-    component: PromocionesView,
   },
   {
     path: "/entregas",

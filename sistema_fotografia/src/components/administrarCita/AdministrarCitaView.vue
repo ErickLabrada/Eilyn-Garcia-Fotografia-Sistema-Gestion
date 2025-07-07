@@ -96,12 +96,18 @@ export default {
       return classes[status] || "text-muted";
     },
     confirmarCita(cita) {
-      if (cita.contract.status.status === "Aceptada") {
-        alert("La cita ya está confirmada.");
-        return;
-      }
-      citaService.confirmarCita(cita.id).then(this.fetchCitas);
-    },
+  if (!cita?.contract?.status?.status) {
+    alert("Esta cita no tiene un estatus definido.");
+    return;
+  }
+
+  if (cita.contract.status.status === "Aceptada") {
+    alert("La cita ya está confirmada.");
+    return;
+  }
+
+  citaService.confirmarCita(cita.id).then(this.fetchCitas);
+},
     cancelarCita(cita) {
       if (cita.contract.status.status === "Rechazada") {
         alert("La cita ya está rechazada.");
@@ -149,67 +155,57 @@ export default {
 
 <style scoped>
 .admin-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #f8f9fb;
   padding: 2rem;
+  color: #2c3e50;
 }
 
 .admin-title {
-  color: #2c3e50;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-bottom: 1px solid #eaeaea;
-  padding-bottom: 0.75rem;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 0.5rem;
 }
 
-.btn-action {
-  padding: 0.75rem;
-  background-color: #2b6cb0;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+h4 {
+  font-weight: 400;
+  color: #666;
   margin-bottom: 2rem;
-}
-
-.btn-action:hover {
-  background-color: #2c5282;
 }
 
 .appointment-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .appointment-table th,
 .appointment-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .appointment-table th {
-  background-color: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
+  background-color: #e9edf5;
+  color: #333;
+  text-transform: capitalize;
+  font-size: 0.95rem;
+}
+
+.appointment-table td {
+  font-size: 0.95rem;
+  color: #444;
 }
 
 .appointment-table tr:hover {
-  background-color: #f8fafc;
+  background-color: #f5f7fa;
 }
 
 .options {
@@ -217,94 +213,153 @@ export default {
   gap: 0.5rem;
 }
 
+/* Botones de acción */
 .action-btn {
-  padding: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .action-btn.confirm {
-  background-color: #e6fffa;
-  color: #38b2ac;
+  background-color: #e0f7f4;
+  color: #00796b;
 }
 
 .action-btn.confirm:hover {
-  background-color: #b2f5ea;
+  background-color: #c2ede8;
 }
 
 .action-btn.cancel {
-  background-color: #fff5f5;
-  color: #f56565;
+  background-color: #fff1f0;
+  color: #d32f2f;
 }
 
 .action-btn.cancel:hover {
-  background-color: #fed7d7;
+  background-color: #f9d5d3;
 }
 
 .action-btn.delete {
-  background-color: #fbdada;
-  color: #e53e3e;
+  background-color: #fbe9e7;
+  color: #c62828;
 }
 
 .action-btn.delete:hover {
-  background-color: #fbd5d5;
+  background-color: #f2c7c3;
+}
+
+/* Estilos para estatus */
+.text-success {
+  color: #388e3c;
+  font-weight: 500;
+}
+
+.text-warning {
+  color: #f9a825;
+  font-weight: 500;
+}
+
+.text-danger {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.text-muted {
+  color: #999;
 }
 
 /* Modal */
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 10;
+  justify-content: center;
+  z-index: 100;
 }
 
 .modal-content {
-  background-color: white;
+  background: #fff;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 500px;
 }
 
+.modal-content h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
 .modal-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-.submit-btn, .cancel-btn {
-  padding: 0.75rem;
-  background-color: #2b6cb0;
-  color: white;
-  border: none;
+.submit-btn,
+.cancel-btn {
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
   border-radius: 6px;
-  font-size: 1rem;
+  border: none;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.submit-btn:hover, .cancel-btn:hover {
-  background-color: #2c5282;
+.submit-btn {
+  background-color: #2b6cb0;
+  color: #fff;
 }
 
+.submit-btn:hover {
+  background-color: #1a4f8b;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #bbb;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .admin-container {
     padding: 1rem;
   }
-  
+
   .appointment-table {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
   }
 }
 </style>

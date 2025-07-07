@@ -4,11 +4,14 @@
 
     <div class="admin-content">
 
-      <div class="admin-card">
-        <h2 class="admin-title">
-          <i class="bi bi-person-plus-fill"></i> Registrar empleado
-        </h2>
+      <!-- Título separado del formulario -->
+      <div class="header-section">
+        <h2 class="admin-title">Registrar Empleado</h2>
+        <p class="subtext">Aquí puedes registrar un nuevo empleado para el sistema.</p>
+      </div>
 
+      <!-- Tarjeta con formulario -->
+      <div class="admin-card">
         <form @submit.prevent="registrarEmpleado" class="employee-form">
           <div class="form-group">
             <label for="email">Correo electrónico</label>
@@ -37,10 +40,15 @@
           </button>
         </form>
       </div>
+
+      <!-- Título separado para la tabla -->
+      <div class="header-section">
+        <h2 class="admin-title">Lista de Empleados</h2>
+        <p class="subtext">Administración de cuentas registradas.</p>
+      </div>
+
+      <!-- Tarjeta con tabla -->
       <div class="admin-card">
-        <h2 class="admin-title">
-          <i class="bi bi-people-fill"></i> Lista de empleados
-        </h2>
         <div class="table-responsive">
           <table class="employee-table">
             <thead>
@@ -62,9 +70,12 @@
           </table>
         </div>
       </div>
+
     </div>
   </div>
 </template>
+
+
 
 <script>
 import Navbar from '../../components/navbar/NavegacionView.vue';
@@ -161,12 +172,14 @@ export default {
 
 <style scoped>
 .admin-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #f8f9fb;
+  padding: 2rem;
+  color: #2c3e50;
 }
 
 .admin-content {
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -180,16 +193,18 @@ export default {
 }
 
 .admin-title {
+  font-size: 2rem;
+  font-weight: 600;
   color: #2c3e50;
-  font-size: 1.5rem;
   margin-bottom: 1.5rem;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 1px solid #eaeaea;
-  padding-bottom: 0.75rem;
 }
 
+/* Formulario de registro */
 .employee-form {
   max-width: 500px;
   margin: 0 auto;
@@ -212,8 +227,8 @@ export default {
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 1rem;
-  transition: all 0.3s;
   background-color: #f8fafc;
+  transition: all 0.3s;
 }
 
 .form-input:focus {
@@ -222,6 +237,7 @@ export default {
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
+/* Botón de enviar */
 .submit-btn {
   width: 100%;
   padding: 0.75rem;
@@ -240,9 +256,10 @@ export default {
 }
 
 .submit-btn:hover {
-  background-color: #2c5282;
+  background-color: #1a4f8b;
 }
 
+/* Tabla de empleados */
 .table-responsive {
   overflow-x: auto;
 }
@@ -250,6 +267,10 @@ export default {
 .employee-table {
   width: 100%;
   border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   margin-top: 1rem;
 }
 
@@ -257,76 +278,76 @@ export default {
 .employee-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .employee-table th {
-  background-color: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
+  background-color: #e9edf5;
+  color: #333;
+  text-transform: capitalize;
+  font-size: 0.95rem;
+}
+
+.employee-table td {
+  font-size: 0.95rem;
+  color: #444;
 }
 
 .employee-table tr:hover {
-  background-color: #f8fafc;
+  background-color: #f5f7fa;
 }
 
+/* Botones de acción */
 .actions {
   display: flex;
   gap: 0.5rem;
 }
 
 .action-btn {
-  padding: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.action-btn.edit {
-  background-color: #e6fffa;
-  color: #38b2ac;
-}
-
-.action-btn.edit:hover {
-  background-color: #b2f5ea;
-}
-
+/* Botón eliminar */
 .action-btn.delete {
-  background-color: #fff5f5;
-  color: #f56565;
+  background-color: #fbe9e7;
+  color: #c62828;
+}
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .action-btn.delete:hover {
-  background-color: #fed7d7;
+  background-color: #f2c7c3;
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
-  .admin-content {
+  .admin-container {
     padding: 1rem;
   }
-  
+
   .admin-card {
     padding: 1.5rem;
   }
+
+  .employee-table {
+    font-size: 0.85rem;
+  }
 }
-/* Estilos básicos para botones de acción */
-.action-btn.delete {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.action-btn.delete:hover {
-  background-color: #c0392b;
-}
+
 </style>

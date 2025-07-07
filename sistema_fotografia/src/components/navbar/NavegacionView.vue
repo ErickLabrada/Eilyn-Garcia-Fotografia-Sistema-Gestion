@@ -67,10 +67,9 @@ export default {
           ],
         },
         {
-          title: "Servicios y Promociones",
+          title: "Paquetes y consultas",
           items: [
             "Administrar paquetes",
-            "Administrar promociones",
             "Consultar paquete con permiso de publicación",
           ],
         },
@@ -104,8 +103,7 @@ export default {
         this.$router.push("/paquetes");
       } else if (subItem === "Administrar empleados") {
         this.$router.push("/empleados");
-      } else if (subItem === "Administrar promociones") {
-        this.$router.push("/promociones");
+    
       } else if (subItem === "Solicitar material") {
         this.$router.push("/materiales");
       } else if (subItem === "Mandar recordatorios") {
