@@ -1,31 +1,33 @@
 <template>
   <div class="admin-container">
     <Navbar :menus="menus" />
-    
+
     <div class="admin-content">
+
       <div class="admin-card">
         <h2 class="admin-title">
           <i class="bi bi-person-plus-fill"></i> Registrar empleado
         </h2>
+
         <form @submit.prevent="registrarEmpleado" class="employee-form">
           <div class="form-group">
             <label for="email">Correo electrónico</label>
-            <input 
-              v-model="empleado.email" 
+            <input
+              v-model="empleado.email"
               id="email"
-              type="email" 
-              placeholder="correo@ejemplo.com" 
+              type="email"
+              placeholder="correo@ejemplo.com"
               class="form-input"
               required
             />
           </div>
           <div class="form-group">
             <label for="password">Contraseña</label>
-            <input 
-              v-model="empleado.password" 
+            <input
+              v-model="empleado.password"
               id="password"
-              type="password" 
-              placeholder="••••••••" 
+              type="password"
+              placeholder="••••••••"
               class="form-input"
               required
             />
@@ -35,7 +37,6 @@
           </button>
         </form>
       </div>
-
       <div class="admin-card">
         <h2 class="admin-title">
           <i class="bi bi-people-fill"></i> Lista de empleados
@@ -52,10 +53,7 @@
               <tr v-for="empleado in empleados" :key="empleado.id">
                 <td>{{ empleado.email }}</td>
                 <td class="actions">
-                  <button class="action-btn edit">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button class="action-btn delete">
+                  <button class="action-btn delete" @click="eliminarEmpleado(empleado.id)">
                     <i class="bi bi-trash"></i>
                   </button>
                 </td>
@@ -72,28 +70,39 @@
 import Navbar from '../../components/navbar/NavegacionView.vue';
 import logica1 from '../../logic/paginaInicial.js';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDocs, collection } from 'firebase/firestore'; 
+import {
+  doc,
+  setDoc,
+  collection,
+  onSnapshot
+} from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase.js';
+
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getAuth } from 'firebase/auth';
+
+const functions = getFunctions();
+const eliminarUsuario = httpsCallable(functions, 'eliminarUsuario');
 
 export default {
   components: {
-    Navbar,
+    Navbar
   },
   mixins: [logica1],
   data() {
     return {
       empleado: {
         email: '',
-        password: '',
+        password: ''
       },
-      empleados: []
+      empleados: [],
+      unsubscribe: null
     };
   },
   methods: {
     async registrarEmpleado() {
       try {
         const { email, password } = this.empleado;
-
         const credenciales = await createUserWithEmailAndPassword(auth, email, password);
         const uid = credenciales.user.uid;
 
@@ -104,30 +113,51 @@ export default {
 
         alert('Empleado registrado correctamente');
         this.empleado = { email: '', password: '' };
-        this.cargarEmpleados();
-
       } catch (error) {
         console.error('Error registrando empleado:', error.message);
         alert('Error: ' + error.message);
       }
     },
-    async cargarEmpleados() {
+
+    async eliminarEmpleado(uid) {
+      const confirmar = confirm('¿Seguro que quieres eliminar este empleado?');
+      if (!confirmar) return;
+
       try {
-        const querySnapshot = await getDocs(collection(db, 'empleados'));
-        this.empleados = querySnapshot.docs.map(doc => ({
+        const authInstance = getAuth();
+        if (!authInstance.currentUser) {
+          alert('Debes estar autenticado para eliminar usuarios');
+          return;
+        }
+
+        const result = await eliminarUsuario({ uid });
+        alert(result.data.message);
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    },
+
+    escucharEmpleadosTiempoReal() {
+      const empleadosRef = collection(db, 'empleados');
+      this.unsubscribe = onSnapshot(empleadosRef, (snapshot) => {
+        this.empleados = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data()
         }));
-      } catch (error) {
-        console.error('Error cargando empleados:', error.message);
-      }
+      });
     }
   },
+
   mounted() {
-    this.cargarEmpleados();
+    this.escucharEmpleadosTiempoReal();
+  },
+
+  beforeUnmount() {
+    if (this.unsubscribe) this.unsubscribe();
   }
 };
 </script>
+
 
 <style scoped>
 .admin-container {
@@ -286,5 +316,17 @@ export default {
   .admin-card {
     padding: 1.5rem;
   }
+}
+/* Estilos básicos para botones de acción */
+.action-btn.delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.action-btn.delete:hover {
+  background-color: #c0392b;
 }
 </style>

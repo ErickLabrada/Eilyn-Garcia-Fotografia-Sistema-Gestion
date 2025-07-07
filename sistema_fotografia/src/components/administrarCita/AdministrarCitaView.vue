@@ -21,7 +21,9 @@
           <td>{{ cita.bundle.name }}</td>
           <td>{{ cita.date }}</td>
           <td>
-            <span :class="getStatusClass(cita.contract.status.status)">{{ cita.contract.status.status }}</span>
+            <span :class="getStatusClass(cita.contract?.status?.status)">
+  {{ cita.contract?.status?.status || 'Sin estatus' }}
+</span>
           </td>
           <td class="options">
             <button @click="confirmarCita(cita)" class="action-btn confirm">✔</button>
