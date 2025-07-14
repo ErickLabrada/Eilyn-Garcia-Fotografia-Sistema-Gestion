@@ -25,24 +25,24 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-        rootPath: join(__dirname, '../Imgs'),  // Adjust the path as needed
-        serveRoot: '/imgs',       
-      },
+      rootPath: join(__dirname, '../Imgs'),  // Adjust the path as needed
+      serveRoot: '/imgs',
+    },
     ),
     ConfigModule.forRoot({
       isGlobal: true,  // Makes env variables available globally
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
-     host: process.env.HOST,
-port: Number(process.env.PORT),
-username: process.env.DATABASE_USERNAME,
-password: process.env.DATABASE_PASSWORD,
-database: process.env.DATABASE_NAME,
+      host: process.env.HOST,
+      port: Number(process.env.PORT),
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
       entities: [__dirname + "/**/*.entity{.ts,.js}"],
       synchronize: false,
       autoLoadEntities: true,
-      logging: true // Esto te ayudarÃ¡ a ver las consultas SQL
+      logging: true
     }),
     EmployeesModule,
     RolesModule,
@@ -63,4 +63,4 @@ database: process.env.DATABASE_NAME,
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

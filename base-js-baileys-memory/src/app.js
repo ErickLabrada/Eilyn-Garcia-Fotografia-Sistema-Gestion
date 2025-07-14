@@ -532,8 +532,6 @@ const hireServices = addKeyword(EVENTS.ACTION)
                     userInputs.name = input;
 
                     return gotoFlow(askEvent);
-
-                    ;
                 }
             }
             await flowDynamic('Disculpe los inconvenientes, pero el nombre proporcionado es inválido o contiene caracteres o emojis que no están permitidos.');
@@ -619,7 +617,7 @@ adapterProvider.server.post(
     '/v1/messages',
     handleCtx(async (bot, req, res) => {
         const { message, urlMedia } = req.body
-        const fixedNumber = '6442304259' // Coloca aquí el número deseado
+        const fixedNumber = '+5216626323683' // Coloca aquí el número deseado
         await bot.sendMessage(fixedNumber, message, { media: urlMedia ?? null })
         return res.end('sended')
     })

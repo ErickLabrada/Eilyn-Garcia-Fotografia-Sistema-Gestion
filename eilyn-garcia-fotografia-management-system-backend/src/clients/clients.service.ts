@@ -1,4 +1,4 @@
-import {  Injectable } from '@nestjs/common';
+import {  BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from 'src/Domain/client.entity';
 import { Contract } from 'src/Domain/contract.entity';
@@ -9,6 +9,7 @@ import {In, Repository} from "typeorm"
 @Injectable()
 export class ClientsService {
     constructor(
+        @InjectRepository(Client) private clientRepo: Repository<Client>,
         @InjectRepository(Client) private clientRepository: Repository<Client>,
         @InjectRepository(Contract) private contractRepository: Repository<Contract>
     ){}
@@ -66,4 +67,21 @@ export class ClientsService {
     async deleteClient(id: number){
         return await this.clientRepository.delete({id})
     }
+
+    async getClientsWithActiveAppointments(): Promise<Client[]> {
+    try {
+      return await this.clientRepo
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.contracts', 'contract')
+        .leftJoinAndSelect('contract.status', 'status')
+        .leftJoinAndSelect('contract.appointments', 'appointment')
+        .where('status.id IN (:...statuses)', { statuses: [1, 2] })
+        .andWhere('appointment.id IS NOT NULL')
+        .getMany();
+    } catch (err) {
+      console.error('Error loading clients with appointments', err);
+      throw new Error('No se pudieron obtener los clientes');
+    }
+  }
+
 }

@@ -11,6 +11,11 @@ export class ClientsController {
         private clientsService: ClientsService
     ){}
 
+    @Get('with-appointments')
+    getClientsWithActiveAppointments(): Promise<Client[]> {
+        return this.clientsService.getClientsWithActiveAppointments();
+    }
+ 
     @Post()
     createClient(@Body() clientDTO: CreateClientDTO){
         return this.clientsService.createClient(clientDTO)
